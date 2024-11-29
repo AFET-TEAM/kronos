@@ -1,9 +1,27 @@
 <script>
   import "../app.css";
+  import { auth } from "../firebaseConfig.js"; // Firebase yapılandırma
+  import { signInWithEmailAndPassword } from "firebase/auth";
   import Input from "../components/Input/+input.svelte";
   import Button from "../components/Button/+button.svelte";
   import Checkbox from "../components/Checkbox/+checkbox.svelte";
   import rocketImage from "../assets/images/login-rocket.png";
+  let email = '';
+  let password = '';
+  let message = '';
+
+  const login = async () => {
+        message ='';
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const token = await userCredential.user.getIdToken(); 
+            message = `Hoşgeldiniz ${userCredential.user.email}`;
+            localStorage.setItem('authToken', token);
+
+        } catch (error) {
+            message = 'Giriş başarısız ';
+        }
+    };
 </script>
 
 <slot />
@@ -21,13 +39,22 @@
         customClass="w-100 rounded-md"
         placeholder="@atmosware.turkcell.com.tr"
         label="USERNAME/E-MAIL"
+        value={email}
+        onInput={(value) => email = value}
       />
-      <Input placeholder="password" label="PASSWORD" />
+      <Input 
+        placeholder="password" 
+        label="PASSWORD" 
+        value={password}  
+        onInput={(value) => password = value}
+      />
       <Checkbox label="Beni Hatırla" />
       <Button
+        onClick={login} 
         buttonText="Giriş Yap"
         className=" bg-gradient-to-r from-pacific-gradient-1 to-pacific-gradient-2 rounded-md p-3 text-white"
       />
+      {message}
     </form>
   </div>
   <img src={rocketImage} alt="rocket" />
