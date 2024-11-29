@@ -56,3 +56,4 @@ To publish your library to [npm](https://www.npmjs.com):
 ```bash
 npm publish
 ```
+Functions klasörü çalıştırma cd functions - npm i - firebase emulators:start --only functions - çalışınca graphql url http://127.0.0.1:5001/kronos-902fe/us-central1/api/graphql
