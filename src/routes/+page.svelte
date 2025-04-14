@@ -1,5 +1,5 @@
 <script>
-  import "../app.css";
+  import "../app.scss";
   import { auth } from "../firebaseConfig.js";
   import { signInWithEmailAndPassword } from "firebase/auth";
   import Input from "../components/Input/+input.svelte";
