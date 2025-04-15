@@ -1,13 +1,13 @@
 <script lang="ts">
     export let type: "button" | "submit" | "reset" = "button";
-    export let disabled: boolean = false;
-    export let onClick: (event: MouseEvent) => void = () => {};
-    export let variant: "primary" | "secondary" = "primary";
     export let size: "small" | "medium" | "large" = "medium";
     export let theme: "light" | "dark" = "light";
+    export let disabled: boolean = false;
+    export let variant: "primary" | "secondary" = "primary";
     export let className: string = "";
     export let buttonText: string = "";
-  
+    export let onClick: (event: MouseEvent) => void = () => {};
+
     $: computedClass = className
       ? className
       : `button ${variant} ${size} ${theme}`;
