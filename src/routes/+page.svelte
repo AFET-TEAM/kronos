@@ -92,7 +92,7 @@
       <Button
         onClick={login} 
         buttonText="Giriş Yap"
-        className=" bg-gradient-to-r from-pacific-gradient-1 to-pacific-gradient-2 rounded-md p-3 text-white"
+        variant= "primary"
       />
       {message}
       {#if message && userEmail && userUid}

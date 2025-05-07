@@ -8,9 +8,7 @@
     export let buttonText: string = "";
     export let onClick: (event: MouseEvent) => void = () => {};
 
-    $: computedClass = className
-      ? className
-      : `button ${variant} ${size} ${theme}`;
+    $: computedClass = className || `btn ${variant} ${size} ${theme}`;
   </script>
   
   <style>
@@ -19,80 +17,28 @@
       font-weight: 600;
       cursor: pointer;
       transition: 0.2s all;
-      border: 2px solid transparent;
+      border: 1px solid transparent;
     }
-  
-    /* === Variant + Light Theme === */
-    .primary.light {
-      background-color: #0e82ff;
-      color: white;
-      border-color: #0e82ff;
-    }
-  
-    .primary.light:hover {
-      background-color: rgba(0, 123, 255, 0.1);
-      color: #0e82ff;
-    }
-  
-    .secondary.light {
-      background-color: #ffffff;
-      color: #0e82ff;
-      border-color: #0e82ff;
-    }
-  
-    .secondary.light:hover {
-      background-color: rgba(0, 123, 255, 0.1);
-    }
-  
-    /* === Variant + Dark Theme === */
-    .primary.dark {
-      background-color: #444;
-      color: #ccc;
-      border-color: #777;
-    }
-  
-    .primary.dark:hover {
-      background-color: #555;
-    }
-  
-    .secondary.dark {
-      background-color: transparent;
-      color: #ccc;
-      border-color: #999;
-    }
-  
-    .secondary.dark:hover {
-      background-color: #333;
-    }
-  
+    /* === Variant === */
+    .primary.light { background-color: #0e82ff; color: #fff; }
+    .primary.light:hover { background-color: #0963c3; }
+    .secondary.light { background-color: transparent; color: #0e82ff; border-color: #0e82ff; }
+    .secondary.light:hover { background-color: #fff; color: #0e82ff; }
+    .primary.dark { background-color: #333; color: #ccc; }
+    .primary.dark:hover { background-color: #555; }
+    .secondary.dark { background-color: transparent; color: #333; border-color: #333; }
+    .secondary.dark:hover { background-color: #333; color: #fff; }
+
     /* === Size === */
-    .small {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.8rem;
-    }
-  
-    .medium {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-    }
-  
-    .large {
-      padding: 0.75rem 1.5rem;
-      font-size: 1.2rem;
-    }
-  
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+    .small { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+    .medium { padding: 0.5rem 1rem; font-size: 1rem; }
+    .large { padding: 0.75rem 1.5rem; font-size: 1.2rem; }
+
+    /* === Disabled State === */
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
   </style>
   
-  <button
-    type={type}
-    disabled={disabled}
-    class={computedClass}
-    on:click={onClick}
-  >
+  <button type={type} disabled={disabled} class={computedClass} on:click={onClick}>
     <slot>{buttonText}</slot>
   </button>
   
