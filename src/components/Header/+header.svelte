@@ -1,6 +1,7 @@
 <script>
+  import Icon from "../../components/Icon/+icon.svelte";
   export let region = "Türkiye";
-  export let logo = null;
+  export let logo;
 </script>
 
 <style>
@@ -11,26 +12,23 @@
     justify-content: space-between;
     background-color: #f7f3f3;
     padding: 0.5rem 1rem;
-    height: 40px;
-    font-family: sans-serif;
+    height: 3rem;
     box-sizing: border-box;
   }
-
   .logo {
     display: flex;
     align-items: center;
+    margin-top: 0.3rem;
   }
-
   .center {
     flex: 1;
     display: flex;
     justify-content: center;
   }
-
   .right {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 1rem;
     font-size: 0.75rem;
   }
 
@@ -44,8 +42,8 @@
 <div class="header">
   <div class="logo">
     {#if logo}
-      <img src={logo} alt="logo" class="h-6" />
-      Kronos
+    <!-- geçici "kronos" svg logosu eklendi -->
+      <Icon name={logo} alt="icon" width="80" height="80" />
     {:else}
       KRONOS
     {/if}
@@ -57,7 +55,7 @@
 
   <div class="right">
     {region}
-    <span class="icon">🌐</span>
-    <span class="icon">🕒</span>
+    <Icon name={"globe"} alt="icon" width="20" height="20" />
+    <Icon name={"theme"} alt="icon" width="20" height="20" />
   </div>
 </div>

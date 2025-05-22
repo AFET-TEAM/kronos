@@ -59,7 +59,8 @@ const API_URL = "https://backend-api-gateway.vercel.app";
 </script>
  
 <slot />
-<Header region="Türkçe" logo={rocketImage}>
+<!-- login ekranında olmayacak geçici eklendi. -->
+<Header region="Türkçe" logo={"logo"}>
   <!-- Searchbar component -->
 </Header>
 <div
