@@ -1,6 +1,6 @@
 <script lang="ts">
   // Style
-  import "../../app.css";
+  import "../../app.scss";
 
   // Components
   import Days from './components/Days/days.svelte';
