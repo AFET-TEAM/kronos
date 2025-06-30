@@ -58,6 +58,7 @@ const API_URL = "https://backend-api-gateway.vercel.app";
 </script>
  
 <slot />
+
 <div
   class="flex flex-row items-start justify-between item h-screen border border-cyan-950 py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
 >
