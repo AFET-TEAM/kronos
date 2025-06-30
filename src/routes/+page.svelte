@@ -89,6 +89,7 @@ const API_URL = "https://backend-api-gateway.vercel.app";
         onClick={login} 
         buttonText="Giriş Yap"
         variant="primary"
+        type="submit"
       />
       {message}
       {#if message && userEmail && userUid}
