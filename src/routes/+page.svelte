@@ -94,6 +94,7 @@
         onClick={login} 
         buttonText="Giriş Yap"
         variant="primary"
+        type="submit"
       />
       {message}
       {#if message && userEmail && userUid}
