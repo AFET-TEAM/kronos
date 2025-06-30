@@ -4,7 +4,6 @@
   import Button from "../components/Button/+button.svelte";
   import Checkbox from "../components/Checkbox/+checkbox.svelte";
   import rocketImage from "../assets/images/login-rocket.png";
-  import Header from "../components/Header/+header.svelte";
  
   let email = '';
   let password = '';
@@ -59,10 +58,6 @@ const API_URL = "https://backend-api-gateway.vercel.app";
 </script>
  
 <slot />
-<!-- login ekranında olmayacak geçici eklendi. -->
-<Header region="Türkçe" logo={"logo"}>
-  <!-- Searchbar component -->
-</Header>
 <div
   class="flex flex-row items-start justify-between item h-screen border border-cyan-950 py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
 >
