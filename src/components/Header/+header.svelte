@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
   import Icon from "../../components/Icon/+icon.svelte";
   export let region = "Türkiye";
-  export let logo;
+  export let logo: string | null = null;
+  export let theme: "light" | "dark" = "light";
 </script>
 
 <style>
@@ -10,16 +11,26 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #f7f3f3;
     padding: 0.5rem 1rem;
     height: 3rem;
     box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+  .light {
+    background-color: #f7f3f3;
+    color: #000;
+  }
+  .dark {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+  }
+
   .logo {
     display: flex;
     align-items: center;
     margin-top: 0.3rem;
   }
+
   .center {
     flex: 1;
     display: flex;
@@ -39,7 +50,7 @@
   }
 </style>
 
-<div class="header">
+<div class="header {theme}">
   <div class="logo">
     {#if logo}
     <!-- geçici "kronos" svg logosu eklendi -->
@@ -56,6 +67,6 @@
   <div class="right">
     {region}
     <Icon name={"globe"} alt="icon" width="20" height="20" />
-    <Icon name={"theme"} alt="icon" width="20" height="20" />
+    <Icon name={"theme-dark"} alt="icon" width="20" height="20" />
   </div>
 </div>
