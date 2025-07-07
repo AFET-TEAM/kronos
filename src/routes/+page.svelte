@@ -1,46 +1,46 @@
-<script>
+<script lang="ts">
   import "../app.scss";
-  import { auth } from "../firebaseConfig.js";
-  import { signInWithEmailAndPassword } from "firebase/auth";
-  import Input from "../components/Input/+input.svelte";
+  import Input from "../components/Input/+Input.svelte";
+  import Textarea from "../components/TextArea/+TextArea.svelte";
   import Button from "../components/Button/+button.svelte";
   import Checkbox from "../components/Checkbox/+checkbox.svelte";
   import rocketImage from "../assets/images/login-rocket.png";
- 
+
   let email = '';
   let password = '';
   let message = '';
   let userEmail = '';
   let userUid = '';
- 
-const API_URL = "https://backend-api-gateway.vercel.app";
- 
+  let description = "";
+
+  const API_URL = "https://backend-api-gateway.vercel.app";
+
   async function login() {
     message = '';
     userEmail = '';
     userUid = '';
- 
+
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': 'true'
-      },
-      body: JSON.stringify({ email, password })
-    });
-      
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': 'true'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
       const result = await response.json();
-      console.log(result)
+      console.log(result);
+
       if (!response.ok) {
         throw new Error(result.message || 'Giriş başarısız');
       }
-      
-      // Token'ı localStorage'a kaydet
+
       localStorage.setItem('token', result.token);
- 
+
       if (response.status !== 200) {
         message = 'Hata oluştu: ' + result.errors[0].message;
         userEmail = '';
@@ -49,8 +49,8 @@ const API_URL = "https://backend-api-gateway.vercel.app";
         userEmail = result.email;
         userUid = result.idToken;
         message = result?.registered 
-        ? "Giriş Başarılı"
-        : "Giriş başarısız";
+          ? "Giriş Başarılı"
+          : "Giriş başarısız";
       }
     } catch (error) {
       console.error('Error:', error);
@@ -58,40 +58,53 @@ const API_URL = "https://backend-api-gateway.vercel.app";
     }
   }
 </script>
- 
+
 <slot />
- 
-<div
-  class="flex flex-row items-start justify-between item h-screen border border-cyan-950 py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
->
+
+<div class="flex flex-row items-start justify-between h-screen border border-cyan-950 py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2">
   <div class="flex gap-16 flex-col">
     <div class="flex flex-col gap-5">
       <h1 class="text-7xl text-space-purple">KRONOS</h1>
       <span class="text-3xl text-ocean-blue">WELCOME</span>
     </div>
- 
-    <!-- Form submit eventini yakalıyoruz. -->
+
     <form class="flex flex-col gap-4" on:submit|preventDefault={login}>
       <Input
-        customClass="w-100 rounded-md"
         placeholder="@atmosware.turkcell.com.tr"
         label="USERNAME/E-MAIL"
-        value={email}
-        onInput={(value) => (email = value)}
+        bind:value={email}
+        type="email"
+        theme="light"
+        className="w-100 rounded-md"
       />
       <Input
-        placeholder="password"
+        placeholder="Password"
         label="PASSWORD"
-        value={password}
-        onInput={(value) => (password = value)}
+        maxLength={12}
+        bind:value={password}
+        type="password"
+        theme="light"
+        className="w-100 rounded-md"
+      />
+      <Textarea
+        label="Açıklama"
+        placeholder="Bir açıklama yazınız..."
+        bind:value={description}
+        theme="light"
+        className="w-100 rounded-md"
       />
       <Checkbox label="Beni Hatırla" />
+
       <Button
         buttonText="Giriş Yap"
         className="bg-gradient-to-r from-pacific-gradient-1 to-pacific-gradient-2 rounded-md p-3 text-white"
         type="submit"
       />
-      {message}
+
+      {#if message}
+        <p class="text-sm text-dark-gray">{message}</p>
+      {/if}
+
       {#if message && userEmail && userUid}
         <div>
           <p>Kullanıcı: {userEmail}</p>
@@ -99,6 +112,6 @@ const API_URL = "https://backend-api-gateway.vercel.app";
       {/if}
     </form>
   </div>
- 
+
   <img src={rocketImage} alt="rocket" />
 </div>
