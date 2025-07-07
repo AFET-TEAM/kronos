@@ -99,8 +99,10 @@
       <Checkbox label="Beni Hatırla" />
 
       <Button
-        buttonText="Giriş Yap"
         className="bg-gradient-to-r from-pacific-gradient-1 to-pacific-gradient-2 rounded-md p-3 text-white"
+        onClick={login} 
+        buttonText="Giriş Yap"
+        variant="primary"
         type="submit"
       />
 
