@@ -61,7 +61,9 @@
 
 <slot />
 
-<div class="flex flex-row items-start justify-between h-screen border border-cyan-950 py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2">
+<div
+  class="flex flex-row items-start justify-between item h-screen border border-cyan-950 py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
+>
   <div class="flex gap-16 flex-col">
     <div class="flex flex-col gap-5">
       <h1 class="text-7xl text-space-purple">KRONOS</h1>
