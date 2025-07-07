@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Icon from "../Icon/+icon.svelte";
+  import Button from "../Button/+button.svelte";
 
   export let label: string = "";
   export let type: "text" | "email" | "password" = "text";
@@ -14,6 +15,11 @@
   export let className: string = "";
 
   let inputId: string;
+  let showPassword = false;
+  let focused = false;
+
+  let inputElement: HTMLInputElement;
+  let containerElement: HTMLDivElement;
 
   onMount(() => {
     inputId = `input-${Math.random().toString(36).slice(2, 9)}`;
@@ -21,6 +27,28 @@
 
   function handleInput(e: Event) {
     value = (e.target as HTMLInputElement).value;
+  }
+
+  function toggleShowPassword() {
+    showPassword = !showPassword;
+    setTimeout(() => {
+      if (!inputElement) return;
+      inputElement.focus();
+      const length = inputElement.value.length;
+      inputElement.setSelectionRange(length, length);
+    }, 0);
+  }
+
+  function onFocusIn() {
+    focused = true;
+  }
+
+  function onFocusOut(event: FocusEvent) {
+    const relatedTarget = event.relatedTarget as HTMLElement | null;
+    if (relatedTarget && containerElement.contains(relatedTarget)) {
+      return;
+    }
+    focused = false;
   }
 </script>
 
@@ -30,6 +58,10 @@
   {/if}
 
   <div
+    bind:this={containerElement}
+    tabindex="-1"
+    on:focusin={onFocusIn}
+    on:focusout={onFocusOut}
     class={`flex items-center border rounded-md transition
     ${theme === 'dark'
       ? 'bg-blue-charcoal border-mid-gray focus-within:border-primary'
@@ -45,8 +77,9 @@
 
     {#if type === "text" || type === "email" || type === "password"}
     <input
+      bind:this={inputElement}
       id={inputId}
-      type={type}
+      type={type === "password" && showPassword ? "text" : type}
       value={value}
       placeholder={placeholder}
       disabled={disabled}
@@ -56,6 +89,20 @@
     />
     {/if}
 
+    {#if type === "password" && focused && !disabled}
+      <Button
+        type="button"
+        size="small"
+        theme={theme}
+        variant="primary"
+        disabled={disabled}
+        className="pl-1 pr-3 flex items-center"
+        onClick={toggleShowPassword}
+      >
+        <Icon name={showPassword ? "eye-off" : "eye"} width="18" height="18" />
+      </Button>
+    {/if}
+
     {#if iconRight}
       <span class="pl-1 pr-3 text-light-gray flex items-center">
         <Icon name={iconRight} width="16" height="16" className="text-light-gray" />
@@ -63,3 +110,19 @@
     {/if}
   </div>
 </div>
+
+<style>
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
+
+  input[type="password"]::-webkit-textfield-decoration-container {
+    display: none;
+  }
+
+  input[type="password"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+</style>
