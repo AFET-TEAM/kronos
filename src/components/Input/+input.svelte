@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import Icon from "../Icon/+icon.svelte";
 
   export let label: string = "";
   export let type: "text" | "email" | "password" = "text";
   export let value: string = "";
   export let placeholder: string = "";
   export let disabled: boolean = false;
-  export let iconLeft: any = null;
-  export let iconRight: any = null;
+  export let iconLeft: string | null = null;
+  export let iconRight: string | null = null;
   export let maxLength: number | null = null;
   export let theme: "light" | "dark" = "light";
   export let className: string = "";
@@ -37,8 +38,8 @@
     ${className}`}>
     
     {#if iconLeft}
-      <span class="pl-3 pr-1 text-light-gray">
-        <svelte:component this={iconLeft} />
+      <span class="pl-3 pr-1 text-light-gray flex items-center">
+        <Icon name={iconLeft} width="16" height="16" className="text-light-gray" />
       </span>
     {/if}
 
@@ -78,8 +79,8 @@
     {/if}
 
     {#if iconRight}
-      <span class="pl-1 pr-3 text-light-gray">
-        <svelte:component this={iconRight} key={value} />
+      <span class="pl-1 pr-3 text-light-gray flex items-center">
+        <Icon name={iconRight} width="16" height="16" className="text-light-gray" />
       </span>
     {/if}
   </div>

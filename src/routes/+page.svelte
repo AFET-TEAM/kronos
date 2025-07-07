@@ -76,6 +76,7 @@
         label="USERNAME/E-MAIL"
         bind:value={email}
         type="email"
+        iconRight="globe"
         theme="light"
         className="w-100 rounded-md"
       />
