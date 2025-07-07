@@ -43,39 +43,17 @@
       </span>
     {/if}
 
-    {#if type === "text"}
-      <input
-        id={inputId}
-        type="text"
-        bind:value
-        placeholder={placeholder}
-        disabled={disabled}
-        maxlength={maxLength ?? undefined}
-        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
-        on:input={handleInput}
-      />
-    {:else if type === "email"}
-      <input
-        id={inputId}
-        type="email"
-        bind:value
-        placeholder={placeholder}
-        disabled={disabled}
-        maxlength={maxLength ?? undefined}
-        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
-        on:input={handleInput}
-      />
-    {:else if type === "password"}
-      <input
-        id={inputId}
-        type="password"
-        bind:value
-        placeholder={placeholder}
-        disabled={disabled}
-        maxlength={maxLength ?? undefined}
-        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
-        on:input={handleInput}
-      />
+    {#if type === "text" || type === "email" || type === "password"}
+    <input
+      id={inputId}
+      type={type}
+      value={value}
+      placeholder={placeholder}
+      disabled={disabled}
+      maxlength={maxLength ?? undefined}
+      class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+      on:input={handleInput}
+    />
     {/if}
 
     {#if iconRight}
