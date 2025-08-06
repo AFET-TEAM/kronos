@@ -1,24 +1,36 @@
 <script lang="ts">
-    export let checked: boolean = false;
-    export let disabled: boolean = false;
-    export let label: string = "";
-    export let name: string = "";
-    export let value: string = "";
+  export let checked = false;
+  export let disabled = false;
+  export let label = "";
+  export let name = "";
+  export let value = "";
+  export let theme: "light" | "dark" = "light";
 
-    const handleChange = (event: Event) => {
-        console.log("checked");
-    };
+  function handleChange(e: Event) {
+    checked = (e.target as HTMLInputElement).checked;
+  }
 </script>
 
-<div class="checkbox-container">
-    <input
-        type="checkbox"
-        id={name}
-        {checked}
-        {disabled}
-        {name}
-        {value}
-        on:change={handleChange}
-    />
-    <label for={name}>{label}</label>
+<div class="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id={name}
+    name={name}
+    value={value}
+    bind:checked
+    disabled={disabled}
+    on:change={handleChange}
+    class={`appearance-none w-5 h-5 rounded border-2 cursor-pointer
+      ${
+        theme === "dark"
+          ? "border-mid-gray bg-blue-charcoal checked:bg-primary checked:border-primary"
+          : "border-light-gray bg-white checked:bg-primary checked:border-primary"
+      }
+      disabled:opacity-60 disabled:cursor-not-allowed
+      checked:before:block checked:before:content-['✓'] checked:before:text-white checked:before:text-center checked:before:text-lg checked:before:leading-[18px]
+    `}
+  />
+  <label for={name} class={`${theme === "dark" ? "text-white" : "text-dark-gray"} cursor-pointer select-none`}>
+    {label}
+  </label>
 </div>

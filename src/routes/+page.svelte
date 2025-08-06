@@ -96,7 +96,20 @@
         theme="light"
         className="w-100 rounded-md"
       />
-      <Checkbox label="Beni Hatırla" />
+      <!-- Light mode -->
+      <Checkbox
+        label="Kabul ediyorum"
+        name="accept"
+        theme="light"
+      />
+
+      <!-- Dark mode -->
+      <Checkbox
+        label="Gizlilik koşullarını okudum"
+        name="privacy"
+        theme="dark"
+      />
+
 
       <Button
         className="bg-gradient-to-r from-pacific-gradient-1 to-pacific-gradient-2 rounded-md p-3 text-white"
