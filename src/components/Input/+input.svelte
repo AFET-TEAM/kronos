@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import Icon from "../Icon/+icon.svelte";
   import Button from "../Button/+button.svelte";
 
@@ -29,14 +29,13 @@
     value = (e.target as HTMLInputElement).value;
   }
 
-  function toggleShowPassword() {
+  async function toggleShowPassword() {
     showPassword = !showPassword;
-    setTimeout(() => {
-      if (!inputElement) return;
-      inputElement.focus();
-      const length = inputElement.value.length;
-      inputElement.setSelectionRange(length, length);
-    }, 0);
+    await tick();
+    if (!inputElement) return;
+    inputElement.focus();
+    const length = inputElement.value.length;
+    inputElement.setSelectionRange(length, length);
   }
 
   function onFocusIn() {
@@ -68,39 +67,41 @@
       : 'bg-white border-light-gray focus-within:border-primary'}
     ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
     ${className}`}>
-    
+
     {#if iconLeft}
       <span class="pl-3 pr-1 text-light-gray flex items-center">
         <Icon name={iconLeft} width="16" height="16" className="text-light-gray" />
       </span>
     {/if}
 
-    {#if type === "text" || type === "email" || type === "password"}
-    <input
-      bind:this={inputElement}
-      id={inputId}
-      type={type === "password" && showPassword ? "text" : type}
-      value={value}
-      placeholder={placeholder}
-      disabled={disabled}
-      maxlength={maxLength ?? undefined}
-      class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
-      on:input={handleInput}
-    />
-    {/if}
+    {#key showPassword}
+      <input
+        bind:this={inputElement}
+        id={inputId}
+        type={showPassword && type === "password" ? "text" : type}
+        value={value}
+        placeholder={placeholder}
+        disabled={disabled}
+        maxlength={maxLength ?? undefined}
+        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+        on:input={handleInput}
+      />
+    {/key}
 
     {#if type === "password" && focused && !disabled}
-      <Button
-        type="button"
-        size="small"
-        theme={theme}
-        variant="primary"
-        disabled={disabled}
-        className="pl-1 pr-3 flex items-center"
-        onClick={toggleShowPassword}
-      >
-        <Icon name={showPassword ? "eye-off" : "eye"} width="18" height="18" />
-      </Button>
+      {#key showPassword}
+        <Button
+          type="button"
+          size="small"
+          theme={theme}
+          variant="primary"
+          disabled={disabled}
+          className="pl-1 pr-3 flex items-center"
+          onClick={toggleShowPassword}
+        >
+          <Icon name={showPassword ? "eye-off" : "eye"} width="18" height="18" />
+        </Button>
+      {/key}
     {/if}
 
     {#if iconRight}
