@@ -1,8 +1,11 @@
 <script lang="ts">
+  import Icon from "../Icon/+icon.svelte";
+
   export let placeholder = "Search...";
   export let size: "small" | "medium" | "large" = "medium";
   export let bgColor = "#1E90FF";
   export let value = "";
+  export let icon: string | null = null;
 
   const sizes = {
     small: {
@@ -37,6 +40,14 @@
     {placeholder}
     bind:value
   />
+  {#if icon}
+  <Icon
+    name={icon}
+    width={sizes[size].iconSize}
+    height={sizes[size].iconSize}
+    alt="search icon"
+  />
+  {/if}
 </div>
 
 <style>
