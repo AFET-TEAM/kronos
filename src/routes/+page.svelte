@@ -1,11 +1,16 @@
 <script>
   import "../app.scss";
-  import { auth } from "../firebaseConfig.js";
-  import { signInWithEmailAndPassword } from "firebase/auth";
+  // import { auth } from "../firebaseConfig.js";
+  // import { signInWithEmailAndPassword } from "firebase/auth";
   import Input from "../components/Input/+input.svelte";
   import Button from "../components/Button/+button.svelte";
   import Checkbox from "../components/Checkbox/+checkbox.svelte";
   import rocketImage from "../assets/images/login-rocket.png";
+  import Modal from '../components/Modal/+modal.svelte';
+  import Sidebar from "../components/Sidebar/+sidebar.svelte";
+
+  let showModal = false;
+  let isSidebarOpen = true;
  
   let email = '';
   let password = '';
@@ -58,22 +63,33 @@ const API_URL = "https://backend-api-gateway.vercel.app";
     }
   }
 </script>
+
+<Sidebar bind:isOpen={isSidebarOpen} />
+
+<button
+  class="fixed top-4 left-6 z-50 bg-indigo-600 text-white px-3 py-2 rounded"
+  on:click={() => isSidebarOpen = !isSidebarOpen}
+>
+  Menu
+</button>
  
 <slot />
  
+<!-- Sayfa İçeriği -->
 <div
-  class="flex flex-row items-start justify-between item h-screen border border-cyan-950 py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
+  class="min-h-screen transition-all duration-300 flex items-start justify-between py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
+  class:ml-64={isSidebarOpen}
+  class:ml-0={!isSidebarOpen}
 >
-  <div class="flex gap-16 flex-col">
+  <div class="flex flex-col gap-16 w-full max-w-2xl">
     <div class="flex flex-col gap-5">
       <h1 class="text-7xl text-space-purple">KRONOS</h1>
       <span class="text-3xl text-ocean-blue">WELCOME</span>
     </div>
- 
-    <!-- Form submit eventini yakalıyoruz. -->
+
     <form class="flex flex-col gap-4" on:submit|preventDefault={login}>
       <Input
-        customClass="w-100 rounded-md"
+        customClass="w-full rounded-md"
         placeholder="@atmosware.turkcell.com.tr"
         label="USERNAME/E-MAIL"
         value={email}
@@ -98,7 +114,20 @@ const API_URL = "https://backend-api-gateway.vercel.app";
         </div>
       {/if}
     </form>
+
+    <button on:click={() => showModal = true} class="bg-blue-500 text-white px-4 py-2 rounded">
+      Raporu Görüntüle
+    </button>
+    <Modal
+      bind:isOpen={showModal}
+      title="Haftalık Rapor"
+      on:close={() => showModal = false}
+    >
+      <p class="text-gray-700 dark:text-gray-200">
+        Bu haftaki performans raporunuz burada yer alacak.
+      </p>
+    </Modal>
   </div>
- 
-  <img src={rocketImage} alt="rocket" />
+
+  <img src={rocketImage} alt="rocket" class="hidden md:block max-w-sm object-contain" />
 </div>
