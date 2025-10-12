@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import "../app.scss";
   // import { auth } from "../firebaseConfig.js";
   // import { signInWithEmailAndPassword } from "firebase/auth";
@@ -17,35 +17,36 @@
   let message = '';
   let userEmail = '';
   let userUid = '';
- 
-const API_URL = "https://backend-api-gateway.vercel.app";
- 
+  let description = "";
+
+  const API_URL = "https://backend-api-gateway.vercel.app";
+
   async function login() {
     message = '';
     userEmail = '';
     userUid = '';
- 
+
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': 'true'
-      },
-      body: JSON.stringify({ email, password })
-    });
-      
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': 'true'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
       const result = await response.json();
-      console.log(result)
+      console.log(result);
+
       if (!response.ok) {
         throw new Error(result.message || 'Giriş başarısız');
       }
-      
-      // Token'ı localStorage'a kaydet
+
       localStorage.setItem('token', result.token);
- 
+
       if (response.status !== 200) {
         message = 'Hata oluştu: ' + result.errors[0].message;
         userEmail = '';
@@ -54,8 +55,8 @@ const API_URL = "https://backend-api-gateway.vercel.app";
         userEmail = result.email;
         userUid = result.idToken;
         message = result?.registered 
-        ? "Giriş Başarılı"
-        : "Giriş başarısız";
+          ? "Giriş Başarılı"
+          : "Giriş başarısız";
       }
     } catch (error) {
       console.error('Error:', error);
@@ -92,22 +93,55 @@ const API_URL = "https://backend-api-gateway.vercel.app";
         customClass="w-full rounded-md"
         placeholder="@atmosware.turkcell.com.tr"
         label="USERNAME/E-MAIL"
-        value={email}
-        onInput={(value) => (email = value)}
+        bind:value={email}
+        type="email"
+        iconRight="globe"
+        theme="light"
+        className="w-100 rounded-md"
       />
       <Input
-        placeholder="password"
+        placeholder="Password"
         label="PASSWORD"
-        value={password}
-        onInput={(value) => (password = value)}
+        maxLength={12}
+        bind:value={password}
+        type="password"
+        theme="light"
+        className="w-100 rounded-md"
       />
-      <Checkbox label="Beni Hatırla" />
+      <Textarea
+        label="Açıklama"
+        placeholder="Bir açıklama yazınız..."
+        bind:value={description}
+        theme="light"
+        className="w-100 rounded-md"
+      />
+      <!-- Light mode -->
+      <Checkbox
+        label="Kabul ediyorum"
+        name="accept"
+        theme="light"
+      />
+
+      <!-- Dark mode -->
+      <Checkbox
+        label="Gizlilik koşullarını okudum"
+        name="privacy"
+        theme="dark"
+      />
+
+
       <Button
-        buttonText="Giriş Yap"
         className="bg-gradient-to-r from-pacific-gradient-1 to-pacific-gradient-2 rounded-md p-3 text-white"
+        onClick={login} 
+        buttonText="Giriş Yap"
+        variant="primary"
         type="submit"
       />
-      {message}
+
+      {#if message}
+        <p class="text-sm text-dark-gray">{message}</p>
+      {/if}
+
       {#if message && userEmail && userUid}
         <div>
           <p>Kullanıcı: {userEmail}</p>
