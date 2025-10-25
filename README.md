@@ -29,6 +29,9 @@
 ✅ **Accessibility** - WCAG standartlarına uyumlu tasarım  
 ✅ **SEO Optimized** - Meta etiketleri ve yapılandırılmış veriler
 
+<img width="649" height="713" alt="Kronos Lighthouse" src="https://github.com/user-attachments/assets/6333fb95-c296-4c6a-9395-aa5a3b0d861b" />
+
+
 ---
 
 ## 🛠️ Teknoloji Yığını
