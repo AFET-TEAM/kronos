@@ -2,11 +2,12 @@
   import Input from "$lib/components/ui/Input/+input.svelte";
   import Button from "$lib/components/ui/Button/+button.svelte";
   import Checkbox from "$lib/components/ui/Checkbox/+checkbox.svelte";
-  import TextArea from "$lib/components/ui/TextArea/+TextArea.svelte";
+  import TextArea from "$lib/components/ui/TextArea/+textArea.svelte";
   import {
     login as authLogin,
     setAuthToken,
   } from "$lib/services/auth.service.js";
+  import { userStore, extractNameFromEmail } from "$lib/store/store.js";
 
   let email = "";
   let password = "";
@@ -34,6 +35,21 @@
         userEmail = result.email;
         userUid = result.idToken;
         message = "Giriş Başarılı";
+
+        const { firstName, lastName } = extractNameFromEmail(email);
+
+        userStore.set({
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+          title: "",
+          squad: "",
+          avatarUrl: "",
+        });
+
+        setTimeout(() => {
+          window.location.href = "/profile";
+        }, 2000);
       }
     } catch (error) {
       console.error("Error:", error);

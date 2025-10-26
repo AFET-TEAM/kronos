@@ -4,7 +4,7 @@
   import Image from "$lib/components/ui/Image/+image.svelte";
   import Button from "$lib/components/ui/Button/+button.svelte";
 
-  export let isSidebarOpen: boolean = false;
+  export let isSidebarOpen: boolean = true;
 
   let showModal = false;
 
@@ -29,17 +29,9 @@
   <meta property="og:type" content="website" />
 </svelte:head>
 
-<Button
-  text="Menu"
-  variant="primary"
-  onClick={() => (isSidebarOpen = !isSidebarOpen)}
-  className="fixed top-4 left-6 z-50 bg-indigo-600 text-white px-3 py-2 rounded"
-/>
-
 <div
-  class="min-h-screen transition-all duration-300 flex items-start justify-between py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
+  class="homepage min-h-screen transition-all duration-300 flex items-start justify-between py-20 px-28 gap-32 bg-gradient-to-r from-linear1 to-linear2"
   class:ml-64={isSidebarOpen}
-  class:ml-0={!isSidebarOpen}
 >
   <div class="flex flex-col gap-16 w-full max-w-2xl">
     <div class="flex flex-col gap-5">
