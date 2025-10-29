@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
-  import Icon from "../Icon/+icon.svelte";
-  import Button from "../Button/+button.svelte";
+  import Icon from "../Icon/Icon.svelte";
+  import Button from "../Button/Button.svelte";
 
   export let label: string = "";
   export let type: "text" | "email" | "password" | "date" = "text";
@@ -11,6 +11,8 @@
   export let iconLeft: string | null = null;
   export let iconRight: string | null = null;
   export let maxLength: number | null = null;
+  export let min: string | null = null;
+  export let max: string | null = null;
   export let theme: "light" | "dark" = "light";
   export let className: string = "";
 
@@ -90,6 +92,8 @@
         {placeholder}
         {disabled}
         maxlength={maxLength ?? undefined}
+        min={min ?? undefined}
+        max={max ?? undefined}
         class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
         on:input={handleInput}
         on:keydown

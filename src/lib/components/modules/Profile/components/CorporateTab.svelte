@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Input from "$lib/components/ui/Input/+input.svelte";
-  import Button from "$lib/components/ui/Button/+button.svelte";
+  import Input from "$lib/components/ui/Input/Input.svelte";
+  import Button from "$lib/components/ui/Button/Button.svelte";
 
   export let isEditing = false;
   export let tempFormData: any;

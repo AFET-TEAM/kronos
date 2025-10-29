@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/Button/+button.svelte";
+  import Button from "$lib/components/ui/Button/Button.svelte";
 
   export let name = "John Doe";
   export let title = "Role";

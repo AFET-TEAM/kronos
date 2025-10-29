@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Input from "$lib/components/ui/Input/+input.svelte";
-  import Button from "$lib/components/ui/Button/+button.svelte";
-  import Checkbox from "$lib/components/ui/Checkbox/+checkbox.svelte";
-  import TextArea from "$lib/components/ui/TextArea/+textArea.svelte";
+  import Input from "$lib/components/ui/Input/Input.svelte";
+  import Button from "$lib/components/ui/Button/Button.svelte";
+  import Checkbox from "$lib/components/ui/Checkbox/Checkbox.svelte";
+  import TextArea from "$lib/components/ui/TextArea/TextArea.svelte";
   import {
     login as authLogin,
     setAuthToken,
@@ -48,7 +48,7 @@
         });
 
         setTimeout(() => {
-          window.location.href = "/profile";
+          window.location.href = "/";
         }, 2000);
       }
     } catch (error) {

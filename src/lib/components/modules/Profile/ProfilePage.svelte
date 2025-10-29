@@ -7,8 +7,6 @@
   import CorporateTab from "./components/CorporateTab.svelte";
   import SettingsTab from "./components/SettingsTab.svelte";
 
-  export let isSidebarOpen: boolean = true;
-
   let activeTab = "profile";
 
   let formData = {
@@ -103,9 +101,7 @@
 </script>
 
 <div
-  class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 p-4 md:p-6 lg:p-8 transition-all duration-300"
-  class:ml-0={!isSidebarOpen}
-  class:md:ml-64={isSidebarOpen}
+  class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 p-4 md:p-6 lg:p-8"
 >
   <div class="max-w-4xl mx-auto">
     <div class="mb-8">

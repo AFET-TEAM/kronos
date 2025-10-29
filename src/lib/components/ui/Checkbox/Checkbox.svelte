@@ -15,10 +15,10 @@
   <input
     type="checkbox"
     id={name}
-    name={name}
-    value={value}
+    {name}
+    {value}
     bind:checked
-    disabled={disabled}
+    {disabled}
     on:change={handleChange}
     class={`appearance-none w-5 h-5 rounded border-2 cursor-pointer
       ${
@@ -30,7 +30,10 @@
       checked:before:block checked:before:content-['✓'] checked:before:text-white checked:before:text-center checked:before:text-lg checked:before:leading-[18px]
     `}
   />
-  <label for={name} class={`${theme === "dark" ? "text-white" : "text-dark-gray"} cursor-pointer select-none`}>
+  <label
+    for={name}
+    class="text-gray-900 dark:text-white cursor-pointer select-none"
+  >
     {label}
   </label>
 </div>

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Modal from "$lib/components/layout/Modal/+modal.svelte";
-  import LoginForm from "$lib/components/modules/LoginForm/+loginForm.svelte";
-  import Image from "$lib/components/ui/Image/+image.svelte";
-  import Button from "$lib/components/ui/Button/+button.svelte";
+  import Modal from "$lib/components/layout/Modal/Modal.svelte";
+  import LoginForm from "$lib/components/modules/LoginForm/LoginForm.svelte";
+  import Image from "$lib/components/ui/Image/Image.svelte";
+  import Button from "$lib/components/ui/Button/Button.svelte";
 
   export let isSidebarOpen: boolean = true;
 
