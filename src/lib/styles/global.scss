@@ -5,6 +5,7 @@
   src: url("/fonts/Montserrat-Light.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -12,6 +13,7 @@
   src: url("/fonts/Montserrat-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -19,6 +21,7 @@
   src: url("/fonts/Montserrat-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -26,6 +29,7 @@
   src: url("/fonts/Montserrat-SemiBold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -33,6 +37,7 @@
   src: url("/fonts/Montserrat-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -40,8 +45,8 @@
   src: url("/fonts/Montserrat-ExtraBold.woff2") format("woff2");
   font-weight: 800;
   font-style: normal;
+  font-display: swap;
 }
-
 
 body {
   font-family: "Montserrat", sans-serif;
@@ -50,27 +55,27 @@ body {
     font-weight: 700;
     font-size: toRem(32);
     line-height: toRem(40);
-    color: #2D2D2D;
+    color: #2d2d2d;
   }
   h2 {
     font-weight: 700;
     font-size: toRem(28);
     line-height: toRem(36);
-    color: #2D2D2D;
+    color: #2d2d2d;
   }
 
   h3 {
     font-weight: 700;
     font-size: toRem(24);
     line-height: toRem(32);
-    color: #2D2D2D;
+    color: #2d2d2d;
   }
 
   h4 {
     font-weight: 700;
     font-size: toRem(20);
     line-height: toRem(28);
-    color: #2D2D2D;
+    color: #2d2d2d;
   }
 
   p {
@@ -81,7 +86,7 @@ body {
 
   input {
     &::placeholder {
-      color:#999999
+      color: #999999;
     }
   }
 }

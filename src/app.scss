@@ -1,7 +1,6 @@
-@use './lib/styles/reset.scss';
-@use './lib/styles/global.scss';
+@use "./lib/styles/reset.scss";
+@use "./lib/styles/global.scss";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
