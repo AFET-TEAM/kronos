@@ -2,14 +2,16 @@
   import { goto } from "$app/navigation";
   import Input from "$lib/components/ui/Input/Input.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
-  import { login, setAuthToken } from "$lib/services/auth.service.js";
+  import { register, setAuthToken } from "$lib/services/auth.service.js";
   import { userStore } from "$lib/store/store.js";
   import { toastStore } from "$lib/store/toastStore.js";
   import { themeStore } from "$lib/store/themeStore.js";
   import { onMount } from "svelte";
 
+  let name = "";
   let email = "";
   let password = "";
+  let confirmPassword = "";
   let loading = false;
 
   onMount(() => {
@@ -20,45 +22,37 @@
     }
   });
 
-  async function handleLogin() {
-    if (!email || !password) {
+  async function handleRegister() {
+    if (!name || !email || !password || !confirmPassword) {
       toastStore.error("Lütfen tüm alanları doldurun");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toastStore.error("Şifreler eşleşmiyor");
+      return;
+    }
+
+    if (password.length < 6) {
+      toastStore.error("Şifre en az 6 karakter olmalıdır");
       return;
     }
 
     loading = true;
 
     try {
-      const result = await login({ email, password });
-      
-      console.log("Backend response:", result); // Debug için
+      const result = await register({ name, email, password });
 
-      // Backend'den token geliyor
-      if (result.token && result.registered) {
-        setAuthToken(result.token);
+      // Backend idToken dönüyor, onu token olarak kullan
+      const token = result.token || result.idToken;
+
+      if (token) {
+        setAuthToken(token);
         
-        // Backend'den user objesi geliyor
-        if (result.user) {
-          userStore.set({
-            email: result.user.email,
-            firstName: result.user.firstName || "",
-            lastName: result.user.lastName || "",
-            title: result.user.title || "",
-            squad: result.user.squad || "",
-            avatarUrl: result.user.avatarUrl || "",
-            role: result.user.role || "user",
-            startDate: "",
-            projects: [],
-            trainings: [],
-            awards: [],
-            certifications: [],
-          });
-        }
-
-        toastStore.success("Giriş başarılı!");
+        toastStore.success("Kayıt başarılı! Hoş geldiniz.");
         goto("/");
       } else {
-        toastStore.error(result.message || "Giriş başarısız");
+        toastStore.error(result.message || "Kayıt başarısız");
       }
     } catch (error: any) {
       toastStore.error(
@@ -71,25 +65,36 @@
 </script>
 
 <svelte:head>
-  <title>Giriş Yap - Kronos</title>
-  <meta name="description" content="Kronos Zaman Yönetim Sistemi - Giriş Yap" />
+  <title>Kayıt Ol - Kronos</title>
+  <meta name="description" content="Kronos Zaman Yönetim Sistemi - Kayıt Ol" />
 </svelte:head>
 
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 transition-colors duration-300">
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12 transition-colors duration-300">
   <div class="w-full max-w-md">
     <!-- Logo ve Başlık -->
     <div class="text-center mb-8">
       <h1 class="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-2 transition-colors">KRONOS</h1>
-      <p class="text-2xl text-gray-700 dark:text-gray-300 transition-colors">Hoş Geldiniz</p>
+      <p class="text-2xl text-gray-700 dark:text-gray-300 transition-colors">Hesap Oluştur</p>
     </div>
 
-    <!-- Login Form -->
+    <!-- Register Form -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 transition-colors duration-300">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6 text-center transition-colors">
-        Giriş Yap
+        Kayıt Ol
       </h2>
 
-      <form on:submit|preventDefault={handleLogin} class="space-y-4">
+      <form on:submit|preventDefault={handleRegister} class="space-y-4">
+        <div>
+          <Input
+            type="text"
+            bind:value={name}
+            placeholder="Ad Soyad"
+            label="Ad Soyad"
+            disabled={loading}
+            iconLeft="user"
+          />
+        </div>
+
         <div>
           <Input
             type="email"
@@ -105,38 +110,40 @@
           <Input
             type="password"
             bind:value={password}
-            placeholder="Şifreniz"
+            placeholder="Şifreniz (min 6 karakter)"
             label="Şifre"
             disabled={loading}
             iconLeft="lock"
           />
         </div>
 
-        <div class="flex items-center justify-between text-sm">
-          <a
-            href="/forgot-password"
-            class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-          >
-            Şifremi Unuttum?
-          </a>
+        <div>
+          <Input
+            type="password"
+            bind:value={confirmPassword}
+            placeholder="Şifrenizi tekrar girin"
+            label="Şifre Tekrar"
+            disabled={loading}
+            iconLeft="lock"
+          />
         </div>
 
         <Button
-          text={loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+          text={loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
           variant="primary"
-          onClick={handleLogin}
+          onClick={handleRegister}
           disabled={loading}
           className="w-full"
         />
       </form>
 
       <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors">
-        Hesabınız yok mu?
+        Zaten hesabınız var mı?
         <a
-          href="/register"
+          href="/login"
           class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors ml-1"
         >
-          Kayıt Ol
+          Giriş Yap
         </a>
       </div>
     </div>
