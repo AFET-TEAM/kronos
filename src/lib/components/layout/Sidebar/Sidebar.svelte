@@ -3,10 +3,11 @@
   import Button from "../../ui/Button/Button.svelte";
   import { userStore } from "$lib/store/store.js";
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+  import { logout } from "$lib/services/auth.service.js";
+  import { toastStore } from "$lib/store/toastStore.js";
 
   export let isOpen: boolean = false;
-
-  import { removeAuthToken } from "$lib/services/auth.service.js";
 
   $: userName =
     $userStore.firstName && $userStore.lastName
@@ -22,17 +23,27 @@
     return currentPath === path;
   }
 
-  function handleLogout() {
-    removeAuthToken();
-    userStore.set({
-      email: "",
-      firstName: "",
-      lastName: "",
-      title: "",
-      squad: "",
-      avatarUrl: "",
-    });
-    location.href = "/";
+  async function handleLogout() {
+    try {
+      await logout();
+      userStore.set({
+        email: "",
+        firstName: "",
+        lastName: "",
+        title: "",
+        squad: "",
+        avatarUrl: "",
+        startDate: "",
+        projects: [],
+        trainings: [],
+        awards: [],
+        certifications: [],
+      });
+      toastStore.success("Başarıyla çıkış yapıldı");
+      goto("/login");
+    } catch (error) {
+      toastStore.error("Çıkış yapılırken hata oluştu");
+    }
   }
 </script>
 

@@ -2,15 +2,14 @@
   import { goto } from "$app/navigation";
   import Input from "$lib/components/ui/Input/Input.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
-  import { login, setAuthToken } from "$lib/services/auth.service.js";
-  import { userStore } from "$lib/store/store.js";
+  import { forgotPassword } from "$lib/services/auth.service.js";
   import { toastStore } from "$lib/store/toastStore.js";
   import { themeStore } from "$lib/store/themeStore.js";
   import { onMount } from "svelte";
 
   let email = "";
-  let password = "";
   let loading = false;
+  let emailSent = false;
 
   onMount(() => {
     // Theme store'u başlat
@@ -20,45 +19,22 @@
     }
   });
 
-  async function handleLogin() {
-    if (!email || !password) {
-      toastStore.error("Lütfen tüm alanları doldurun");
+  async function handleForgotPassword() {
+    if (!email) {
+      toastStore.error("Lütfen e-posta adresinizi girin");
       return;
     }
 
     loading = true;
 
     try {
-      const result = await login({ email, password });
-      
-      console.log("Backend response:", result); // Debug için
+      const result = await forgotPassword(email);
 
-      // Backend'den token geliyor
-      if (result.token && result.registered) {
-        setAuthToken(result.token);
-        
-        // Backend'den user objesi geliyor
-        if (result.user) {
-          userStore.set({
-            email: result.user.email,
-            firstName: result.user.firstName || "",
-            lastName: result.user.lastName || "",
-            title: result.user.title || "",
-            squad: result.user.squad || "",
-            avatarUrl: result.user.avatarUrl || "",
-            role: result.user.role || "user",
-            startDate: "",
-            projects: [],
-            trainings: [],
-            awards: [],
-            certifications: [],
-          });
-        }
-
-        toastStore.success("Giriş başarılı!");
-        goto("/");
+      if (result.success) {
+        emailSent = true;
+        toastStore.success(result.message);
       } else {
-        toastStore.error(result.message || "Giriş başarısız");
+        toastStore.error(result.message || "Bir hata oluştu");
       }
     } catch (error: any) {
       toastStore.error(
@@ -71,8 +47,8 @@
 </script>
 
 <svelte:head>
-  <title>Giriş Yap - Kronos</title>
-  <meta name="description" content="Kronos Zaman Yönetim Sistemi - Giriş Yap" />
+  <title>Şifremi Unuttum - Kronos</title>
+  <meta name="description" content="Kronos - Şifre Sıfırlama" />
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 transition-colors duration-300">
@@ -80,65 +56,73 @@
     <!-- Logo ve Başlık -->
     <div class="text-center mb-8">
       <h1 class="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-2 transition-colors">KRONOS</h1>
-      <p class="text-2xl text-gray-700 dark:text-gray-300 transition-colors">Hoş Geldiniz</p>
+      <p class="text-2xl text-gray-700 dark:text-gray-300 transition-colors">Şifre Sıfırlama</p>
     </div>
 
-    <!-- Login Form -->
+    <!-- Forgot Password Form -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 transition-colors duration-300">
-      <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6 text-center transition-colors">
-        Giriş Yap
-      </h2>
+      {#if !emailSent}
+        <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 text-center transition-colors">
+          Şifremi Unuttum
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 text-center transition-colors">
+          E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.
+        </p>
 
-      <form on:submit|preventDefault={handleLogin} class="space-y-4">
-        <div>
-          <Input
-            type="email"
-            bind:value={email}
-            placeholder="E-posta adresiniz"
-            label="E-posta"
+        <form on:submit|preventDefault={handleForgotPassword} class="space-y-4">
+          <div>
+            <Input
+              type="email"
+              bind:value={email}
+              placeholder="E-posta adresiniz"
+              label="E-posta"
+              disabled={loading}
+              iconLeft="email"
+            />
+          </div>
+
+          <Button
+            text={loading ? "Gönderiliyor..." : "Şifre Sıfırlama Linki Gönder"}
+            variant="primary"
+            onClick={handleForgotPassword}
             disabled={loading}
-            iconLeft="email"
+            className="w-full"
           />
-        </div>
+        </form>
 
-        <div>
-          <Input
-            type="password"
-            bind:value={password}
-            placeholder="Şifreniz"
-            label="Şifre"
-            disabled={loading}
-            iconLeft="lock"
-          />
-        </div>
-
-        <div class="flex items-center justify-between text-sm">
+        <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors">
           <a
-            href="/forgot-password"
+            href="/login"
             class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
           >
-            Şifremi Unuttum?
+            ← Giriş sayfasına dön
           </a>
         </div>
-
-        <Button
-          text={loading ? "Giriş yapılıyor..." : "Giriş Yap"}
-          variant="primary"
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full"
-        />
-      </form>
-
-      <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors">
-        Hesabınız yok mu?
-        <a
-          href="/register"
-          class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors ml-1"
-        >
-          Kayıt Ol
-        </a>
-      </div>
+      {:else}
+        <div class="text-center">
+          <div class="mb-4">
+            <svg class="w-16 h-16 mx-auto text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 transition-colors">
+            E-posta Gönderildi!
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400 mb-6 transition-colors">
+            <strong>{email}</strong> adresine şifre sıfırlama bağlantısı gönderdik.
+            Lütfen e-postanızı kontrol edin.
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-500 mb-6 transition-colors">
+            E-postayı görmüyor musunuz? Spam klasörünüzü kontrol edin veya birkaç dakika bekleyin.
+          </p>
+          <Button
+            text="Giriş Sayfasına Dön"
+            variant="primary"
+            onClick={() => goto("/login")}
+            className="w-full"
+          />
+        </div>
+      {/if}
     </div>
 
     <!-- Theme Toggle -->
