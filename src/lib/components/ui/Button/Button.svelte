@@ -41,11 +41,11 @@
     color: #0e82ff;
   }
   .primary.dark {
-    background-color: #333;
-    color: #ccc;
+    background-color: #0e82ff;
+    color: #ffffff;
   }
   .primary.dark:hover {
-    background-color: #555;
+    background-color: #0963c3;
   }
   .secondary.dark {
     background-color: transparent;

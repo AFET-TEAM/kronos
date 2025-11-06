@@ -20,6 +20,9 @@
     if (path === "/" || path === "/dashboard") {
       return currentPath === "/" || currentPath === "/dashboard";
     }
+    if (path === "/admin") {
+      return currentPath.startsWith("/admin");
+    }
     return currentPath === path;
   }
 
@@ -33,6 +36,7 @@
         title: "",
         squad: "",
         avatarUrl: "",
+        role: "user",
         startDate: "",
         projects: [],
         trainings: [],
@@ -90,6 +94,17 @@
           : 'text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}"
         >Reports</a
       >
+      {#if $userStore.role === "admin"}
+        <a
+          href="/admin"
+          class="block px-3 py-2 rounded font-medium transition-colors {isActive(
+            '/admin'
+          )
+            ? 'bg-indigo-600 text-white'
+            : 'text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}"
+          >Admin</a
+        >
+      {/if}
       <a
         href="/profile"
         class="block px-3 py-2 rounded font-medium transition-colors {isActive(

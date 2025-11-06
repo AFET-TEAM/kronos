@@ -7,7 +7,7 @@
     login as authLogin,
     setAuthToken,
   } from "$lib/services/auth.service.js";
-  import { userStore, extractNameFromEmail } from "$lib/store/store.js";
+  import { userStore } from "$lib/store/store.js";
 
   let email = "";
   let password = "";
@@ -36,15 +36,19 @@
         userUid = result.idToken;
         message = "Giriş Başarılı";
 
-        const { firstName, lastName } = extractNameFromEmail(email);
-
         userStore.set({
-          email: email,
-          firstName: firstName,
-          lastName: lastName,
-          title: "",
-          squad: "",
-          avatarUrl: "",
+          email: result.user?.email || email,
+          firstName: result.user?.firstName || "",
+          lastName: result.user?.lastName || "",
+          title: result.user?.title || "",
+          squad: result.user?.squad || "",
+          avatarUrl: result.user?.avatarUrl || "",
+          role: result.user?.role || "user",
+          startDate: "",
+          projects: [],
+          trainings: [],
+          awards: [],
+          certifications: [],
         });
 
         setTimeout(() => {

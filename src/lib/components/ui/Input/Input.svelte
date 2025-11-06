@@ -55,7 +55,11 @@
 
 <div class={`w-full ${theme === "dark" ? "text-white" : "text-dark-gray"}`}>
   {#if label}
-    <label for={inputId} class="block mb-1 font-semibold">{label}</label>
+    <label
+      for={inputId}
+      class="block mb-1 font-semibold text-gray-900 dark:text-gray-100"
+      >{label}</label
+    >
   {/if}
 
   <div

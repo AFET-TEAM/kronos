@@ -264,12 +264,26 @@
                             class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4"
                           >
                             <div class="flex items-start justify-between mb-2">
-                              <div>
-                                <h5
-                                  class="font-semibold text-gray-900 dark:text-white"
-                                >
-                                  {task.taskName}
-                                </h5>
+                              <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                  <h5
+                                    class="font-semibold text-gray-900 dark:text-white"
+                                  >
+                                    {task.taskName}
+                                  </h5>
+                                  {#if task.status}
+                                    <span
+                                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {task.status ===
+                                      'Tamamlandı'
+                                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                                        : task.status === 'Devam Ediyor'
+                                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                                          : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'}"
+                                    >
+                                      {task.status}
+                                    </span>
+                                  {/if}
+                                </div>
                                 <p
                                   class="text-sm text-indigo-600 dark:text-indigo-400"
                                 >
@@ -291,7 +305,7 @@
                     </div>
                   {/if}
 
-                  {#if dayReport.blockers}
+                  {#if !dayReport.isOnLeave && dayReport.blockers}
                     <div>
                       <h4
                         class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"
@@ -314,14 +328,24 @@
                       <div
                         class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded"
                       >
-                        <p class="text-gray-700 dark:text-gray-300">
-                          {dayReport.blockers}
-                        </p>
+                        {#if Array.isArray(dayReport.blockers)}
+                          <ul
+                            class="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300"
+                          >
+                            {#each dayReport.blockers as blocker}
+                              <li>{blocker}</li>
+                            {/each}
+                          </ul>
+                        {:else}
+                          <p class="text-gray-700 dark:text-gray-300">
+                            {dayReport.blockers}
+                          </p>
+                        {/if}
                       </div>
                     </div>
                   {/if}
 
-                  {#if dayReport.meetings}
+                  {#if !dayReport.isOnLeave && dayReport.meetings && (Array.isArray(dayReport.meetings) ? dayReport.meetings.length > 0 : true)}
                     <div>
                       <h4
                         class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"
@@ -344,14 +368,36 @@
                       <div
                         class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded"
                       >
-                        <p class="text-gray-700 dark:text-gray-300">
-                          {dayReport.meetings}
-                        </p>
+                        {#if Array.isArray(dayReport.meetings)}
+                          <ul
+                            class="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300"
+                          >
+                            {#each dayReport.meetings as meeting}
+                              <li>
+                                {#if typeof meeting === "object" && meeting.name}
+                                  {meeting.name}
+                                  {#if meeting.duration > 0}
+                                    <span
+                                      class="text-sm text-blue-600 dark:text-blue-400"
+                                      >({meeting.duration} saat)</span
+                                    >
+                                  {/if}
+                                {:else}
+                                  {meeting}
+                                {/if}
+                              </li>
+                            {/each}
+                          </ul>
+                        {:else}
+                          <p class="text-gray-700 dark:text-gray-300">
+                            {dayReport.meetings}
+                          </p>
+                        {/if}
                       </div>
                     </div>
                   {/if}
 
-                  {#if dayReport.untrackedWork}
+                  {#if !dayReport.isOnLeave && dayReport.untrackedWork}
                     <div>
                       <h4
                         class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2"

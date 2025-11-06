@@ -1,6 +1,6 @@
 <script lang="ts">
   import "../../../../app.scss";
-  import { userStore, extractNameFromEmail } from "$lib/store/store.js";
+  import { userStore } from "$lib/store/store.js";
   import { onMount } from "svelte";
   import TabNavigation from "./components/TabNavigation.svelte";
   import ProfileTab from "./components/ProfileTab.svelte";
@@ -34,10 +34,9 @@
 
     unsubscribeStore = userStore.subscribe((user: any) => {
       if (user.email) {
-        const { firstName, lastName } = extractNameFromEmail(user.email);
         formData = {
-          firstName: firstName || user.firstName || "Mert",
-          lastName: lastName || user.lastName || "Pasaoglu",
+          firstName: user.firstName || "Mert",
+          lastName: user.lastName || "Pasaoglu",
           email: user.email,
           title: user.title || "Frontend Developer",
           squad: user.squad || "DC-CORPORATE",
@@ -75,6 +74,10 @@
   const handleSaveChanges = () => {
     formData = { ...tempFormData };
     isEditing = false;
+
+    // Mevcut store'dan role'ü al ve koru
+    const currentUser = $userStore;
+
     userStore.set({
       email: formData.email,
       firstName: formData.firstName,
@@ -82,6 +85,7 @@
       title: formData.title,
       squad: formData.squad,
       avatarUrl: formData.avatarUrl,
+      role: currentUser.role || "admin", // Role'ü koru
       startDate: formData.startDate,
       projects: formData.projects,
       trainings: formData.trainings,

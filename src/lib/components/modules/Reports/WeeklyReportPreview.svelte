@@ -212,12 +212,28 @@
                             class="bg-indigo-50 dark:bg-indigo-950 rounded p-2 text-sm"
                           >
                             <div class="flex items-start justify-between">
-                              <span
-                                class="font-medium text-gray-900 dark:text-white"
-                              >
-                                {task.taskName}
-                              </span>
-                              <div class="flex gap-2 text-xs">
+                              <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                  <span
+                                    class="font-medium text-gray-900 dark:text-white"
+                                  >
+                                    {task.taskName}
+                                  </span>
+                                  {#if task.status}
+                                    <span
+                                      class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium {task.status ===
+                                      'Tamamlandı'
+                                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                                        : task.status === 'Devam Ediyor'
+                                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                                          : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'}"
+                                    >
+                                      {task.status}
+                                    </span>
+                                  {/if}
+                                </div>
+                              </div>
+                              <div class="flex gap-2 text-xs shrink-0 ml-2">
                                 <span
                                   class="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200"
                                 >
@@ -243,33 +259,61 @@
                     </div>
                   {/if}
 
-                  {#if dayReport.blockers}
+                  {#if dayReport.blockers && (Array.isArray(dayReport.blockers) ? dayReport.blockers.length > 0 : true)}
                     <div class="mb-3">
                       <h4
                         class="text-xs font-semibold text-red-600 dark:text-red-400 mb-1"
                       >
                         ⚠️ BLOKAJLAR / SORUNLAR
                       </h4>
-                      <p
+                      <div
                         class="text-sm text-gray-700 dark:text-gray-300 bg-red-50 dark:bg-red-950 rounded p-2"
                       >
-                        {dayReport.blockers}
-                      </p>
+                        {#if Array.isArray(dayReport.blockers)}
+                          <ul class="list-disc list-inside space-y-0.5">
+                            {#each dayReport.blockers as blocker}
+                              <li>{blocker}</li>
+                            {/each}
+                          </ul>
+                        {:else}
+                          <p>{dayReport.blockers}</p>
+                        {/if}
+                      </div>
                     </div>
                   {/if}
 
-                  {#if dayReport.meetings}
+                  {#if dayReport.meetings && (Array.isArray(dayReport.meetings) ? dayReport.meetings.length > 0 : true)}
                     <div class="mb-3">
                       <h4
                         class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1"
                       >
                         👥 TOPLANTI VE EĞİTİMLER
                       </h4>
-                      <p
+                      <div
                         class="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-950 rounded p-2"
                       >
-                        {dayReport.meetings}
-                      </p>
+                        {#if Array.isArray(dayReport.meetings)}
+                          <ul class="list-disc list-inside space-y-0.5">
+                            {#each dayReport.meetings as meeting}
+                              <li>
+                                {#if typeof meeting === "object" && meeting.name}
+                                  {meeting.name}
+                                  {#if meeting.duration > 0}
+                                    <span
+                                      class="text-xs text-blue-600 dark:text-blue-400"
+                                      >({meeting.duration}sa)</span
+                                    >
+                                  {/if}
+                                {:else}
+                                  {meeting}
+                                {/if}
+                              </li>
+                            {/each}
+                          </ul>
+                        {:else}
+                          <p>{dayReport.meetings}</p>
+                        {/if}
+                      </div>
                     </div>
                   {/if}
 
