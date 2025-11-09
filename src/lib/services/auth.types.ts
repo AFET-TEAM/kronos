@@ -17,6 +17,7 @@ export type LoginResponse = {
     lastName: string;
     title: string;
     squad: string;
+    department?: string;
     avatarUrl: string;
     role: string;
     startDate?: string;

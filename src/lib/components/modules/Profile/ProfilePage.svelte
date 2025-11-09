@@ -15,6 +15,7 @@
     email: "mert.pasaoglu@atmosware.turkcell.com.tr",
     title: "Frontend Developer",
     squad: "DC-CORPORATE",
+    department: "",
     avatarUrl: "",
     startDate: "",
     projects: [] as string[],
@@ -40,6 +41,7 @@
           email: user.email,
           title: user.title || "Frontend Developer",
           squad: user.squad || "DC-CORPORATE",
+          department: user.department || "",
           avatarUrl: user.avatarUrl || "",
           startDate: user.startDate || "",
           projects: user.projects || [],
@@ -84,6 +86,7 @@
       lastName: formData.lastName,
       title: formData.title,
       squad: formData.squad,
+      department: formData.department,
       avatarUrl: formData.avatarUrl,
       role: currentUser.role || "admin", // Role'ü koru
       startDate: formData.startDate,

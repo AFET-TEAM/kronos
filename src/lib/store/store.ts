@@ -12,6 +12,7 @@ const initialUserData = storedUser
       lastName: "",
       title: "",
       squad: "",
+      department: "",
       avatarUrl: "",
       role: "admin",
       startDate: "",
