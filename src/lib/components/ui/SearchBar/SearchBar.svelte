@@ -30,8 +30,8 @@
 </script>
 
 <div
-  class="search-bar"
-  style="background-color: {bgColor}; max-width: {sizes[size]
+  class="search-bar bg-blue-100"
+  style="max-width: {sizes[size]
     .maxWidth}; border-radius: {sizes[size].radius};"
 >
   <input

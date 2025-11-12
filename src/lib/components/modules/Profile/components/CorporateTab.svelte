@@ -34,7 +34,7 @@
         variant="primary"
         size="medium"
         theme="dark"
-        className="bg-indigo-600 text-white px-6 py-2 hover:bg-indigo-700"
+        className="bg-blue-100 text-white px-6 py-2 hover:bg-blue-200"
         onClick={onEdit}
       />
     {/if}
@@ -111,7 +111,7 @@
           variant="primary"
           size="large"
           theme="dark"
-          className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700 py-2"
+          className="flex-1 bg-blue-100 text-white hover:bg-blue-200 py-2"
           onClick={onSave}
         />
         <Button

@@ -11,6 +11,7 @@
     type DashboardStats,
     type RecentReport,
   } from "$lib/services/reportService.js";
+  import Icon from "$lib/components/ui/Icon/Icon.svelte";
 
   let stats: DashboardStats | null = null;
   let loading = true;
@@ -59,7 +60,7 @@
     <h2
       class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"
     >
-      <span>📊</span>
+      <Icon name={"static"} alt="icon" width="40" height="40" />
       <span>İstatistikler</span>
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -88,7 +89,7 @@
     <h2
       class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"
     >
-      <span>📅</span>
+      <Icon name={"calendar"} alt="icon" width="40" height="40" />
       <span>Haftalık Rapor Takvimi</span>
     </h2>
 
@@ -121,11 +122,11 @@
 
       <div class="flex justify-center">
         <Button
-          text="📝 Yeni Haftalık Rapor Oluştur"
+          text="Yeni Haftalık Rapor Oluştur"
           variant="primary"
           size="large"
           onClick={openWeeklyReportModal}
-          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+          className="px-8 py-3 bg-blue-100 hover:bg-blue-200 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
         />
       </div>
     {/if}
@@ -136,7 +137,7 @@
     <h2
       class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"
     >
-      <span>📄</span>
+      <Icon name={"document"} alt="icon" width="28" height="28" />
       <span>Son Gönderilen Raporlar</span>
     </h2>
 

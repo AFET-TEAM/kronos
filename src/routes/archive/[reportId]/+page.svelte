@@ -147,7 +147,7 @@
             <Button
               onClick={handleDownloadPdf}
               text="📥 PDF İndir"
-              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
+              className="px-5 py-2.5 bg-blue-100 hover:bg-blue-200 text-white font-medium rounded-md transition-colors"
             />
           </div>
 
@@ -198,7 +198,7 @@
             >
               <button
                 on:click={() => toggleDay(index)}
-                class="w-full bg-indigo-600 dark:bg-indigo-700 px-6 py-4 flex items-center justify-between hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors"
+                class="w-full bg-blue-100 dark:bg-indigo-700 px-6 py-4 flex items-center justify-between hover:bg-blue-200 dark:hover:bg-indigo-600 transition-colors"
               >
                 <h3 class="text-xl font-bold text-white">
                   {dayReport.day} ({dayReport.date})
@@ -271,7 +271,7 @@
                                   {task.taskName}
                                 </h5>
                                 <p
-                                  class="text-sm text-indigo-600 dark:text-indigo-400"
+                                  class="text-sm text-blue-400 dark:text-indigo-400"
                                 >
                                   {task.taskNumber}
                                 </p>
@@ -395,7 +395,7 @@
           <Button
             onClick={handleDownloadPdf}
             text="📥 PDF İndir"
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
+            className="px-5 py-2.5 bg-blue-100 hover:bg-blue-200 text-white font-medium rounded-md transition-colors"
           />
         </div>
       {:else}
@@ -406,7 +406,7 @@
           <Button
             onClick={goBack}
             text="Dashboard'a Dön"
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
+            className="px-5 py-2.5 bg-blue-100 hover:bg-blue-200 text-white font-medium rounded-md transition-colors"
           />
         </div>
       {/if}
