@@ -34,7 +34,7 @@
     try {
       reportDetails = await getReportDetails(reportId);
       if (!reportDetails) {
-        goto("/dashboard");
+        goto("/archive");
       } else {
         expandedDays = new Set(
           reportDetails.dailyReports.map((_, index) => index)
@@ -57,7 +57,7 @@
   }
 
   function goBack() {
-    goto("/dashboard");
+    goto("/archive");
   }
 
   function toggleDay(index: number) {
@@ -130,7 +130,7 @@
       {:else if reportDetails}
         <Button
           onClick={goBack}
-          text="← Dashboard'a Dön"
+          text="← Arşiv'e Dön"
           className="mb-6 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors bg-transparent border-0"
         />
 
@@ -389,7 +389,7 @@
         <div class="mt-8 flex justify-between items-center">
           <Button
             onClick={goBack}
-            text="Geri Dön"
+            text="← Arşiv'e Dön"
             className="px-5 py-2.5 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium rounded-md hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
           />
           <Button
@@ -405,7 +405,7 @@
           </p>
           <Button
             onClick={goBack}
-            text="Dashboard'a Dön"
+            text="Arşiv'e Dön"
             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
           />
         </div>

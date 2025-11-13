@@ -527,13 +527,109 @@ function getDefaultReportDetails(): { [key: string]: ReportDetails } {
 let MOCK_REPORT_DETAILS: { [key: string]: ReportDetails } =
   loadReportDetailsFromLocalStorage();
 
+// Archive sayfası için otomatik mock data üretici
+function generateMockReportDetails(reportId: string): ReportDetails | null {
+  // Eğer kayıtlı detay varsa onu kullan
+  if (MOCK_REPORT_DETAILS[reportId]) {
+    return MOCK_REPORT_DETAILS[reportId];
+  }
+
+  // Archive sayfasından gelen report-X formatındaki ID'ler için otomatik oluştur
+  if (reportId.startsWith("report-")) {
+    const reportNumber = parseInt(reportId.replace("report-", ""));
+    const currentDate = new Date();
+    const weekStart = new Date(currentDate);
+    weekStart.setDate(currentDate.getDate() - ((reportNumber - 1) * 7));
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 4);
+    
+    const formatDate = (date: Date) => {
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}.${month}.${year}`;
+    };
+
+    const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"];
+    const dailyReports: DailyReport[] = days.map((day, index) => {
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + index);
+      
+      const taskCount = Math.floor(Math.random() * 4) + 2;
+      const tasks: DayTask[] = [];
+      
+      for (let i = 0; i < taskCount; i++) {
+        const taskDescriptions = [
+          "API entegrasyonu tamamlandı",
+          "UI component geliştirmesi yapıldı",
+          "Test senaryoları yazıldı",
+          "Code review süreçleri tamamlandı",
+          "Dokümantasyon güncellendi",
+          "Bug fix işlemleri yapıldı",
+          "Performance optimizasyonu uygulandı",
+          "Database migration işlemi",
+          "Authentication sistemi geliştirildi",
+          "Dashboard tasarımı güncellendi"
+        ];
+        
+        tasks.push({
+          taskName: taskDescriptions[Math.floor(Math.random() * taskDescriptions.length)],
+          taskNumber: `KRON-${1000 + reportNumber * 10 + i}`,
+          estimatedHours: Math.floor(Math.random() * 5) + 2,
+          description: "Görev detaylı açıklaması burada yer alıyor."
+        });
+      }
+      
+      const hasBlockers = Math.random() > 0.7;
+      const hasMeetings = Math.random() > 0.3;
+      const hasUntrackedWork = Math.random() > 0.5;
+      
+      return {
+        day,
+        date: formatDate(dayDate),
+        tasks,
+        blockers: hasBlockers ? "Backend API entegrasyonu bekleniyor." : "",
+        meetings: hasMeetings ? "Daily Standup (15dk), Sprint Planning (1 saat)" : "",
+        untrackedWork: hasUntrackedWork ? "Code review ve mentorluk (1 saat)" : ""
+      };
+    });
+
+    const mockDetail: ReportDetails = {
+      id: reportId,
+      title: "Haftalık Rapor",
+      startDate: formatDate(weekStart),
+      endDate: formatDate(weekEnd),
+      createdAt: weekEnd.toISOString(),
+      user: {
+        id: "user-1",
+        firstName: "Ahmet",
+        lastName: "Yılmaz",
+        email: "ahmet.yilmaz@atmosware.turkcell.com.tr",
+        avatarUrl: "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=4f46e5&color=fff",
+        title: "Senior Frontend Developer",
+        squad: "Platform Team"
+      },
+      dailyReports
+    };
+
+    // Gelecekte kullanmak üzere cache'le
+    MOCK_REPORT_DETAILS[reportId] = mockDetail;
+    saveReportDetailsToLocalStorage(MOCK_REPORT_DETAILS);
+    
+    return mockDetail;
+  }
+
+  return null;
+}
+
 export async function getReportDetails(
   reportId: string
 ): Promise<ReportDetails | null> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const reportDetails = MOCK_REPORT_DETAILS[reportId];
-      resolve(reportDetails || null);
+      const reportDetails = generateMockReportDetails(reportId);
+      resolve(reportDetails);
     }, 600);
   });
 }
