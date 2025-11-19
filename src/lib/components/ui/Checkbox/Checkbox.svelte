@@ -19,7 +19,7 @@
     {value}
     bind:checked
     {disabled}
-    on:change={handleChange}
+    on:change
     class={`appearance-none w-5 h-5 rounded border-2 cursor-pointer
       ${
         theme === "dark"

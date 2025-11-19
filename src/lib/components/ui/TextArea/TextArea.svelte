@@ -42,7 +42,7 @@
       ${disabled ? "opacity-60 cursor-not-allowed" : ""}
       ${className}
     `}
-    on:input={handleInput}
+    on:input
   />
 
   {#if maxLength !== null}

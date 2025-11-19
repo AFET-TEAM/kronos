@@ -3,7 +3,7 @@
   import Input from "$lib/components/ui/Input/Input.svelte";
   import DailyReportCard from "./DailyReportCard.svelte";
   import WeeklyReportPreview from "./WeeklyReportPreview.svelte";
-  import type { DailyReport } from "$lib/services/reportService.js";
+  import type { DailyReport, ReportDetails } from "$lib/services/reportService.js";
   import { createWeeklyReport } from "$lib/services/reportService.js";
   import { dailyReportsStore } from "$lib/store/reportStore.js";
   import { toastStore } from "$lib/store/toastStore.js";
@@ -11,9 +11,11 @@
   export let isOpen = false;
   export let onClose: () => void;
   export let onReportCreated: (() => void) | undefined = undefined;
+  export let reportToEdit: ReportDetails | null = null; // Düzenlenecek rapor
 
   let showPreview = false;
   let maxEndDate = "";
+  let isEditMode = false;
 
   // Bugünün tarihi
   const today = new Date();
@@ -32,13 +34,49 @@
 
   let dailyReports: DailyReport[] = [];
 
-  // Modal açıldığında state'leri resetle
+  // Modal açıldığında state'leri resetle veya düzenleme modunu başlat
   $: if (isOpen) {
-    startDate = mondayStr;
-    endDate = "";
-    dailyReports = [];
+    if (reportToEdit) {
+      // Düzenleme modu
+      isEditMode = true;
+      loadReportForEditing(reportToEdit);
+    } else {
+      // Yeni rapor oluşturma modu
+      isEditMode = false;
+      startDate = mondayStr;
+      endDate = "";
+      dailyReports = [];
+      showPreview = false;
+      maxEndDate = "";
+    }
+  }
+
+  // reportToEdit değiştiğinde de kontrol et
+  $: if (reportToEdit && isOpen) {
+    isEditMode = true;
+    loadReportForEditing(reportToEdit);
+  }
+
+  /**
+   * Düzenlenecek raporu yükle
+   */
+  function loadReportForEditing(report: ReportDetails) {
+    // Tarihleri DD.MM.YYYY formatından YYYY-MM-DD formatına çevir
+    const parseDate = (dateStr: string): string => {
+      const [day, month, year] = dateStr.split(".");
+      return `${year}-${month}-${day}`;
+    };
+
+    startDate = parseDate(report.startDate);
+    endDate = parseDate(report.endDate);
+    
+    // Rapordaki daily reports'ları deep copy ile yükle
+    dailyReports = report.dailyReports.map(dr => ({
+      ...dr,
+      tasks: dr.tasks.map(t => ({ ...t })) // Deep copy tasks array
+    }));
+    
     showPreview = false;
-    maxEndDate = "";
   }
 
   const dayNames = [
@@ -70,6 +108,11 @@
     if (dayDifference > 6) {
       toastStore.warning("Rapor dönemi en fazla 7 gün olabilir!");
       endDate = "";
+      return;
+    }
+
+    // Düzenleme modundaysa veya zaten dolu raporlar varsa, üzerine yazma
+    if (isEditMode || dailyReports.length > 0) {
       return;
     }
 
@@ -173,14 +216,18 @@
         day.untrackedWork
     );
 
+    const successMessage = isEditMode 
+      ? "Haftalık rapor başarıyla güncellendi!" 
+      : "Haftalık rapor başarıyla oluşturuldu ve Son Gönderilen Raporlar listesine eklendi!";
+
     createWeeklyReport(formattedStartDate, formattedEndDate, filledReports)
       .then((newReport) => {
-        console.log("Haftalık rapor başarıyla oluşturuldu:", newReport);
-
-        toastStore.success(
-          "Haftalık rapor başarıyla oluşturuldu ve Son Gönderilen Raporlar listesine eklendi!",
-          4000
+        console.log(
+          isEditMode ? "Haftalık rapor başarıyla güncellendi:" : "Haftalık rapor başarıyla oluşturuldu:", 
+          newReport
         );
+
+        toastStore.success(successMessage, 4000);
 
         if (onReportCreated) {
           onReportCreated();
@@ -189,9 +236,9 @@
         closeModal();
       })
       .catch((error) => {
-        console.error("Rapor oluşturulurken hata:", error);
+        console.error("Rapor işlenirken hata:", error);
         toastStore.error(
-          "Rapor oluşturulurken bir hata oluştu. Lütfen tekrar deneyin."
+          "Rapor işlenirken bir hata oluştu. Lütfen tekrar deneyin."
         );
       });
   }
@@ -250,7 +297,7 @@
             class="text-2xl font-bold text-gray-900 dark:text-white"
             id="modal-title"
           >
-            Yeni Haftalık Rapor Oluştur
+            {isEditMode ? "📝 Haftalık Rapor Düzenle" : "Yeni Haftalık Rapor Oluştur"}
           </h2>
           {#if dailyReports.length > 0}
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -287,12 +334,14 @@
             <h3
               class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
             >
-              📅 Rapor Dönemi Seçin
+              📅 Rapor Dönemi {isEditMode ? "(Değiştirilemez)" : "Seçin"}
             </h3>
-            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">
-              <span class="font-medium">ℹ️ Bilgi:</span> Rapor dönemi en fazla 7
-              gün olabilir.
-            </p>
+            {#if !isEditMode}
+              <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                <span class="font-medium">ℹ️ Bilgi:</span> Rapor dönemi en fazla 7
+                gün olabilir.
+              </p>
+            {/if}
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label
@@ -363,6 +412,9 @@
                   bind:untrackedWork={dayReport.untrackedWork}
                   bind:isOnLeave={dayReport.isOnLeave}
                   isExpanded={index === 0}
+                  on:change={() => {
+                    dailyReports = [...dailyReports];
+                  }}
                 />
               {/each}
             </div>

@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import Input from "$lib/components/ui/Input/Input.svelte";
   import TextArea from "$lib/components/ui/TextArea/TextArea.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
   import Checkbox from "$lib/components/ui/Checkbox/Checkbox.svelte";
+
+  const dispatch = createEventDispatcher();
 
   export let day: string;
   export let date: string;
@@ -21,16 +24,23 @@
     estimatedHours: number;
     description: string;
   };
+  
+  // Her değişiklikte parent'a haber ver
+  function notifyChange() {
+    dispatch('change');
+  }
 
   function addTask() {
     tasks = [
       ...tasks,
       { taskName: "", taskNumber: "", estimatedHours: 0, description: "" },
     ];
+    notifyChange();
   }
 
   function removeTask(index: number) {
     tasks = tasks.filter((_, i) => i !== index);
+    notifyChange();
   }
 
   function toggleExpand() {
@@ -45,6 +55,7 @@
     blockers = "";
     meetings = "";
     untrackedWork = "";
+    notifyChange();
   }
 
   $: hasContent =
@@ -169,6 +180,7 @@
             bind:checked={isOnLeave}
             label="🏖️ Bu gün izinliyim"
             name="isOnLeave-{date}"
+            on:change={notifyChange}
           />
           {#if isOnLeave}
             <p class="text-xs text-sky-700 dark:text-sky-100 mt-2 ml-7">
@@ -245,12 +257,14 @@
                   placeholder="Task Adı"
                   bind:value={task.taskName}
                   disabled={isOnLeave}
+                  on:input={notifyChange}
                 />
                 <Input
                   type="text"
                   placeholder="Task No (KRON-123)"
                   bind:value={task.taskNumber}
                   disabled={isOnLeave}
+                  on:input={notifyChange}
                 />
               </div>
 
@@ -261,6 +275,7 @@
                 min="0"
                 step="0.5"
                 disabled={isOnLeave}
+                on:input={notifyChange}
                 class="flex-1 py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
 
@@ -269,6 +284,7 @@
                 bind:value={task.description}
                 rows={2}
                 disabled={isOnLeave}
+                on:input={notifyChange}
               />
             </div>
           {/each}
@@ -299,6 +315,7 @@
           bind:value={blockers}
           rows={2}
           disabled={isOnLeave}
+          on:input={notifyChange}
         />
       </div>
 
@@ -326,6 +343,7 @@
           bind:value={meetings}
           rows={2}
           disabled={isOnLeave}
+          on:input={notifyChange}
         />
       </div>
 
@@ -353,6 +371,7 @@
           bind:value={untrackedWork}
           rows={2}
           disabled={isOnLeave}
+          on:input={notifyChange}
         />
       </div>
     </div>

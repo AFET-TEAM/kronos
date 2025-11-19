@@ -29,6 +29,28 @@ export interface ArchiveStats {
   avgHoursPerReport?: number;
 }
 
+export interface WeekGroup {
+  weekNumber: number;
+  weekLabel: string;
+  reports: ArchiveReport[];
+}
+
+export interface MonthGroup {
+  monthNumber: number;
+  monthLabel: string;
+  weeks: WeekGroup[];
+}
+
+export interface YearGroup {
+  year: number;
+  months: MonthGroup[];
+}
+
+export interface GroupedArchiveData {
+  years: YearGroup[];
+  stats: ArchiveStats;
+}
+
 export interface ArchivePagination {
   currentPage: number;
   totalPages: number;
@@ -196,8 +218,8 @@ function generateMockArchiveReports(): ArchiveReport[] {
   const reports: ArchiveReport[] = [];
   const currentDate = new Date();
 
-  // Son 6 ayın raporlarını oluştur (24 hafta)
-  for (let i = 0; i < 24; i++) {
+  // Son 12 ayın raporlarını oluştur (yaklaşık 52 hafta)
+  for (let i = 0; i < 52; i++) {
     const weekStart = new Date(currentDate);
     weekStart.setDate(currentDate.getDate() - i * 7);
 
@@ -233,3 +255,181 @@ function generateMockArchiveReports(): ArchiveReport[] {
  * Export için tüm servisleri dışa aktar
  */
 export { getReportDetails } from "./reportService.js";
+
+/**
+ * Arşiv raporlarını yıl > ay > hafta kırılımlarına göre grupla
+ * Backend Endpoint: GET /api/archive/grouped
+ */
+export async function getGroupedArchiveReports(
+  search: string = ""
+): Promise<GroupedArchiveData> {
+  // TODO: Backend hazır olduğunda bu kısmı uncomment et
+  /*
+  try {
+    const queryParams = new URLSearchParams({
+      ...(search && { search })
+    });
+
+    const response = await fetch(
+      `${API_URL}/api/archive/grouped?${queryParams}`,
+      {
+        method: "GET",
+        headers: {
+          ...API_HEADERS,
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Gruplandırılmış arşiv yüklenemedi");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Grouped archive fetch error:", error);
+    throw error;
+  }
+  */
+
+  // Mock data - Backend hazır olana kadar
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const allReports = generateMockArchiveReports();
+
+      // Arama filtresi
+      let filteredReports = allReports;
+      if (search) {
+        const query = search.toLowerCase();
+        filteredReports = allReports.filter(
+          (r) =>
+            r.title.toLowerCase().includes(query) ||
+            r.startDate.includes(query) ||
+            r.endDate.includes(query)
+        );
+      }
+
+      // Yıl > Ay > Hafta gruplandırması
+      const yearMap = new Map<number, Map<number, Map<number, ArchiveReport[]>>>();
+
+      filteredReports.forEach((report) => {
+        const reportDate = new Date(report.createdAt);
+        const year = reportDate.getFullYear();
+        const month = reportDate.getMonth() + 1; // 1-12
+        const weekOfMonth = getWeekOfMonth(reportDate);
+
+        if (!yearMap.has(year)) {
+          yearMap.set(year, new Map());
+        }
+
+        const monthMap = yearMap.get(year)!;
+        if (!monthMap.has(month)) {
+          monthMap.set(month, new Map());
+        }
+
+        const weekMap = monthMap.get(month)!;
+        if (!weekMap.has(weekOfMonth)) {
+          weekMap.set(weekOfMonth, []);
+        }
+
+        weekMap.get(weekOfMonth)!.push(report);
+      });
+
+      // Map'leri YearGroup yapısına dönüştür
+      const years: YearGroup[] = [];
+
+      Array.from(yearMap.entries())
+        .sort(([a], [b]) => b - a) // En yeni yıl önce
+        .forEach(([year, monthMap]) => {
+          const months: MonthGroup[] = [];
+
+          Array.from(monthMap.entries())
+            .sort(([a], [b]) => b - a) // En yeni ay önce
+            .forEach(([monthNum, weekMap]) => {
+              const weeks: WeekGroup[] = [];
+
+              Array.from(weekMap.entries())
+                .sort(([a], [b]) => b - a) // En yeni hafta önce
+                .forEach(([weekNum, reports]) => {
+                  weeks.push({
+                    weekNumber: weekNum,
+                    weekLabel: `${weekNum}. Hafta`,
+                    reports: reports.sort(
+                      (a, b) =>
+                        new Date(b.createdAt).getTime() -
+                        new Date(a.createdAt).getTime()
+                    ),
+                  });
+                });
+
+              months.push({
+                monthNumber: monthNum,
+                monthLabel: getMonthName(monthNum),
+                weeks,
+              });
+            });
+
+          years.push({
+            year,
+            months,
+          });
+        });
+
+      // İstatistikleri hesapla
+      const stats: ArchiveStats = {
+        totalReports: filteredReports.length,
+        totalTasks: filteredReports.reduce((sum, r) => sum + r.taskCount, 0),
+        totalHours: filteredReports.reduce((sum, r) => sum + r.totalHours, 0),
+      };
+
+      stats.avgTasksPerReport =
+        stats.totalReports > 0 ? stats.totalTasks / stats.totalReports : 0;
+      stats.avgHoursPerReport =
+        stats.totalReports > 0 ? stats.totalHours / stats.totalReports : 0;
+
+      resolve({
+        years,
+        stats,
+      });
+    }, 500);
+  });
+}
+
+/**
+ * Tarihin ayın kaçıncı haftasında olduğunu hesapla
+ */
+function getWeekOfMonth(date: Date): number {
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const dayOfMonth = date.getDate();
+  const firstDayWeekday = firstDayOfMonth.getDay();
+
+  // İlk haftanın kaç gün olduğunu hesapla
+  const firstWeekDays = 7 - firstDayWeekday;
+
+  if (dayOfMonth <= firstWeekDays) {
+    return 1;
+  }
+
+  return Math.ceil((dayOfMonth - firstWeekDays) / 7) + 1;
+}
+
+/**
+ * Ay numarasını Türkçe ay adına çevir
+ */
+function getMonthName(monthNumber: number): string {
+  const months = [
+    "Ocak",
+    "Şubat",
+    "Mart",
+    "Nisan",
+    "Mayıs",
+    "Haziran",
+    "Temmuz",
+    "Ağustos",
+    "Eylül",
+    "Ekim",
+    "Kasım",
+    "Aralık",
+  ];
+  return months[monthNumber - 1] || "";
+}

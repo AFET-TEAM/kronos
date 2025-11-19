@@ -591,7 +591,8 @@ function generateMockReportDetails(reportId: string): ReportDetails | null {
         tasks,
         blockers: hasBlockers ? "Backend API entegrasyonu bekleniyor." : "",
         meetings: hasMeetings ? "Daily Standup (15dk), Sprint Planning (1 saat)" : "",
-        untrackedWork: hasUntrackedWork ? "Code review ve mentorluk (1 saat)" : ""
+        untrackedWork: hasUntrackedWork ? "Code review ve mentorluk (1 saat)" : "",
+        isOnLeave: false
       };
     });
 
