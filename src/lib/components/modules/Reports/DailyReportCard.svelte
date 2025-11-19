@@ -177,10 +177,13 @@
           class="bg-sky-50 dark:bg-sky-900/30 border border-sky-200 dark:border-sky-700 rounded-lg p-3"
         >
           <Checkbox
-            bind:checked={isOnLeave}
+            checked={isOnLeave}
             label="🏖️ Bu gün izinliyim"
             name="isOnLeave-{date}"
-            on:change={notifyChange}
+            on:change={(e) => {
+              isOnLeave = e.detail.checked;
+              notifyChange();
+            }}
           />
           {#if isOnLeave}
             <p class="text-xs text-sky-700 dark:text-sky-100 mt-2 ml-7">
@@ -255,16 +258,24 @@
                 <Input
                   type="text"
                   placeholder="Task Adı"
-                  bind:value={task.taskName}
+                  value={task.taskName}
                   disabled={isOnLeave}
-                  on:input={notifyChange}
+                  on:input={(e) => {
+                    task.taskName = e.detail.value;
+                    tasks = tasks;
+                    notifyChange();
+                  }}
                 />
                 <Input
                   type="text"
                   placeholder="Task No (KRON-123)"
-                  bind:value={task.taskNumber}
+                  value={task.taskNumber}
                   disabled={isOnLeave}
-                  on:input={notifyChange}
+                  on:input={(e) => {
+                    task.taskNumber = e.detail.value;
+                    tasks = tasks;
+                    notifyChange();
+                  }}
                 />
               </div>
 
@@ -281,10 +292,14 @@
 
               <TextArea
                 placeholder="Yapılan iş açıklaması..."
-                bind:value={task.description}
+                value={task.description}
                 rows={2}
                 disabled={isOnLeave}
-                on:input={notifyChange}
+                on:input={(e) => {
+                  task.description = e.detail.value;
+                  tasks = tasks;
+                  notifyChange();
+                }}
               />
             </div>
           {/each}
@@ -312,10 +327,13 @@
         </div>
         <TextArea
           placeholder="Opsiyonel..."
-          bind:value={blockers}
+          value={blockers}
           rows={2}
           disabled={isOnLeave}
-          on:input={notifyChange}
+          on:input={(e) => {
+            blockers = e.detail.value;
+            notifyChange();
+          }}
         />
       </div>
 
@@ -340,10 +358,13 @@
         </div>
         <TextArea
           placeholder="Opsiyonel..."
-          bind:value={meetings}
+          value={meetings}
           rows={2}
           disabled={isOnLeave}
-          on:input={notifyChange}
+          on:input={(e) => {
+            meetings = e.detail.value;
+            notifyChange();
+          }}
         />
       </div>
 
@@ -368,10 +389,13 @@
         </div>
         <TextArea
           placeholder="Opsiyonel..."
-          bind:value={untrackedWork}
+          value={untrackedWork}
           rows={2}
           disabled={isOnLeave}
-          on:input={notifyChange}
+          on:input={(e) => {
+            untrackedWork = e.detail.value;
+            notifyChange();
+          }}
         />
       </div>
     </div>

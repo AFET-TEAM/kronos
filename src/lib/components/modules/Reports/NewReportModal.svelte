@@ -33,14 +33,16 @@
   let endDate = "";
 
   let dailyReports: DailyReport[] = [];
+  let hasLoadedReport = false;
 
   // Modal açıldığında state'leri resetle veya düzenleme modunu başlat
   $: if (isOpen) {
-    if (reportToEdit) {
+    if (reportToEdit && !hasLoadedReport) {
       // Düzenleme modu
       isEditMode = true;
       loadReportForEditing(reportToEdit);
-    } else {
+      hasLoadedReport = true;
+    } else if (!reportToEdit) {
       // Yeni rapor oluşturma modu
       isEditMode = false;
       startDate = mondayStr;
@@ -48,13 +50,10 @@
       dailyReports = [];
       showPreview = false;
       maxEndDate = "";
+      hasLoadedReport = false;
     }
-  }
-
-  // reportToEdit değiştiğinde de kontrol et
-  $: if (reportToEdit && isOpen) {
-    isEditMode = true;
-    loadReportForEditing(reportToEdit);
+  } else {
+    hasLoadedReport = false;
   }
 
   /**
@@ -71,9 +70,20 @@
     endDate = parseDate(report.endDate);
     
     // Rapordaki daily reports'ları deep copy ile yükle
+    // Svelte reactivity için yeni array oluştur
     dailyReports = report.dailyReports.map(dr => ({
-      ...dr,
-      tasks: dr.tasks.map(t => ({ ...t })) // Deep copy tasks array
+      day: dr.day,
+      date: dr.date,
+      tasks: dr.tasks.map(t => ({
+        taskName: t.taskName,
+        taskNumber: t.taskNumber,
+        estimatedHours: t.estimatedHours,
+        description: t.description
+      })),
+      blockers: dr.blockers || "",
+      meetings: dr.meetings || "",
+      untrackedWork: dr.untrackedWork || "",
+      isOnLeave: dr.isOnLeave || false
     }));
     
     showPreview = false;
@@ -243,7 +253,7 @@
       });
   }
 
-  $: if (startDate && endDate) {
+  $: if (startDate && endDate && !isEditMode) {
     generateWeeklyReports();
   }
 
@@ -350,7 +360,7 @@
                 >
                   Başlangıç Tarihi <span class="text-red-500">*</span>
                 </label>
-                <Input type="date" value={startDate} disabled={true} />
+                <Input type="date" value={startDate} disabled={isEditMode} />
               </div>
               <div>
                 <label
@@ -364,7 +374,7 @@
                   bind:value={endDate}
                   min={startDate}
                   max={maxEndDate}
-                  disabled={!startDate}
+                  disabled={isEditMode || !startDate}
                 />
               </div>
             </div>

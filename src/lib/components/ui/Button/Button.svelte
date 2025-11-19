@@ -9,9 +9,15 @@
   export let onClick: (event: MouseEvent) => void = () => {};
 
   $: computedClass = className || `btn ${variant} ${size} ${theme}`;
+
+  function handleClick(e: MouseEvent) {
+    if (!disabled) {
+      onClick(e);
+    }
+  }
 </script>
 
-<button {type} {disabled} class={computedClass} on:click={onClick}>
+<button {type} {disabled} class={computedClass} on:click={handleClick}>
   {text}
 </button>
 
