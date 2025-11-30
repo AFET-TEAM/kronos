@@ -89,7 +89,7 @@
 
   /**
    * Raporun düzenlenebilir olup olmadığını kontrol et
-   * Sadece bu hafta ve bir önceki haftanın raporları düzenlenebilir
+   * Sadece bulunduğumuz haftanın raporları düzenlenebilir
    */
   function isReportEditable(report: ArchiveReport): boolean {
     const today = new Date();
@@ -107,12 +107,13 @@
     currentWeekStart.setDate(today.getDate() + daysToMonday);
     currentWeekStart.setHours(0, 0, 0, 0);
     
-    // Bir önceki haftanın başlangıcı
-    const previousWeekStart = new Date(currentWeekStart);
-    previousWeekStart.setDate(currentWeekStart.getDate() - 7);
+    // Bu haftanın sonu (Pazar)
+    const currentWeekEnd = new Date(currentWeekStart);
+    currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
+    currentWeekEnd.setHours(23, 59, 59, 999);
     
-    // Rapor tarihi, bir önceki haftanın başlangıcından sonra veya eşitse düzenlenebilir
-    return reportEndDate >= previousWeekStart;
+    // Rapor tarihi, bu haftanın içinde ise düzenlenebilir
+    return reportEndDate >= currentWeekStart && reportEndDate <= currentWeekEnd;
   }
 
   /**
