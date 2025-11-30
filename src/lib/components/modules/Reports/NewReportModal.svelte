@@ -360,7 +360,12 @@
                 >
                   Başlangıç Tarihi <span class="text-red-500">*</span>
                 </label>
-                <Input type="date" value={startDate} disabled={isEditMode} />
+                <Input 
+                  type="date" 
+                  value={startDate} 
+                  min={isEditMode ? undefined : mondayStr}
+                  disabled={isEditMode} 
+                />
               </div>
               <div>
                 <label
