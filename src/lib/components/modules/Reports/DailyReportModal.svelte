@@ -3,8 +3,10 @@
   import Input from "$lib/components/ui/Input/Input.svelte";
   import TextArea from "$lib/components/ui/TextArea/TextArea.svelte";
   import Checkbox from "$lib/components/ui/Checkbox/Checkbox.svelte";
+  import GeneralSelectbox from "$lib/components/ui/GeneralSelectbox/GeneralSelectbox.svelte";
   import { saveDailyReport, getDailyReport } from "$lib/store/reportStore.js";
   import { toastStore } from "$lib/store/toastStore.js";
+  import type { Meeting } from "$lib/services/reportService.js";
 
   export let isOpen = false;
   export let selectedDate = "";
@@ -15,32 +17,59 @@
     taskNumber: string;
     estimatedHours: number;
     description: string;
+    status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
   };
 
-  let tasks: Task[] = [
-    { taskName: "", taskNumber: "", estimatedHours: 0, description: "" },
+  const statusOptions = [
+    { value: "Analiz", label: "Analiz" },
+    { value: "Devam Ediyor", label: "Devam Ediyor" },
+    { value: "Tamamlandı", label: "Tamamlandı" },
   ];
-  let blockers = "";
-  let meetings = "";
+
+  let tasks: Task[] = [
+    {
+      taskName: "",
+      taskNumber: "",
+      estimatedHours: 0,
+      description: "",
+      status: "Devam Ediyor",
+    },
+  ];
+  let blockers: string[] = [];
+  let meetings: Meeting[] = [];
   let untrackedWork = "";
   let isOnLeave = false;
+
+  // Temporary input values for new items
+  let newBlocker = "";
+  let newMeetingName = "";
+  let newMeetingDuration: number | string = "";
 
   function closeModal() {
     isOpen = false;
     tasks = [
       { taskName: "", taskNumber: "", estimatedHours: 0, description: "" },
     ];
-    blockers = "";
-    meetings = "";
+    blockers = [];
+    meetings = [];
     untrackedWork = "";
     isOnLeave = false;
+    newBlocker = "";
+    newMeetingName = "";
+    newMeetingDuration = "";
     onClose();
   }
 
   function addTask() {
     tasks = [
       ...tasks,
-      { taskName: "", taskNumber: "", estimatedHours: 0, description: "" },
+      {
+        taskName: "",
+        taskNumber: "",
+        estimatedHours: 0,
+        description: "",
+        status: "Devam Ediyor",
+      },
     ];
   }
 
@@ -48,12 +77,39 @@
     tasks = tasks.filter((_, i) => i !== index);
   }
 
+  function addBlocker() {
+    if (newBlocker.trim()) {
+      blockers = [...blockers, newBlocker.trim()];
+      newBlocker = "";
+    }
+  }
+
+  function removeBlocker(index: number) {
+    blockers = blockers.filter((_, i) => i !== index);
+  }
+
+  function addMeeting() {
+    const duration =
+      typeof newMeetingDuration === "number"
+        ? newMeetingDuration
+        : parseFloat(newMeetingDuration as string) || 0;
+    if (newMeetingName.trim()) {
+      meetings = [...meetings, { name: newMeetingName.trim(), duration }];
+      newMeetingName = "";
+      newMeetingDuration = "";
+    }
+  }
+
+  function removeMeeting(index: number) {
+    meetings = meetings.filter((_, i) => i !== index);
+  }
+
   function handleSubmit() {
     const hasAnyContent =
       isOnLeave ||
       tasks.some((t) => t.taskName) ||
-      blockers.trim() ||
-      meetings.trim() ||
+      blockers.length > 0 ||
+      meetings.length > 0 ||
       untrackedWork.trim();
 
     if (!selectedDate || !hasAnyContent) {
@@ -70,8 +126,8 @@
       day: dayName,
       date: formattedDate,
       tasks: isOnLeave ? [] : tasks.filter((t) => t.taskName),
-      blockers: blockers.trim(),
-      meetings: meetings.trim(),
+      blockers: blockers,
+      meetings: meetings,
       untrackedWork: untrackedWork.trim(),
       isOnLeave: isOnLeave,
     });
@@ -107,8 +163,8 @@
   $: hasAnyContent =
     isOnLeave ||
     tasks.some((task) => task.taskName) ||
-    blockers.trim() ||
-    meetings.trim() ||
+    blockers.length > 0 ||
+    meetings.length > 0 ||
     untrackedWork.trim();
   $: formattedDate = formatDate(selectedDate);
   $: dayName = getDayName(selectedDate);
@@ -120,10 +176,16 @@
   // Clear all data when on leave is checked
   $: if (isOnLeave) {
     tasks = [
-      { taskName: "", taskNumber: "", estimatedHours: 0, description: "" },
+      {
+        taskName: "",
+        taskNumber: "",
+        estimatedHours: 0,
+        description: "",
+        status: "Devam Ediyor",
+      },
     ];
-    blockers = "";
-    meetings = "";
+    blockers = [];
+    meetings = [];
     untrackedWork = "";
   }
 
@@ -139,18 +201,57 @@
                 taskNumber: "",
                 estimatedHours: 0,
                 description: "",
+                status: "Devam Ediyor",
               },
             ];
-      blockers = existingReport.blockers || "";
-      meetings = existingReport.meetings || "";
+
+      // Eski string formatını array'e çevir
+      if (typeof existingReport.blockers === "string") {
+        blockers = existingReport.blockers.trim()
+          ? existingReport.blockers
+              .split("\n")
+              .map((b) => b.trim())
+              .filter((b) => b)
+          : [];
+      } else {
+        blockers = existingReport.blockers || [];
+      }
+
+      // Meetings için geriye uyumluluk
+      if (typeof existingReport.meetings === "string") {
+        // Eski string formatı - basit array'e çevir
+        meetings = existingReport.meetings.trim()
+          ? existingReport.meetings
+              .split("\n")
+              .map((m) => ({ name: m.trim(), duration: 0 }))
+              .filter((m) => m.name)
+          : [];
+      } else if (Array.isArray(existingReport.meetings)) {
+        // Array ise, Meeting[] veya string[] olabilir
+        meetings = existingReport.meetings.map((m) => {
+          if (typeof m === "string") {
+            return { name: m, duration: 0 };
+          }
+          return m;
+        });
+      } else {
+        meetings = [];
+      }
+
       untrackedWork = existingReport.untrackedWork || "";
       isOnLeave = existingReport.isOnLeave || false;
     } else {
       tasks = [
-        { taskName: "", taskNumber: "", estimatedHours: 0, description: "" },
+        {
+          taskName: "",
+          taskNumber: "",
+          estimatedHours: 0,
+          description: "",
+          status: "Devam Ediyor",
+        },
       ];
-      blockers = "";
-      meetings = "";
+      blockers = [];
+      meetings = [];
       untrackedWork = "";
       isOnLeave = false;
     }
@@ -327,23 +428,43 @@
                     </div>
                   </div>
 
-                  <div>
-                    <label
-                      for="task-hours-{index}"
-                      class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-                    >
-                      Tahmini Harcanan Süre (saat)
-                    </label>
-                    <input
-                      id="task-hours-{index}"
-                      type="number"
-                      placeholder="Örn: 4"
-                      bind:value={task.estimatedHours}
-                      min="0"
-                      step="0.5"
-                      disabled={isOnLeave}
-                      class="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label
+                        for="task-hours-{index}"
+                        class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+                      >
+                        Tahmini Harcanan Süre (saat)
+                      </label>
+                      <input
+                        id="task-hours-{index}"
+                        type="number"
+                        placeholder="Örn: 4"
+                        bind:value={task.estimatedHours}
+                        min="0"
+                        step="0.5"
+                        disabled={isOnLeave}
+                        class="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        for="task-status-{index}"
+                        class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+                      >
+                        Durum
+                      </label>
+                      <select
+                        id="task-status-{index}"
+                        bind:value={task.status}
+                        disabled={isOnLeave}
+                        class="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="Analiz">Analiz</option>
+                        <option value="Devam Ediyor">Devam Ediyor</option>
+                        <option value="Tamamlandı">Tamamlandı</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div>
@@ -385,12 +506,66 @@
                 Blokajlar / Sorunlar
               </h3>
             </div>
-            <TextArea
-              placeholder="Karşılaşılan blokajlar veya sorunlar varsa belirtiniz..."
-              bind:value={blockers}
-              rows={3}
-              disabled={isOnLeave}
-            />
+
+            <!-- Blocker list -->
+            {#if blockers.length > 0}
+              <ul class="space-y-2 mb-3">
+                {#each blockers as blocker, index}
+                  <li
+                    class="flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  >
+                    <span class="flex-1 text-gray-900 dark:text-gray-100"
+                      >• {blocker}</span
+                    >
+                    <button
+                      type="button"
+                      on:click={() => removeBlocker(index)}
+                      class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                      disabled={isOnLeave}
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+
+            <!-- Add new blocker -->
+            <div class="flex gap-2">
+              <Input
+                type="text"
+                placeholder="Yeni blokaj veya sorun ekleyin..."
+                bind:value={newBlocker}
+                disabled={isOnLeave}
+                className="flex-1"
+                on:keydown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addBlocker();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                on:click={addBlocker}
+                disabled={isOnLeave || !newBlocker.trim()}
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Ekle
+              </button>
+            </div>
           </div>
 
           <!-- Meetings Section -->
@@ -413,12 +588,85 @@
                 Katılım Sağlanan Toplantılar ve Eğitimler
               </h3>
             </div>
-            <TextArea
-              placeholder="Katıldığınız toplantı ve eğitimleri belirtiniz..."
-              bind:value={meetings}
-              rows={3}
-              disabled={isOnLeave}
-            />
+
+            <!-- Meetings list -->
+            {#if meetings.length > 0}
+              <ul class="space-y-2 mb-3">
+                {#each meetings as meeting, index}
+                  <li
+                    class="flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  >
+                    <div class="flex-1">
+                      <span class="text-gray-900 dark:text-gray-100"
+                        >• {meeting.name}</span
+                      >
+                      {#if meeting.duration > 0}
+                        <span
+                          class="ml-2 text-sm text-blue-600 dark:text-blue-400"
+                          >({meeting.duration} saat)</span
+                        >
+                      {/if}
+                    </div>
+                    <button
+                      type="button"
+                      on:click={() => removeMeeting(index)}
+                      class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                      disabled={isOnLeave}
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+
+            <!-- Add new meeting -->
+            <div class="space-y-2">
+              <div class="flex gap-2">
+                <div class="flex-1 min-w-0">
+                  <Input
+                    type="text"
+                    placeholder="Toplantı/eğitim adı..."
+                    bind:value={newMeetingName}
+                    disabled={isOnLeave}
+                  />
+                </div>
+                <div class="w-32">
+                  <input
+                    type="number"
+                    placeholder="Süre (saat)"
+                    bind:value={newMeetingDuration}
+                    min="0"
+                    step="0.5"
+                    disabled={isOnLeave}
+                    class="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+                <button
+                  type="button"
+                  on:click={addMeeting}
+                  disabled={isOnLeave || !newMeetingName.trim()}
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap shrink-0"
+                >
+                  Ekle
+                </button>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Toplantı/eğitim adını girin. Süre opsiyoneldir (örn: 1.5)
+              </p>
+            </div>
           </div>
 
           <!-- Untracked Work Section -->

@@ -37,14 +37,20 @@ export type DayTask = {
   taskNumber: string;
   estimatedHours: number;
   description: string;
+  status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
+};
+
+export type Meeting = {
+  name: string;
+  duration: number; // Saat cinsinden
 };
 
 export type DailyReport = {
   day: string;
   date: string;
   tasks: DayTask[];
-  blockers: string;
-  meetings: string;
+  blockers: string | string[]; // String veya array olabilir (geriye uyumluluk için)
+  meetings: string | string[] | Meeting[]; // String, string array veya Meeting array olabilir
   untrackedWork: string;
   isOnLeave?: boolean;
 };
@@ -87,17 +93,33 @@ function saveToLocalStorage(stats: DashboardStats) {
 }
 
 function getDefaultDashboardStats(): DashboardStats {
+  // Bu haftanın Pazartesi gününü bul
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 = Pazar, 1 = Pazartesi, ...
+  const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
+  const thisWeekMonday = new Date(today);
+  thisWeekMonday.setDate(today.getDate() - daysFromMonday);
+
+  // Pazartesi'den Cuma'ya kadar günleri oluştur
+  const dayNames = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"];
+  const weeklySummary = dayNames.map((day, index) => {
+    const date = new Date(thisWeekMonday);
+    date.setDate(thisWeekMonday.getDate() + index);
+    const dateStr = date.toISOString().split("T")[0];
+
+    return {
+      day,
+      date: dateStr,
+      hasReport: false,
+      taskCount: 0,
+    };
+  });
+
   return {
     reportsSent: 42,
     tasksCompleted: 156,
     avgCompletionRate: 87.5,
-    weeklySummary: [
-      { day: "Pazartesi", date: "2025-10-27", hasReport: true, taskCount: 5 },
-      { day: "Salı", date: "2025-10-28", hasReport: true, taskCount: 4 },
-      { day: "Çarşamba", date: "2025-10-29", hasReport: false, taskCount: 0 },
-      { day: "Perşembe", date: "2025-10-30", hasReport: false, taskCount: 0 },
-      { day: "Cuma", date: "2025-10-31", hasReport: false, taskCount: 0 },
-    ],
+    weeklySummary,
     recentReports: [
       {
         id: "1",

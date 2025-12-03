@@ -23,16 +23,20 @@
 
 <div class={`w-full ${theme === "dark" ? "text-white" : "text-dark-gray"}`}>
   {#if label}
-    <label for={textareaId} class="block mb-1 font-semibold">{label}</label>
+    <label
+      for={textareaId}
+      class="block mb-1 font-semibold text-gray-900 dark:text-gray-100"
+      >{label}</label
+    >
   {/if}
 
   <textarea
     id={textareaId}
     bind:value
-    placeholder={placeholder}
-    disabled={disabled}
+    {placeholder}
+    {disabled}
     maxlength={maxLength ?? undefined}
-    rows={rows}
+    {rows}
     class={`w-full resize-none rounded-md border px-3 py-2 focus:outline-none transition
       ${
         theme === "dark"
@@ -46,8 +50,10 @@
   />
 
   {#if maxLength !== null}
-    <div class={`mt-1 text-right text-sm
-      ${theme === "dark" ? "text-mid-gray" : "text-light-gray"}`}>
+    <div
+      class={`mt-1 text-right text-sm
+      ${theme === "dark" ? "text-mid-gray" : "text-light-gray"}`}
+    >
       {value.length} / {maxLength}
     </div>
   {/if}

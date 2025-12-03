@@ -100,10 +100,11 @@
               taskNumber: "",
               estimatedHours: 0,
               description: "",
+              status: "Devam Ediyor",
             },
           ],
-          blockers: "",
-          meetings: "",
+          blockers: [],
+          meetings: [],
           untrackedWork: "",
           isOnLeave: false,
         });
@@ -122,8 +123,12 @@
       (day) =>
         day.isOnLeave ||
         day.tasks.some((t) => t.taskName) ||
-        day.blockers ||
-        day.meetings ||
+        (Array.isArray(day.blockers)
+          ? day.blockers.length > 0
+          : day.blockers) ||
+        (Array.isArray(day.meetings)
+          ? day.meetings.length > 0
+          : day.meetings) ||
         day.untrackedWork
     );
 
@@ -140,8 +145,12 @@
       const hasContent =
         dayReport.isOnLeave ||
         dayReport.tasks.some((t) => t.taskName) ||
-        dayReport.blockers ||
-        dayReport.meetings ||
+        (Array.isArray(dayReport.blockers)
+          ? dayReport.blockers.length > 0
+          : dayReport.blockers) ||
+        (Array.isArray(dayReport.meetings)
+          ? dayReport.meetings.length > 0
+          : dayReport.meetings) ||
         dayReport.untrackedWork;
 
       if (hasContent) {
@@ -168,8 +177,12 @@
       (day) =>
         day.isOnLeave ||
         day.tasks.some((t) => t.taskName) ||
-        day.blockers ||
-        day.meetings ||
+        (Array.isArray(day.blockers)
+          ? day.blockers.length > 0
+          : day.blockers) ||
+        (Array.isArray(day.meetings)
+          ? day.meetings.length > 0
+          : day.meetings) ||
         day.untrackedWork
     );
 
@@ -218,8 +231,8 @@
     (day) =>
       day.isOnLeave ||
       day.tasks.some((t) => t.taskName) ||
-      day.blockers ||
-      day.meetings ||
+      (Array.isArray(day.blockers) ? day.blockers.length > 0 : day.blockers) ||
+      (Array.isArray(day.meetings) ? day.meetings.length > 0 : day.meetings) ||
       day.untrackedWork
   ).length;
 </script>

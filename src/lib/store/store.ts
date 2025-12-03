@@ -12,7 +12,9 @@ const initialUserData = storedUser
       lastName: "",
       title: "",
       squad: "",
+      department: "",
       avatarUrl: "",
+      role: "admin",
       startDate: "",
       projects: [],
       trainings: [],
@@ -36,34 +38,4 @@ export function getUserDisplayName(): string {
     return user.email;
   }
   return "User Profile";
-}
-
-export function extractNameFromEmail(email: string) {
-  try {
-    const namePart = email.split("@")[0];
-    const parts = namePart.split(".");
-
-    if (parts.length >= 2) {
-      return {
-        firstName: capitalizeFirstLetter(parts[0]),
-        lastName: capitalizeFirstLetter(parts[1]),
-      };
-    }
-
-    return {
-      firstName: capitalizeFirstLetter(namePart),
-      lastName: "",
-    };
-  } catch (error) {
-    console.error("Email parsing error:", error);
-    return {
-      firstName: "",
-      lastName: "",
-    };
-  }
-}
-
-function capitalizeFirstLetter(str: string): string {
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }

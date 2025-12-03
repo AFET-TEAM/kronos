@@ -140,6 +140,17 @@
         className="profile-input"
       />
 
+      <Input
+        label="Departman"
+        placeholder="Departman"
+        type="text"
+        disabled={!isEditing}
+        bind:value={tempFormData.department}
+        on:keydown={onKeyDown}
+        theme="dark"
+        className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+      />
+
       {#if isEditing}
         <div class="flex flex-col md:flex-row gap-4 pt-4">
           <Button

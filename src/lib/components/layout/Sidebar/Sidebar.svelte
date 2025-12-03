@@ -3,10 +3,11 @@
   import Button from "../../ui/Button/Button.svelte";
   import { userStore } from "$lib/store/store.js";
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+  import { logout } from "$lib/services/auth.service.js";
+  import { toastStore } from "$lib/store/toastStore.js";
 
   export let isOpen: boolean = false;
-
-  import { removeAuthToken } from "$lib/services/auth.service.js";
 
   $: userName =
     $userStore.firstName && $userStore.lastName
@@ -19,20 +20,34 @@
     if (path === "/" || path === "/dashboard") {
       return currentPath === "/" || currentPath === "/dashboard";
     }
+    if (path === "/admin") {
+      return currentPath.startsWith("/admin");
+    }
     return currentPath === path;
   }
 
-  function handleLogout() {
-    removeAuthToken();
-    userStore.set({
-      email: "",
-      firstName: "",
-      lastName: "",
-      title: "",
-      squad: "",
-      avatarUrl: "",
-    });
-    location.href = "/";
+  async function handleLogout() {
+    try {
+      await logout();
+      userStore.set({
+        email: "",
+        firstName: "",
+        lastName: "",
+        title: "",
+        squad: "",
+        avatarUrl: "",
+        role: "user",
+        startDate: "",
+        projects: [],
+        trainings: [],
+        awards: [],
+        certifications: [],
+      });
+      toastStore.success("Başarıyla çıkış yapıldı");
+      goto("/login");
+    } catch (error) {
+      toastStore.error("Çıkış yapılırken hata oluştu");
+    }
   }
 </script>
 
@@ -79,6 +94,17 @@
           : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
         >Raporlar</a
       >
+      {#if $userStore.role === "admin"}
+        <a
+          href="/admin"
+          class="block px-3 py-2 rounded font-medium transition-colors {isActive(
+            '/admin'
+          )
+            ? 'bg-indigo-600 text-white'
+            : 'text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}"
+          >Admin</a
+        >
+      {/if}
       <a
         href="/profile"
         class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
