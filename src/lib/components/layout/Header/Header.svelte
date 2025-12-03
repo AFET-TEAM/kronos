@@ -1,9 +1,9 @@
 <script lang="ts">
   import Icon from "../../ui/Icon/Icon.svelte";
-  import Button from "../../ui/Button/Button.svelte";
   import SearchBar from "../../ui/SearchBar/SearchBar.svelte";
+  import { themeStore, toggleTheme } from "$lib/store/themeStore.js";
+  
   export let logo: string | null = null;
-  export let theme: "light" | "dark" = "light";
   export let isSidebarOpen: boolean = true;
   export let onToggleSidebar: () => void = () => {};
   export let searchValue: string = "";
@@ -13,9 +13,13 @@
   function toggleMobileSearch() {
     isMobileSearchOpen = !isMobileSearchOpen;
   }
+
+  function handleThemeToggle() {
+    toggleTheme();
+  }
 </script>
 
-<div class="header {theme}">
+<div class="header {$themeStore}">
   <div class="left-section">
     <button
       on:click={onToggleSidebar}
@@ -47,7 +51,15 @@
       🔍
     </button>
     <Icon name={"globe"} alt="icon" width="20" height="20" />
-    <Icon name={"theme-dark"} alt="icon" width="20" height="20" />
+    <button
+      on:click={handleThemeToggle}
+      class="theme-toggle-btn"
+      aria-label="Toggle theme"
+    >
+      {#key $themeStore}
+        <Icon name={$themeStore === "light" ? "theme-dark" : "theme-light"} alt="theme icon" width="20" height="20" />
+      {/key}
+    </button>
   </div>
 </div>
 
@@ -55,12 +67,12 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="mobile-search-overlay" on:click={toggleMobileSearch}>
-    <div class="mobile-search-container {theme}" on:click|stopPropagation>
-      <div class="mobile-search-header {theme}">
+    <div class="mobile-search-container {$themeStore}" on:click|stopPropagation>
+      <div class="mobile-search-header {$themeStore}">
         <span>Ara</span>
         <button
           on:click={toggleMobileSearch}
-          class="close-btn {theme}"
+          class="close-btn {$themeStore}"
           aria-label="Close search"
         >
           ✕
@@ -96,12 +108,12 @@
       color 0.3s ease;
   }
   .light {
-    background-color: #f7f3f3;
-    color: #000;
+    background-color: var(--color-ui-header-background);
+    color: var(--color-ui-header-text);
   }
   .dark {
-    background-color: #2c2c2c;
-    color: #e0e0e0;
+    background-color: var(--color-ui-header-background);
+    color: var(--color-ui-header-text);
   }
 
   .left-section {
@@ -123,16 +135,12 @@
     transition: background-color 0.2s;
   }
 
-  .light .hamburger-btn {
-    color: #4f46e5;
+  .hamburger-btn {
+    color: var(--color-ui-header-icon);
   }
 
-  .light .hamburger-btn:hover {
+  .hamburger-btn:hover {
     background-color: rgba(79, 70, 229, 0.1);
-  }
-
-  .dark .hamburger-btn {
-    color: #818cf8;
   }
 
   .dark .hamburger-btn:hover {
@@ -180,16 +188,12 @@
     transition: background-color 0.2s;
   }
 
-  .light .mobile-search-btn {
-    color: #4f46e5;
+  .mobile-search-btn {
+    color: var(--color-ui-header-icon);
   }
 
-  .light .mobile-search-btn:hover {
+  .mobile-search-btn:hover {
     background-color: rgba(79, 70, 229, 0.1);
-  }
-
-  .dark .mobile-search-btn {
-    color: #818cf8;
   }
 
   .dark .mobile-search-btn:hover {
@@ -202,7 +206,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--color-background-overlay);
     z-index: 100;
     display: flex;
     align-items: flex-start;
@@ -211,16 +215,12 @@
   }
 
   .mobile-search-container {
-    background: white;
+    background: var(--color-ui-card-background);
     border-radius: 0.5rem;
     width: 90%;
     max-width: 500px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px var(--color-ui-card-shadow);
     overflow: hidden;
-  }
-
-  .dark .mobile-search-container {
-    background: #2c2c2c;
   }
 
   .mobile-search-header {
@@ -228,16 +228,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border);
     font-weight: 600;
-  }
-
-  .dark .mobile-search-header {
-    border-bottom-color: #4b5563;
   }
 
   .mobile-search-content {
     padding: 1rem;
+    display: flex;
+    justify-content: center;
   }
 
   .close-btn {
@@ -246,20 +244,33 @@
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0.25rem;
-    color: #6b7280;
+    color: var(--color-text-tertiary);
     transition: color 0.2s;
   }
 
   .close-btn:hover {
-    color: #1f2937;
+    color: var(--color-text);
   }
 
-  .dark .close-btn {
-    color: #9ca3af;
+  .theme-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    transition: background-color 0.2s;
+    color: var(--color-ui-header-icon);
   }
 
-  .dark .close-btn:hover {
-    color: #e5e7eb;
+  .theme-toggle-btn:hover {
+    background-color: rgba(79, 70, 229, 0.1);
+  }
+
+  .dark .theme-toggle-btn:hover {
+    background-color: rgba(129, 140, 248, 0.1);
   }
 
   @media (max-width: 768px) {
@@ -314,5 +325,14 @@
     font-size: 0.85rem;
     display: flex;
     align-items: center;
+  }
+
+  .right :global(img) {
+    filter: brightness(0) saturate(100%) invert(0%);
+    transition: filter 0.3s ease;
+  }
+
+  .dark .right :global(img) {
+    filter: brightness(0) saturate(100%) invert(100%);
   }
 </style>

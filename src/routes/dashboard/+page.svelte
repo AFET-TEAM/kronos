@@ -26,7 +26,6 @@
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <Header
-    theme={$themeStore}
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
     bind:searchValue

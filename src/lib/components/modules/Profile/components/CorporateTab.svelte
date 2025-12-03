@@ -26,7 +26,7 @@
 
 <div class="max-w-4xl">
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl md:text-2xl font-bold text-white">Kurumsal Bilgiler</h2>
+    <h2 class="text-xl md:text-2xl font-bold profile-heading">Kurumsal Bilgiler</h2>
     {#if !isEditing}
       <Button
         type="button"
@@ -34,7 +34,7 @@
         variant="primary"
         size="medium"
         theme="dark"
-        className="bg-blue-100 text-white px-6 py-2 hover:bg-blue-200"
+        className="profile-button-primary profile-button-primary-hover px-6 py-2"
         onClick={onEdit}
       />
     {/if}
@@ -50,14 +50,14 @@
         bind:value={tempFormData.startDate}
         on:keydown={onKeyDown}
         theme="dark"
-        className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+        className="profile-input"
       />
     </div>
 
     {#each [{ key: "projects", label: "Yer Aldığı Projeler", placeholder: "Proje adı" }, { key: "trainings", label: "Katıldığı Eğitimler", placeholder: "Eğitim adı" }, { key: "awards", label: "Ödüller", placeholder: "Ödül adı" }, { key: "certifications", label: "Sertifikalar", placeholder: "Sertifika adı" }] as items}
       <fieldset>
         <div class="flex justify-between items-center mb-3">
-          <legend class="block text-sm font-semibold text-slate-300">
+          <legend class="block text-sm font-semibold profile-legend">
             {items.label}
           </legend>
           {#if isEditing}
@@ -84,7 +84,7 @@
                 on:input={(e) =>
                   updateItem(items.key, i, e.currentTarget.value)}
                 on:keydown={onKeyDown}
-                class="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 disabled:opacity-50"
+                class="flex-1 px-3 py-2 profile-input rounded disabled:opacity-50"
               />
               {#if isEditing}
                 <Button
@@ -111,7 +111,7 @@
           variant="primary"
           size="large"
           theme="dark"
-          className="flex-1 bg-blue-100 text-white hover:bg-blue-200 py-2"
+          className="flex-1 profile-button-primary profile-button-primary-hover py-2"
           onClick={onSave}
         />
         <Button
@@ -120,10 +120,49 @@
           variant="secondary"
           size="large"
           theme="dark"
-          className="flex-1 bg-slate-600 text-white hover:bg-slate-700 py-2"
+          className="flex-1 profile-button-secondary profile-button-secondary-hover py-2"
           onClick={onCancel}
         />
       </div>
     {/if}
   </div>
 </div>
+
+<style>
+  .profile-heading {
+    color: var(--color-text);
+  }
+
+  .profile-legend {
+    color: var(--color-text-secondary);
+  }
+
+  :global(.profile-button-primary) {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+
+  :global(.profile-button-primary-hover:hover) {
+    background-color: var(--color-primary-hover);
+  }
+
+  :global(.profile-button-secondary) {
+    background-color: var(--color-background-tertiary);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+
+  :global(.profile-button-secondary-hover:hover) {
+    background-color: var(--color-border);
+  }
+
+  :global(.profile-input) {
+    background-color: var(--color-background);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  :global(.profile-input::placeholder) {
+    color: var(--color-text-placeholder);
+  }
+</style>

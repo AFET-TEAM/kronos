@@ -1,3 +1,9 @@
 <div class="text-center py-8">
-  <p class="text-slate-400">Ayarlar sayfası yakında gelecek.</p>
+  <p class="settings-placeholder">Ayarlar sayfası yakında gelecek.</p>
 </div>
+
+<style>
+  .settings-placeholder {
+    color: var(--color-text-tertiary);
+  }
+</style>

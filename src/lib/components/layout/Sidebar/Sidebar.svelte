@@ -50,7 +50,7 @@
         )
           ? 'bg-blue-200'
           : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Dashboard</a
+        >Ana Sayfa</a
       >
       <a
         href="/kpi"
@@ -68,7 +68,7 @@
         )
           ? 'bg-blue-200'
           : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Archive</a
+        >Arşiv</a
       >
       <a
         href="/reports"
@@ -77,7 +77,7 @@
         )
           ? 'bg-blue-200'
           : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Reports</a
+        >Raporlar</a
       >
       <a
         href="/profile"
@@ -86,7 +86,7 @@
         )
           ? 'bg-blue-200'
           : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Profile</a
+        >Profil</a
       >
     </nav>
 

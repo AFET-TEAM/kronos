@@ -57,11 +57,9 @@
 </div>
 
 <Button
-  type="button"
   text="Profil"
-  variant="secondary"
+  variant="tertiary"
   size="medium"
-  theme="light"
   {onClick}
-  className="w-full bg-yellow-100 text-gray-900 hover:bg-yellow-200"
+  className="w-full"
 />

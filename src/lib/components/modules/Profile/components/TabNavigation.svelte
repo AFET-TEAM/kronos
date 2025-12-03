@@ -2,34 +2,59 @@
   export let activeTab: string = "profile";
 </script>
 
-<div class="flex flex-wrap border-b border-slate-700">
+<div class="tab-navigation">
   <button
-    class="flex-1 min-w-[120px] md:min-w-auto px-4 md:px-6 py-3 md:py-4 text-white font-semibold border-b-2 transition"
-    class:border-indigo-600={activeTab === "profile"}
-    class:border-slate-700={activeTab !== "profile"}
-    class:bg-blue-200={activeTab === "profile"}
+    class="tab-button"
+    class:tab-active={activeTab === "profile"}
     on:click={() => (activeTab = "profile")}
   >
     Profil Bilgisi
   </button>
   <button
-    class="flex-1 min-w-[120px] md:min-w-auto px-4 md:px-6 py-3 md:py-4 text-slate-400 font-semibold border-b-2 transition cursor-pointer"
-    class:border-indigo-600={activeTab === "corporate"}
-    class:border-slate-700={activeTab !== "corporate"}
-    class:text-white={activeTab === "corporate"}
-    class:bg-blue-200={activeTab === "corporate"}
+    class="tab-button"
+    class:tab-active={activeTab === "corporate"}
     on:click={() => (activeTab = "corporate")}
   >
     Kurumsal Bilgiler
   </button>
   <button
-    class="flex-1 min-w-[120px] md:min-w-auto px-4 md:px-6 py-3 md:py-4 text-slate-400 font-semibold border-b-2 transition cursor-pointer"
-    class:border-indigo-600={activeTab === "settings"}
-    class:border-slate-700={activeTab !== "settings"}
-    class:text-white={activeTab === "settings"}
-    class:bg-blue-200={activeTab === "settings"}
+    class="tab-button"
+    class:tab-active={activeTab === "settings"}
     on:click={() => (activeTab = "settings")}
   >
     Ayarlar
   </button>
 </div>
+
+<style>
+  .tab-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tab-button {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+    background: transparent;
+    color: var(--color-text-tertiary);
+  }
+
+  @media (min-width: 768px) {
+    .tab-button {
+      min-width: auto;
+      padding: 1rem 1.5rem;
+    }
+  }
+
+  .tab-button.tab-active {
+    color: var(--color-text);
+    border-bottom-color: var(--color-primary);
+    background-color: var(--color-background-secondary);
+  }
+</style>

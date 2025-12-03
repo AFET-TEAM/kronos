@@ -100,15 +100,13 @@
   };
 </script>
 
-<div
-  class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 p-4 md:p-6 lg:p-8"
->
+<div class="profile-page-container min-h-screen p-4 md:p-6 lg:p-8">
   <div class="max-w-4xl mx-auto">
     <div class="mb-8">
-      <h1 class="text-4xl md:text-5xl font-bold text-white">Profil</h1>
+      <h1 class="text-4xl md:text-5xl font-bold profile-title">Profil</h1>
     </div>
 
-    <div class="bg-slate-800 rounded-lg shadow-2xl overflow-hidden">
+    <div class="profile-settings-area rounded-lg shadow-2xl overflow-hidden">
       <TabNavigation bind:activeTab />
 
       <div class="p-6 md:p-8">
@@ -144,5 +142,34 @@
   :global(body) {
     margin: 0;
     padding: 0;
+  }
+
+  .profile-page-container {
+    background: linear-gradient(
+      to top right,
+      var(--color-brand-blue-ribbon),
+      var(--color-success)
+    );
+  }
+
+  :global(.dark) .profile-page-container {
+    background: linear-gradient(
+      to top right,
+      var(--color-gradient-body-gray1),
+      var(--color-gradient-body-gray2)
+    );
+  }
+
+  .profile-title {
+    color: var(--color-text-inverse);
+    text-shadow: 1px 1px 2px var(--color-background-overlay);
+  }
+
+  :global(.dark) .profile-title {
+    color: var(--color-text);
+  }
+
+  .profile-settings-area {
+    background: var(--color-background);
   }
 </style>
