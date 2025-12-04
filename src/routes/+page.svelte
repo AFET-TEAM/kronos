@@ -28,7 +28,6 @@
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <Header
-    theme={$themeStore}
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
     bind:searchValue
@@ -44,11 +43,11 @@
   <Sidebar bind:isOpen={isSidebarOpen} />
 
   <main
-    class="transition-all duration-300 pt-16 {isSidebarOpen
+    class="transition-all duration-300 pt-8 {isSidebarOpen
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >
-    <div class="container mx-auto px-4 py-6 max-w-7xl">
+    <div class="container mx-auto max-w-7xl">
       <Dashboard />
     </div>
   </main>

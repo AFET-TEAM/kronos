@@ -83,7 +83,7 @@
       {/if}
     {:else}
       <button
-        class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+        class="w-full py-2 px-3 bg-blue-100 hover:bg-blue-200 text-white text-sm font-medium rounded-md transition-colors duration-200"
         on:click|stopPropagation={onAddReport}
       >
         + Rapor Ekle

@@ -221,7 +221,7 @@ function getDefaultReportDetails(): { [key: string]: ReportDetails } {
         lastName: "Yılmaz",
         email: "ahmet.yilmaz@atmosware.turkcell.com.tr",
         avatarUrl:
-          "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=4f46e5&color=fff",
+          "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=0e82ff&color=fff",
         title: "Senior Frontend Developer",
         squad: "Platform Team",
       },
@@ -358,7 +358,7 @@ function getDefaultReportDetails(): { [key: string]: ReportDetails } {
         lastName: "Yılmaz",
         email: "ahmet.yilmaz@atmosware.turkcell.com.tr",
         avatarUrl:
-          "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=4f46e5&color=fff",
+          "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=0e82ff&color=fff",
         title: "Senior Frontend Developer",
         squad: "Platform Team",
       },
@@ -457,7 +457,7 @@ function getDefaultReportDetails(): { [key: string]: ReportDetails } {
         lastName: "Yılmaz",
         email: "ahmet.yilmaz@atmosware.turkcell.com.tr",
         avatarUrl:
-          "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=4f46e5&color=fff",
+          "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=0e82ff&color=fff",
         title: "Senior Frontend Developer",
         squad: "Platform Team",
       },
@@ -614,7 +614,7 @@ export async function createWeeklyReport(
           lastName: "Yılmaz",
           email: "ahmet.yilmaz@atmosware.turkcell.com.tr",
           avatarUrl:
-            "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=4f46e5&color=fff",
+            "https://ui-avatars.com/api/?name=Ahmet+Yilmaz&background=0e82ff&color=fff",
           title: "Senior Frontend Developer",
           squad: "Platform Team",
         },

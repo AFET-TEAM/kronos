@@ -51,17 +51,15 @@
       <span class="text-lg font-bold text-white">{initials}</span>
     </div>
   {/if}
-  <p class="text-base font-semibold text-gray-800 dark:text-white">{name}</p>
-  <p class="text-sm text-gray-500 dark:text-gray-400">{title}</p>
-  <p class="text-sm text-gray-500 dark:text-gray-400">{squad}</p>
+  <p class="text-base font-semibold text-blue-200 dark:text-white">{name}</p>
+  <p class="text-sm text-blue-300 dark:text-gray-400">{title}</p>
+  <p class="text-sm text-blue-300 dark:text-gray-400">{squad}</p>
 </div>
 
 <Button
-  type="button"
   text="Profil"
-  variant="secondary"
+  variant="tertiary"
   size="medium"
-  theme="light"
   {onClick}
-  className="w-full bg-cyan-400 text-gray-900 hover:bg-cyan-500"
+  className="w-full"
 />

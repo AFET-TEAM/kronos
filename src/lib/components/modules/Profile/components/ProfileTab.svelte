@@ -32,7 +32,7 @@
         alt={`${formData.firstName} ${formData.lastName}`}
         loading="lazy"
         decoding="async"
-        class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mb-6 shadow-lg border-4 border-slate-700"
+        class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mb-6 shadow-lg border-4 profile-avatar-border"
       />
     {:else if formData.avatarUrl}
       <img
@@ -40,11 +40,11 @@
         alt={`${formData.firstName} ${formData.lastName}`}
         loading="lazy"
         decoding="async"
-        class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mb-6 shadow-lg border-4 border-slate-700"
+        class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mb-6 shadow-lg border-4 profile-avatar-border"
       />
     {:else}
       <div
-        class={`${getAvatarColor(formData.firstName, formData.lastName)} w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center mb-6 shadow-lg border-4 border-slate-700`}
+        class={`${getAvatarColor(formData.firstName, formData.lastName)} w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center mb-6 shadow-lg border-4 profile-avatar-border`}
       >
         <span class="text-3xl md:text-5xl font-bold text-white"
           >{getInitials(formData.firstName, formData.lastName)}</span
@@ -56,10 +56,9 @@
       <Button
         type="button"
         text="Düzenle"
-        variant="primary"
+        variant="secondary"
         size="medium"
-        theme="dark"
-        className="mb-3 bg-indigo-600 text-white w-full px-6 py-2 hover:bg-indigo-700"
+        className="mb-3 profile-button-primary w-full px-6 py-2 profile-button-primary-hover"
         onClick={onEdit}
       />
     {/if}
@@ -77,14 +76,13 @@
       text="Fotoğraf Değiştir"
       variant="primary"
       size="medium"
-      theme="dark"
-      className="bg-slate-700 text-white w-full px-6 py-2"
+      className="profile-button-secondary w-full px-6 py-2"
       onClick={() => document.getElementById("avatar-upload")?.click()}
     />
   </div>
 
   <div class="col-span-1 md:col-span-2">
-    <h2 class="text-xl md:text-2xl font-bold text-white mb-6">
+    <h2 class="text-xl md:text-2xl font-bold profile-heading mb-6">
       Profil Bilgileri
     </h2>
 
@@ -97,7 +95,7 @@
           disabled={true}
           bind:value={tempFormData.firstName}
           theme="dark"
-          className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 opacity-50"
+          className="profile-input profile-input-disabled"
         />
         <Input
           label="Soyad"
@@ -106,7 +104,7 @@
           disabled={true}
           bind:value={tempFormData.lastName}
           theme="dark"
-          className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 opacity-50"
+          className="profile-input profile-input-disabled"
         />
       </div>
 
@@ -117,7 +115,7 @@
         disabled={true}
         bind:value={tempFormData.email}
         theme="dark"
-        className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 opacity-50"
+        className="profile-input profile-input-disabled"
       />
 
       <Input
@@ -128,7 +126,7 @@
         bind:value={tempFormData.title}
         on:keydown={onKeyDown}
         theme="dark"
-        className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+        className="profile-input"
       />
 
       <Input
@@ -139,7 +137,7 @@
         bind:value={tempFormData.squad}
         on:keydown={onKeyDown}
         theme="dark"
-        className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+        className="profile-input"
       />
 
       <Input
@@ -159,18 +157,16 @@
             type="button"
             text="Değişiklikleri Kaydet"
             variant="primary"
-            size="large"
-            theme="dark"
-            className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700 py-2"
+            size="medium"
+            className="flex-1"
             onClick={onSave}
           />
           <Button
             type="button"
             text="İptal"
             variant="secondary"
-            size="large"
-            theme="dark"
-            className="flex-1 bg-slate-600 text-white hover:bg-slate-700 py-2"
+            size="medium"
+            className="flex-1"
             onClick={onCancel}
           />
         </div>
@@ -178,3 +174,36 @@
     </div>
   </div>
 </div>
+
+<style>
+  .profile-avatar-border {
+    border-color: var(--color-border);
+  }
+
+  .profile-heading {
+    color: var(--color-text);
+  }
+
+  :global(.profile-input) {
+    background-color: var(--color-background);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  :global(.profile-input::placeholder) {
+    color: var(--color-text-placeholder);
+  }
+
+  :global(.profile-input-disabled) {
+    opacity: 0.5;
+    background-color: var(--color-background-tertiary);
+  }
+
+  :global(:root.dark .profile-input-disabled) {
+    background-color: var(--color-background);
+  }
+
+  :global(:root.dark .profile-input-disabled) {
+    background-color: var(--color-background);
+  }
+</style>

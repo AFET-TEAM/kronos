@@ -11,6 +11,7 @@
     type DashboardStats,
     type RecentReport,
   } from "$lib/services/reportService.js";
+  import Icon from "$lib/components/ui/Icon/Icon.svelte";
 
   let stats: DashboardStats | null = null;
   let loading = true;
@@ -54,12 +55,12 @@
   }
 </script>
 
-<div class="dashboard-container min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="dashboard-container min-h-screen  dark:bg-gray-900">
   <section class="mb-8">
     <h2
-      class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"
+      class="header-text mb-6 flex items-center justify-start gap-2"
     >
-      <span>📊</span>
+      <Icon name={"static"} alt="icon" width="40" height="40" />
       <span>İstatistikler</span>
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -86,9 +87,9 @@
 
   <section class="mb-8">
     <h2
-      class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"
+      class="header-text mb-6 flex items-center gap-2"
     >
-      <span>📅</span>
+      <Icon name={"calendar"} alt="icon" width="40" height="40" />
       <span>Haftalık Rapor Takvimi</span>
     </h2>
 
@@ -121,11 +122,11 @@
 
       <div class="flex justify-center">
         <Button
-          text="📝 Yeni Haftalık Rapor Oluştur"
+          text="Yeni Haftalık Rapor Oluştur"
           variant="primary"
           size="large"
           onClick={openWeeklyReportModal}
-          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+          className="px-8 py-3 bg-blue-100 hover:bg-blue-200 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
         />
       </div>
     {/if}
@@ -134,9 +135,9 @@
   <!-- Recent Reports -->
   <section class="mb-8">
     <h2
-      class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"
+      class="header-text mb-6 flex items-center gap-2"
     >
-      <span>📄</span>
+      <Icon name={"document"} alt="icon" width="28" height="28" />
       <span>Son Gönderilen Raporlar</span>
     </h2>
 
@@ -163,7 +164,7 @@
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <h3
-                  class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                  class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-400 dark:group-hover:text-blue-400 transition-colors"
                 >
                   {report.title}: {report.startDate} - {report.endDate}
                 </h3>
@@ -175,7 +176,7 @@
                 </p>
               </div>
               <svg
-                class="w-6 h-6 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                class="w-6 h-6 text-gray-400 group-hover:text-blue-400 dark:group-hover:text-blue-400 transition-colors"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -212,6 +213,24 @@
 <style>
   .dashboard-container {
     padding: 2rem;
+    background: linear-gradient(
+      to top right,
+      var(--color-brand-blue-ribbon),
+      var(--color-success)
+    );
+  }
+
+  .header-text {
+    color: var(--color-text-inverse);
+    text-shadow: 1px 1px 2px var(--color-background-overlay);
+  }
+
+  :global(.dark) .dashboard-container {
+    background: linear-gradient(
+      to top right,
+      var(--color-gradient-body-gray1),
+      var(--color-gradient-body-gray2)
+    );
   }
 
   @media (max-width: 768px) {
