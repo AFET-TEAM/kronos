@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import Input from "$lib/components/ui/Input/Input.svelte";
   import TextArea from "$lib/components/ui/TextArea/TextArea.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
   import Checkbox from "$lib/components/ui/Checkbox/Checkbox.svelte";
   import type { Meeting } from "$lib/services/reportService.js";
+
+  const dispatch = createEventDispatcher();
 
   export let day: string;
   export let date: string;
@@ -29,6 +32,11 @@
     description: string;
     status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
   };
+  
+  // Her değişiklikte parent'a haber ver
+  function notifyChange() {
+    dispatch('change');
+  }
 
   // Convert old string format to array format
   let blockersArray: string[] = [];
@@ -114,10 +122,12 @@
         status: "Devam Ediyor",
       },
     ];
+    notifyChange();
   }
 
   function removeTask(index: number) {
     tasks = tasks.filter((_, i) => i !== index);
+    notifyChange();
   }
 
   function toggleExpand() {
@@ -138,8 +148,12 @@
     blockersArray = [];
     meetingsArray = [];
     untrackedWork = "";
+<<<<<<< HEAD
     updateBlockers();
     updateMeetings();
+=======
+    notifyChange();
+>>>>>>> kronos/archive-changes
   }
 
   $: hasContent =
@@ -261,9 +275,13 @@
           class="bg-sky-50 dark:bg-sky-900/30 border border-sky-200 dark:border-sky-700 rounded-lg p-3"
         >
           <Checkbox
-            bind:checked={isOnLeave}
+            checked={isOnLeave}
             label="🏖️ Bu gün izinliyim"
             name="isOnLeave-{date}"
+            on:change={(e) => {
+              isOnLeave = e.detail.checked;
+              notifyChange();
+            }}
           />
           {#if isOnLeave}
             <p class="text-xs text-sky-700 dark:text-sky-100 mt-2 ml-7">
@@ -334,6 +352,7 @@
                 {/if}
               </div>
 
+<<<<<<< HEAD
               <div class="space-y-2">
                 <div class="grid grid-cols-2 gap-2">
                   <div>
@@ -422,6 +441,55 @@
                   />
                 </div>
               </div>
+=======
+              <div class="grid grid-cols-2 gap-2">
+                <Input
+                  type="text"
+                  placeholder="Task Adı"
+                  value={task.taskName}
+                  disabled={isOnLeave}
+                  on:input={(e) => {
+                    task.taskName = e.detail.value;
+                    tasks = tasks;
+                    notifyChange();
+                  }}
+                />
+                <Input
+                  type="text"
+                  placeholder="Task No (KRON-123)"
+                  value={task.taskNumber}
+                  disabled={isOnLeave}
+                  on:input={(e) => {
+                    task.taskNumber = e.detail.value;
+                    tasks = tasks;
+                    notifyChange();
+                  }}
+                />
+              </div>
+
+              <input
+                type="number"
+                placeholder="Saat"
+                bind:value={task.estimatedHours}
+                min="0"
+                step="0.5"
+                disabled={isOnLeave}
+                on:input={notifyChange}
+                class="flex-1 py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+
+              <TextArea
+                placeholder="Yapılan iş açıklaması..."
+                value={task.description}
+                rows={2}
+                disabled={isOnLeave}
+                on:input={(e) => {
+                  task.description = e.detail.value;
+                  tasks = tasks;
+                  notifyChange();
+                }}
+              />
+>>>>>>> kronos/archive-changes
             </div>
           {/each}
         </div>
@@ -446,6 +514,7 @@
             Blokajlar / Sorunlar
           </span>
         </div>
+<<<<<<< HEAD
         <div class="flex gap-2">
           <Input
             type="text"
@@ -492,6 +561,18 @@
             {/each}
           </ul>
         {/if}
+=======
+        <TextArea
+          placeholder="Opsiyonel..."
+          value={blockers}
+          rows={2}
+          disabled={isOnLeave}
+          on:input={(e) => {
+            blockers = e.detail.value;
+            notifyChange();
+          }}
+        />
+>>>>>>> kronos/archive-changes
       </div>
 
       <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
@@ -513,6 +594,7 @@
             Toplantılar ve Eğitimler
           </span>
         </div>
+<<<<<<< HEAD
         <div>
           <div class="flex gap-2">
             <div class="flex-1">
@@ -583,6 +665,18 @@
             {/each}
           </ul>
         {/if}
+=======
+        <TextArea
+          placeholder="Opsiyonel..."
+          value={meetings}
+          rows={2}
+          disabled={isOnLeave}
+          on:input={(e) => {
+            meetings = e.detail.value;
+            notifyChange();
+          }}
+        />
+>>>>>>> kronos/archive-changes
       </div>
 
       <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
@@ -606,9 +700,13 @@
         </div>
         <TextArea
           placeholder="Opsiyonel..."
-          bind:value={untrackedWork}
+          value={untrackedWork}
           rows={2}
           disabled={isOnLeave}
+          on:input={(e) => {
+            untrackedWork = e.detail.value;
+            notifyChange();
+          }}
         />
       </div>
     </div>

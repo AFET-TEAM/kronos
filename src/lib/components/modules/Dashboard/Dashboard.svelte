@@ -10,8 +10,10 @@
     getDashboardStats,
     type DashboardStats,
     type RecentReport,
+    type ReportDetails,
   } from "$lib/services/reportService.js";
   import Icon from "$lib/components/ui/Icon/Icon.svelte";
+  import { getReportDetails } from "$lib/services/archiveService.js";
 
   let stats: DashboardStats | null = null;
   let loading = true;
@@ -20,9 +22,20 @@
   let isPreviewModalOpen = false;
   let selectedReport: RecentReport | null = null;
   let selectedDate = "";
+  let reportToEdit: ReportDetails | null = null;
 
   onMount(async () => {
     await loadDashboardData();
+    
+    // Query parametresinden rapor ID'sini kontrol et
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const editReportId = urlParams.get('editReport');
+      
+      if (editReportId) {
+        await loadReportForEdit(editReportId);
+      }
+    }
   });
 
   async function loadDashboardData() {
@@ -36,12 +49,70 @@
     }
   }
 
+  /**
+   * Arşivden raporu yükle ve düzenleme için aç
+   */
+  async function loadReportForEdit(reportId: string) {
+    try {
+      const report = await getReportDetails(reportId);
+      
+      if (!report) {
+        alert("Rapor bulunamadı.");
+        window.history.replaceState({}, document.title, "/dashboard");
+        return;
+      }
+      
+      // Raporun düzenlenebilir olup olmadığını kontrol et
+      if (isReportEditable(report)) {
+        reportToEdit = report;
+        isWeeklyReportModalOpen = true;
+      } else {
+        alert("Bu rapor düzenlenemez. Sadece bu hafta ve bir önceki haftanın raporları düzenlenebilir.");
+        // URL'den query parametresini temizle
+        window.history.replaceState({}, document.title, "/dashboard");
+      }
+    } catch (error) {
+      console.error("Rapor yüklenirken hata:", error);
+      alert("Rapor yüklenirken bir hata oluştu.");
+      window.history.replaceState({}, document.title, "/dashboard");
+    }
+  }
+
+  /**
+   * Raporun düzenlenebilir olup olmadığını kontrol et
+   * Sadece bu hafta ve bir önceki haftanın raporları düzenlenebilir
+   */
+  function isReportEditable(report: ReportDetails): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Rapor bitiş tarihini parse et (DD.MM.YYYY)
+    const [day, month, year] = report.endDate.split(".");
+    const reportEndDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    reportEndDate.setHours(0, 0, 0, 0);
+    
+    // Bu haftanın başlangıcı (Pazartesi)
+    const currentWeekStart = new Date(today);
+    const dayOfWeek = today.getDay();
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Pazar ise -6, diğer günler için 1 - dayOfWeek
+    currentWeekStart.setDate(today.getDate() + daysToMonday);
+    currentWeekStart.setHours(0, 0, 0, 0);
+    
+    // Bir önceki haftanın başlangıcı
+    const previousWeekStart = new Date(currentWeekStart);
+    previousWeekStart.setDate(currentWeekStart.getDate() - 7);
+    
+    // Rapor tarihi, bir önceki haftanın başlangıcından sonra veya eşitse düzenlenebilir
+    return reportEndDate >= previousWeekStart;
+  }
+
   function openDailyReportModal(date: string) {
     selectedDate = date;
     isDailyReportModalOpen = true;
   }
 
   function openWeeklyReportModal() {
+    reportToEdit = null; // Yeni rapor oluşturma
     isWeeklyReportModalOpen = true;
   }
 
@@ -52,6 +123,20 @@
 
   function handleReportCreated() {
     loadDashboardData();
+    // Modal kapandığında URL'den query parametresini temizle
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, document.title, "/dashboard");
+    }
+    reportToEdit = null;
+  }
+
+  function handleModalClose() {
+    isWeeklyReportModalOpen = false;
+    // URL'den query parametresini temizle
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, document.title, "/dashboard");
+    }
+    reportToEdit = null;
   }
 </script>
 
@@ -101,28 +186,26 @@
           >
             <div
               class="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"
-            ></div>
-            <div
-              class="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-4"
-            ></div>
-            <div class="h-8 bg-gray-300 dark:bg-gray-600 rounded"></div>
-          </div>
-        {/each}
-      </div>
-    {:else if stats}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        {#each stats.weeklySummary as dayData}
-          <WeeklyDayCard
-            day={dayData.day}
-            date={dayData.date}
-            onAddReport={() => openDailyReportModal(dayData.date)}
-          />
-        {/each}
-      </div>
-
-      <div class="flex justify-center">
-        <Button
-          text="Yeni Haftalık Rapor Oluştur"
+            try {
+              const report = await getReportDetails(reportId);
+              if (!report) {
+                alert("Rapor bulunamadı.");
+                window.history.replaceState({}, document.title, "/dashboard");
+                return;
+              }
+              // Raporun düzenlenebilir olup olmadığını kontrol et
+              if (isReportEditable(report)) {
+                reportToEdit = report;
+                isWeeklyReportModalOpen = true;
+              } else {
+                alert("Bu rapor düzenlenemez. Sadece bu hafta ve bir önceki haftanın raporları düzenlenebilir.");
+                // URL'den query parametresini temizle
+                window.history.replaceState({}, document.title, "/dashboard");
+              }
+            } catch (error) {
+              console.error("Rapor yüklenirken hata:", error);
+              alert("Rapor yüklenirken bir hata oluştu.");
+              window.history.replaceState({}, document.title, "/dashboard");
           variant="primary"
           size="large"
           onClick={openWeeklyReportModal}
@@ -204,8 +287,9 @@
 
 <NewReportModal
   bind:isOpen={isWeeklyReportModalOpen}
-  onClose={() => (isWeeklyReportModalOpen = false)}
+  onClose={handleModalClose}
   onReportCreated={handleReportCreated}
+  {reportToEdit}
 />
 
 <ReportPreviewModal bind:isOpen={isPreviewModalOpen} report={selectedReport} />

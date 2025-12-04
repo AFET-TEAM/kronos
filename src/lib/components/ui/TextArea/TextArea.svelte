@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
 
   export let label: string = "";
   export let value: string = "";
@@ -11,13 +13,26 @@
   export let rows: number = 4;
 
   let textareaId: string;
+  let textareaElement: HTMLTextAreaElement;
+
+  // Parent'tan gelen value değiştiğinde textarea'yı güncelle (eğer user yazarken değilse)
+  $: if (textareaElement) {
+    if (document.activeElement !== textareaElement) {
+      textareaElement.value = value;
+    }
+  }
 
   onMount(() => {
     textareaId = `textarea-${Math.random().toString(36).slice(2, 9)}`;
+    if (textareaElement) {
+      textareaElement.value = value;
+    }
   });
 
   function handleInput(e: Event) {
-    value = (e.target as HTMLTextAreaElement).value;
+    const target = e.target as HTMLTextAreaElement;
+    value = target.value;
+    dispatch('input', { value: target.value, originalEvent: e });
   }
 </script>
 
@@ -31,10 +46,11 @@
   {/if}
 
   <textarea
+    bind:this={textareaElement}
     id={textareaId}
-    bind:value
-    {placeholder}
-    {disabled}
+  bind:value
+  placeholder={placeholder}
+  disabled={disabled}
     maxlength={maxLength ?? undefined}
     {rows}
     class={`w-full resize-none rounded-md border px-3 py-2 focus:outline-none transition
