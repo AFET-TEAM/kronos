@@ -450,13 +450,8 @@
           </p>
           <Button
             onClick={goBack}
-<<<<<<< HEAD
-            text="Dashboard'a Dön"
-            className="px-5 py-2.5 bg-blue-100 hover:bg-blue-200 text-white font-medium rounded-md transition-colors"
-=======
             text="Arşiv'e Dön"
             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
->>>>>>> kronos/archive-changes
           />
         </div>
       {/if}
