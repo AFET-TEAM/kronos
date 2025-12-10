@@ -437,32 +437,6 @@
                   />
                 </div>
               </div>
-                  }}
-                />
-              </div>
-
-              <input
-                type="number"
-                placeholder="Saat"
-                bind:value={task.estimatedHours}
-                min="0"
-                step="0.5"
-                disabled={isOnLeave}
-                on:input={notifyChange}
-                class="flex-1 py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-
-              <TextArea
-                placeholder="Yapılan iş açıklaması..."
-                value={task.description}
-                rows={2}
-                disabled={isOnLeave}
-                on:input={(e) => {
-                  task.description = e.detail.value;
-                  tasks = tasks;
-                  notifyChange();
-                }}
-              />
             </div>
           {/each}
         </div>

@@ -186,26 +186,25 @@
           >
             <div
               class="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"
-            try {
-              const report = await getReportDetails(reportId);
-              if (!report) {
-                alert("Rapor bulunamadı.");
-                window.history.replaceState({}, document.title, "/dashboard");
-                return;
-              }
-              // Raporun düzenlenebilir olup olmadığını kontrol et
-              if (isReportEditable(report)) {
-                reportToEdit = report;
-                isWeeklyReportModalOpen = true;
-              } else {
-                alert("Bu rapor düzenlenemez. Sadece bu hafta ve bir önceki haftanın raporları düzenlenebilir.");
-                // URL'den query parametresini temizle
-                window.history.replaceState({}, document.title, "/dashboard");
-              }
-            } catch (error) {
-              console.error("Rapor yüklenirken hata:", error);
-              alert("Rapor yüklenirken bir hata oluştu.");
-              window.history.replaceState({}, document.title, "/dashboard");
+            ></div>
+            <div
+              class="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"
+            ></div>
+          </div>
+        {/each}
+      </div>
+    {:else if stats}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        {#each stats.weeklySummary as day}
+          <WeeklyDayCard
+            day={day.day}
+            date={day.date}
+          />
+        {/each}
+      </div>
+      <div class="flex justify-center">
+        <Button
+          text="📝 Haftalık Rapor Oluştur"
           variant="primary"
           size="large"
           onClick={openWeeklyReportModal}
