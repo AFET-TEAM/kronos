@@ -17,6 +17,7 @@
 
   function handleThemeToggle() {
     toggleTheme();
+  }
 
   function showHelp() {
     isHelpVisible = true;
@@ -76,7 +77,7 @@
       {#if isHelpVisible}
         <div
           role="tooltip"
-          class="help-popup {theme}"
+          class="help-popup {$themeStore}"
           on:mouseenter={showHelp}
           on:mouseleave={hideHelp}
         >

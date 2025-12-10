@@ -148,12 +148,9 @@
     blockersArray = [];
     meetingsArray = [];
     untrackedWork = "";
-<<<<<<< HEAD
     updateBlockers();
     updateMeetings();
-=======
     notifyChange();
->>>>>>> kronos/archive-changes
   }
 
   $: hasContent =
@@ -352,7 +349,6 @@
                 {/if}
               </div>
 
-<<<<<<< HEAD
               <div class="space-y-2">
                 <div class="grid grid-cols-2 gap-2">
                   <div>
@@ -441,28 +437,6 @@
                   />
                 </div>
               </div>
-=======
-              <div class="grid grid-cols-2 gap-2">
-                <Input
-                  type="text"
-                  placeholder="Task Adı"
-                  value={task.taskName}
-                  disabled={isOnLeave}
-                  on:input={(e) => {
-                    task.taskName = e.detail.value;
-                    tasks = tasks;
-                    notifyChange();
-                  }}
-                />
-                <Input
-                  type="text"
-                  placeholder="Task No (KRON-123)"
-                  value={task.taskNumber}
-                  disabled={isOnLeave}
-                  on:input={(e) => {
-                    task.taskNumber = e.detail.value;
-                    tasks = tasks;
-                    notifyChange();
                   }}
                 />
               </div>
@@ -489,7 +463,6 @@
                   notifyChange();
                 }}
               />
->>>>>>> kronos/archive-changes
             </div>
           {/each}
         </div>
@@ -514,7 +487,6 @@
             Blokajlar / Sorunlar
           </span>
         </div>
-<<<<<<< HEAD
         <div class="flex gap-2">
           <Input
             type="text"
@@ -561,18 +533,6 @@
             {/each}
           </ul>
         {/if}
-=======
-        <TextArea
-          placeholder="Opsiyonel..."
-          value={blockers}
-          rows={2}
-          disabled={isOnLeave}
-          on:input={(e) => {
-            blockers = e.detail.value;
-            notifyChange();
-          }}
-        />
->>>>>>> kronos/archive-changes
       </div>
 
       <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
@@ -594,7 +554,6 @@
             Toplantılar ve Eğitimler
           </span>
         </div>
-<<<<<<< HEAD
         <div>
           <div class="flex gap-2">
             <div class="flex-1">
@@ -665,18 +624,6 @@
             {/each}
           </ul>
         {/if}
-=======
-        <TextArea
-          placeholder="Opsiyonel..."
-          value={meetings}
-          rows={2}
-          disabled={isOnLeave}
-          on:input={(e) => {
-            meetings = e.detail.value;
-            notifyChange();
-          }}
-        />
->>>>>>> kronos/archive-changes
       </div>
 
       <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
