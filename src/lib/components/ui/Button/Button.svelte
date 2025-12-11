@@ -1,21 +1,26 @@
 <script lang="ts">
   export let type: "button" | "submit" | "reset" = "button";
   export let size: "small" | "medium" | "large" = "medium";
-  export let theme: "light" | "dark" = "light";
   export let disabled: boolean = false;
-  export let variant: "primary" | "secondary" = "primary";
+  export let variant: "primary" | "secondary" | "tertiary" = "primary";
   export let className: string = "";
   export let text: string = "";
   export let onClick: (event: MouseEvent) => void = () => {};
 
-  $: computedClass = className || `btn ${variant} ${size} ${theme}`;
+  $: computedClass = `${className} btn ${variant} ${size}`.trim();
+  function handleClick(e: MouseEvent) {
+    if (!disabled) {
+      onClick(e);
+    }
+  }
 </script>
 
-<button {type} {disabled} class={computedClass} on:click={onClick}>
+<button {type} {disabled} class={computedClass} on:click={handleClick}>
   {text}
 </button>
 
 <style>
+
   button {
     border-radius: 8px;
     font-weight: 600;
@@ -24,39 +29,28 @@
     border: 1px solid transparent;
   }
 
-  .primary.light {
-    background-color: #0e82ff;
-    color: #fff;
-  }
-  .primary.light:hover {
-    background-color: #0963c3;
-  }
-  .secondary.light {
-    background-color: transparent;
-    color: #0e82ff;
-    border-color: #0e82ff;
-  }
-  .secondary.light:hover {
-    background-color: #fff;
-    color: #0e82ff;
-  }
-  .primary.dark {
-    background-color: #333;
-    color: #ccc;
-  }
-  .primary.dark:hover {
-    background-color: #555;
-  }
-  .secondary.dark {
-    background-color: transparent;
-    color: #333;
-    border-color: #333;
-  }
-  .secondary.dark:hover {
-    background-color: #333;
-    color: #fff;
+  /* Primary Button */
+  .primary {
+    background-color: var(--color-ui-button-primary);
+    color: var(--color-ui-button-primary-text);
   }
 
+  /* Secondary Button */
+  .secondary {
+    background-color: var(--color-ui-button-secondary);
+    color: var(--color-ui-button-secondary-text);
+    border-color: var(--color-ui-button-secondary-border);
+  }
+
+  /* Tertiary Button */
+  .tertiary {
+    background-color: var(--color-ui-button-tertiary);
+    color: var(--color-ui-button-primary-text);
+  }
+  .tertiary:hover {
+    background-color: var(--color-ui-button-tertiary-hover);
+  }
+  /* Button Sizes */
   .small {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
@@ -70,8 +64,20 @@
     font-size: 1.2rem;
   }
 
+  /* Disabled Button */
   button:disabled {
-    opacity: 0.6;
+    background-color: var(--color-ui-button-disabled);
     cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  button:not(:disabled).primary:hover {
+    background-color: var(--color-ui-button-primary-hover);
+    color: var(--color-text-inverse);
+  }
+
+  button:not(:disabled).secondary:hover {
+    background-color: var(--color-ui-button-secondary-hover);
+    color: var(--color-text-inverse);
   }
 </style>

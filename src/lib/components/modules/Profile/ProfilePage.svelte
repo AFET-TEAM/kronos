@@ -1,6 +1,6 @@
 <script lang="ts">
   import "../../../../app.scss";
-  import { userStore, extractNameFromEmail } from "$lib/store/store.js";
+  import { userStore } from "$lib/store/store.js";
   import { onMount } from "svelte";
   import TabNavigation from "./components/TabNavigation.svelte";
   import ProfileTab from "./components/ProfileTab.svelte";
@@ -15,6 +15,7 @@
     email: "mert.pasaoglu@atmosware.turkcell.com.tr",
     title: "Frontend Developer",
     squad: "DC-CORPORATE",
+    department: "",
     avatarUrl: "",
     startDate: "",
     projects: [] as string[],
@@ -34,13 +35,13 @@
 
     unsubscribeStore = userStore.subscribe((user: any) => {
       if (user.email) {
-        const { firstName, lastName } = extractNameFromEmail(user.email);
         formData = {
-          firstName: firstName || user.firstName || "Mert",
-          lastName: lastName || user.lastName || "Pasaoglu",
+          firstName: user.firstName || "Mert",
+          lastName: user.lastName || "Pasaoglu",
           email: user.email,
           title: user.title || "Frontend Developer",
           squad: user.squad || "DC-CORPORATE",
+          department: user.department || "",
           avatarUrl: user.avatarUrl || "",
           startDate: user.startDate || "",
           projects: user.projects || [],
@@ -75,13 +76,19 @@
   const handleSaveChanges = () => {
     formData = { ...tempFormData };
     isEditing = false;
+
+    // Mevcut store'dan role'ü al ve koru
+    const currentUser = $userStore;
+
     userStore.set({
       email: formData.email,
       firstName: formData.firstName,
       lastName: formData.lastName,
       title: formData.title,
       squad: formData.squad,
+      department: formData.department,
       avatarUrl: formData.avatarUrl,
+      role: currentUser.role || "admin", // Role'ü koru
       startDate: formData.startDate,
       projects: formData.projects,
       trainings: formData.trainings,
@@ -100,15 +107,13 @@
   };
 </script>
 
-<div
-  class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 p-4 md:p-6 lg:p-8"
->
+<div class="profile-page-container min-h-screen p-4 md:p-6 lg:p-8">
   <div class="max-w-4xl mx-auto">
     <div class="mb-8">
-      <h1 class="text-4xl md:text-5xl font-bold text-white">Profil</h1>
+      <h1 class="text-4xl md:text-5xl font-bold profile-title">Profil</h1>
     </div>
 
-    <div class="bg-slate-800 rounded-lg shadow-2xl overflow-hidden">
+    <div class="profile-settings-area rounded-lg shadow-2xl overflow-hidden">
       <TabNavigation bind:activeTab />
 
       <div class="p-6 md:p-8">
@@ -144,5 +149,34 @@
   :global(body) {
     margin: 0;
     padding: 0;
+  }
+
+  .profile-page-container {
+    background: linear-gradient(
+      to top right,
+      var(--color-brand-blue-ribbon),
+      var(--color-success)
+    );
+  }
+
+  :global(.dark) .profile-page-container {
+    background: linear-gradient(
+      to top right,
+      var(--color-gradient-body-gray1),
+      var(--color-gradient-body-gray2)
+    );
+  }
+
+  .profile-title {
+    color: var(--color-text-inverse);
+    text-shadow: 1px 1px 2px var(--color-background-overlay);
+  }
+
+  :global(.dark) .profile-title {
+    color: var(--color-text);
+  }
+
+  .profile-settings-area {
+    background: var(--color-background);
   }
 </style>

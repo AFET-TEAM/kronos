@@ -26,9 +26,13 @@
 ✅ **Zaman Takibi** - Çalışma saatlerini gerçek zamanda izleme  
 ✅ **Günlük & Haftalık Raporlama** - Detaylı rapor oluşturma ve arşivleme  
 ✅ **İzinli Gün Takibi** - İzinli günleri işaretleme ve otomatik veri temizleme  
+✅ **Task Status Takibi** - Analiz, Devam Ediyor, Tamamlandı durumları  
 ✅ **Toast Notification Sistemi** - Modern, kullanıcı dostu bildirimler  
+✅ **Contextual Help System** - Header'da interaktif yardım pop-up'ı  
+✅ **Meeting Duration Tracking** - Toplantı süre takibi (saat bazında)  
 ✅ **LocalStorage Persistence** - Sayfa yenileme sonrası veri kalıcılığı  
 ✅ **7-Gün Rapor Validasyonu** - Akıllı tarih aralığı kontrolü  
+✅ **Dynamic Date Calculation** - Otomatik haftalık tarih hesaplama  
 ✅ **TypeScript Desteği** - Tip güvenliği ve gelişmiş IDE yardımı  
 ✅ **Accessibility** - WCAG standartlarına uyumlu tasarım (A11y compliant)  
 ✅ **SEO Optimized** - Meta etiketleri ve yapılandırılmış veriler
@@ -518,9 +522,34 @@ Haftalık rapor oluştururken her günün detaylarını gösteren accordion card
 #### Reports Module
 
 **DailyReportModal**: Günlük rapor girişi modal dialog'u
+
+- Task ekleme formu: 2x2 grid layout (Task Adı, Task No, Süre, Durum)
+- **Task Status** dropdown: Analiz, Devam Ediyor, Tamamlandı
+- Array-based blockers ve meetings (string[] ve Meeting[] formatı)
+- Meeting duration tracking (number input, saat bazında)
+- İzinli gün checkbox (veri otomatik temizleme)
+
 **NewReportModal**: Yeni haftalık rapor oluşturma wizard
+
+- Array validation (blockers.length, meetings.length kontrolü)
+- 7 günlük rapor preview
+- İzinli günlerde otomatik veri maskeleme
+
 **WeeklyReportPreview**: Haftalık rapor önizleme ve onay
+
+- Status badge'leri (renk kodlu: yeşil/mavi/sarı)
+- Meeting süre gösterimi
+
+**DailyReportCard**: Haftalık rapor oluşturulurken günlük detay kartı
+
+- Accordion-style expandable cards
+- Array-based data format (blockers: string[], meetings: Meeting[])
+- Task status dropdown entegrasyonu
+- Meeting duration input (optimized number input)
+
 **ReportPreviewModal**: Arşiv sayfasında rapor detaylarını gösterir
+
+- İzinli günlerde blokaj/toplantı/task harici bölümleri gizleme
 
 #### Profile (Composition Pattern)
 
@@ -535,7 +564,15 @@ Profil sayfası, tab navigation ve dinamik sekmelerle yapılandırılmıştır:
 
 #### Header
 
-Sayfanın üst navigasyon bölümü.
+Sayfanın üst navigasyon bölümü. Sağ üst köşede interaktif yardım butonu (`?` ikonu) ile hover-based kullanım kılavuzu pop-up'ı içerir.
+
+**Özellikler:**
+
+- Dark mode toggle
+- Search bar integration
+- Sidebar toggle button
+- **Help button** - Kullanıcıya uygulama kullanımı hakkında 6 maddelik kılavuz
+- Hover-based tooltip (role="tooltip")
 
 #### Sidebar
 

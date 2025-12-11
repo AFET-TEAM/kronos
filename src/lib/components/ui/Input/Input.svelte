@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { onMount, tick } from "svelte";
+  import { onMount, tick, createEventDispatcher } from "svelte";
   import Icon from "../Icon/Icon.svelte";
   import Button from "../Button/Button.svelte";
+
+  const dispatch = createEventDispatcher();
 
   export let label: string = "";
   export let type: "text" | "email" | "password" | "date" = "text";
@@ -22,13 +24,26 @@
 
   let inputElement: HTMLInputElement;
   let containerElement: HTMLDivElement;
-
+  
+  // Parent'tan gelen value değiştiğinde input'u güncelle (eğer user yazarken değilse)
+  $: if (inputElement) {
+    if (document.activeElement !== inputElement) {
+      inputElement.value = value;
+    }
+  }
+  
   onMount(() => {
     inputId = `input-${Math.random().toString(36).slice(2, 9)}`;
+    if (inputElement) {
+      inputElement.value = value;
+    }
   });
-
+  
   function handleInput(e: Event) {
-    value = (e.target as HTMLInputElement).value;
+    const target = e.target as HTMLInputElement;
+    const newValue = target.value;
+    value = newValue;
+    dispatch('input', { value: newValue, originalEvent: e });
   }
 
   async function toggleShowPassword() {
@@ -55,7 +70,11 @@
 
 <div class={`w-full ${theme === "dark" ? "text-white" : "text-dark-gray"}`}>
   {#if label}
-    <label for={inputId} class="block mb-1 font-semibold">{label}</label>
+    <label
+      for={inputId}
+      class="block mb-1 font-semibold text-gray-900 dark:text-gray-100"
+      >{label}</label
+    >
   {/if}
 
   <div
@@ -83,22 +102,70 @@
       </span>
     {/if}
 
-    {#key showPassword}
+    {#if type === "password"}
+      {#if showPassword}
+        <input
+          bind:this={inputElement}
+          id={inputId}
+          type="text"
+          {placeholder}
+          {disabled}
+          maxlength={maxLength ?? undefined}
+          class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+          on:input={handleInput}
+          on:keydown
+        />
+      {:else}
+        <input
+          bind:this={inputElement}
+          id={inputId}
+          type="password"
+          {placeholder}
+          {disabled}
+          maxlength={maxLength ?? undefined}
+          class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+          on:input={handleInput}
+          on:keydown
+        />
+      {/if}
+    {:else if type === "email"}
       <input
         bind:this={inputElement}
         id={inputId}
-        type={showPassword && type === "password" ? "text" : type}
-        {value}
+        type="email"
         {placeholder}
         {disabled}
         maxlength={maxLength ?? undefined}
+        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+        on:input={handleInput}
+        on:keydown
+      />
+    {:else if type === "date"}
+      <input
+        bind:this={inputElement}
+        id={inputId}
+        type="date"
+        {placeholder}
+        {disabled}
         min={min ?? undefined}
         max={max ?? undefined}
         class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
         on:input={handleInput}
         on:keydown
       />
-    {/key}
+    {:else}
+      <input
+        bind:this={inputElement}
+        id={inputId}
+        type="text"
+        {placeholder}
+        {disabled}
+        maxlength={maxLength ?? undefined}
+        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+        on:input={handleInput}
+        on:keydown
+      />
+    {/if}
 
     {#if type === "password" && focused && !disabled}
       {#key showPassword}

@@ -50,43 +50,46 @@
 
 body {
   font-family: "Montserrat", sans-serif;
+  background: linear-gradient(to bottom, var(--color-gradient-body-gray1), var(--color-gradient-body-gray2));
+  min-height: 100vh;
 
   h1 {
     font-weight: 700;
     font-size: toRem(32);
     line-height: toRem(40);
-    color: #2d2d2d;
+    color: var(--color-text);
   }
   h2 {
     font-weight: 700;
     font-size: toRem(28);
     line-height: toRem(36);
-    color: #2d2d2d;
+    color: var(--color-text);
   }
 
   h3 {
     font-weight: 700;
     font-size: toRem(24);
     line-height: toRem(32);
-    color: #2d2d2d;
+    color: var(--color-text);
   }
 
   h4 {
     font-weight: 700;
     font-size: toRem(20);
     line-height: toRem(28);
-    color: #2d2d2d;
+    color: var(--color-text);
   }
 
   p {
     font-weight: 500;
     font-size: toRem(16);
     line-height: toRem(24);
+    color: var(--color-text);
   }
 
   input {
     &::placeholder {
-      color: #999999;
+      color: var(--color-text-placeholder);
     }
   }
 }

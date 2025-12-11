@@ -1,0 +1,165 @@
+
+:root {
+  /* Primary colors */
+  --color-primary: #18a0fb;
+  --color-primary-hover: #0963c3;
+  --color-primary-light: #b1dffe;
+  --color-primary-dark: #0f75b6;
+
+  /* Secondary colors */
+  --color-tertiary: #ffae3b;
+  --color-tertiary-hover: #c3a14a;
+  --color-tertiary-light: #f0c55b;
+  --color-tertiary-dark: #c3a14a;
+
+  /* Background colors */
+  --color-background: #ffffff;
+  --color-background-secondary: rgba(248, 250, 253, 0.93);
+  --color-background-tertiary: #f9fafb;
+  --color-background-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Text colors */
+  --color-text: #2d2d2d;
+  --color-text-secondary: #4d4d4d;
+  --color-text-tertiary: #999999;
+  --color-text-placeholder: #999999;
+  --color-text-inverse: #ffffff;
+
+  /* Border colors */
+  --color-border: #e5e7eb;
+  --color-border-secondary: #cbd5e1;
+  --color-border-hover: #0e82ff;
+
+  /* Semantic colors */
+  --color-success: #91d7b6;
+  --color-warning: #f0c55b;
+  --color-error: #ec4899;
+  --color-info: #06b6d4;
+
+  /* Brand colors */
+  --color-brand-space-purple: #2f1275;
+  --color-brand-ocean-blue: #004aad;
+  --color-brand-sapphire: #0f52ba;
+  --color-brand-blue-ribbon: #1590e1;
+  --color-brand-blue-azure: #1272b1;
+  --color-brand-blue-steel: #1e4a6d;
+  --color-brand-blue-charcoal: #1c4463;
+  --color-brand-blue-midnight: #173b57;
+  --color-brand-blue-royal: #2b3c7e;
+  --color-brand-green-teal: #24786d;
+
+  /* Gradient colors */
+  --color-gradient-linear1: #cdffd8;
+  --color-gradient-linear2: #94b9ff;
+  --color-gradient-pacific1: #4184e8;
+  --color-gradient-pacific2: #000d28;
+  --color-gradient-custom-blue: #b2d5ea;
+  --color-gradient-body-gray1: #f9fafb;
+  --color-gradient-body-gray2: #f3f4f6;
+
+  /* UI component colors */
+  --color-ui-button-primary: #0e82ff;
+  --color-ui-button-primary-hover: #0963c3;
+  --color-ui-button-primary-text: #ffffff;
+  --color-ui-button-secondary: transparent;
+  --color-ui-button-secondary-hover: #0963c3;
+  --color-ui-button-secondary-text: #0e82ff;
+  --color-ui-button-secondary-border: #0e82ff;
+  --color-ui-button-tertiary: #ffae3b;
+  --color-ui-button-tertiary-hover: #c3a14a;
+  --color-ui-button-tertiary-text: #ffffff;
+  --color-ui-button-disabled: #ababab;
+  --color-ui-searchbar-border: #18a0fb;
+
+  --color-ui-header-background: #ffffff;
+  --color-ui-header-text: #000000;
+  --color-ui-header-icon: #0e82ff;
+  --color-ui-header-icon-hover: #0e82ff;
+
+  --color-ui-card-background: #ffffff;
+  --color-ui-card-border: #e5e7eb;
+  --color-ui-card-shadow: rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  /* Primary colors */
+  --color-primary: #18a0fb;
+  --color-primary-hover: #22d3ee;
+  --color-primary-light: #b1dffe;
+  --color-primary-dark: #0f75b6;
+
+  /* tertiary colors */
+  --color-tertiary: #ffae3b;
+  --color-tertiary-hover: #f0c55b;
+  --color-tertiary-light: #f0c55b;
+  --color-tertiary-dark: #c3a14a;
+
+  /* Background colors */
+  --color-background: #2c2c2c;
+  --color-background-secondary: rgba(30, 30, 30, 0.93);
+  --color-background-tertiary: #1e293b;
+  --color-background-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Text colors */
+  --color-text: #e0e0e0;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #9ca3af;
+  --color-text-placeholder: #9ca3af;
+  --color-text-inverse: #ffffff;
+
+  /* Border colors */
+  --color-border: #4b5563;
+  --color-border-secondary: #475569;
+  --color-border-hover: #0e82ff;
+
+  /* Semantic colors */
+  --color-success: #91d7b6;
+  --color-warning: #f0c55b;
+  --color-error: #ec4899;
+  --color-info: #22d3ee;
+
+  /* Brand colors (same as light) */
+  --color-brand-space-purple: #2f1275;
+  --color-brand-ocean-blue: #004aad;
+  --color-brand-sapphire: #0f52ba;
+  --color-brand-blue-ribbon: #1590e1;
+  --color-brand-blue-azure: #1272b1;
+  --color-brand-blue-steel: #1e4a6d;
+  --color-brand-blue-charcoal: #1c4463;
+  --color-brand-blue-midnight: #173b57;
+  --color-brand-blue-royal: #2b3c7e;
+  --color-brand-green-teal: #24786d;
+
+  /* Gradient colors */
+  --color-gradient-linear1: #cdffd8;
+  --color-gradient-linear2: #94b9ff;
+  --color-gradient-pacific1: #4184e8;
+  --color-gradient-pacific2: #000d28;
+  --color-gradient-custom-blue: #b2d5ea;
+  --color-gradient-body-gray1: #1e293b;
+  --color-gradient-body-gray2: #cbd5e1;
+
+  /* UI component colors */
+  --color-ui-button-primary: #0f75b6;
+  --color-ui-button-primary-hover: #0963c3;
+  --color-ui-button-primary-text: #ffffff;
+  --color-ui-button-secondary: transparent;
+  --color-ui-button-secondary-hover: #0963c3;
+  --color-ui-button-secondary-text: #0f75b6;
+  --color-ui-button-secondary-border: #0f75b6;
+  --color-ui-button-tertiary: #ffae3b;
+  --color-ui-button-tertiary-hover: #c3a14a;
+  --color-ui-button-tertiary-text: #ffffff;
+  --color-ui-button-disabled: #ababab;
+  --color-ui-searchbar-border: #0f75b6;
+
+  --color-ui-header-background: #2c2c2c;
+  --color-ui-header-text: #e0e0e0;
+  --color-ui-header-icon: #0e82ff;
+  --color-ui-header-icon-hover: #0e82ff;
+
+  --color-ui-card-background: #1e293b;
+  --color-ui-card-border: #4b5563;
+  --color-ui-card-shadow: rgba(0, 0, 0, 0.3);
+}
+

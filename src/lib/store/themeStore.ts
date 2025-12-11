@@ -6,6 +6,14 @@ const storedTheme =
   typeof window !== "undefined" ? localStorage.getItem("theme") : null;
 const initialTheme: Theme = (storedTheme as Theme) || "light";
 
+if (typeof window !== "undefined") {
+  if (initialTheme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+}
+
 export const themeStore = writable<Theme>(initialTheme);
 
 if (typeof window !== "undefined") {

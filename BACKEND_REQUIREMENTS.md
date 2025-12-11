@@ -16,30 +16,35 @@ Bu doküman, frontend ekibinin tamamladığı Kronos projesine backend API deste
 #### 📍 Nereden Başlamalı?
 
 **1. Projeyi Anlayın (1 gün)**
+
 - Frontend repo'yu klonlayın ve çalıştırın: `npm install && npm run dev`
 - Uygulamayı kullanarak akışları test edin (login, rapor oluşturma, profil)
 - Mock servisleri inceleyin: `src/lib/services/` klasöründeki dosyalar
 - Bu dokümanı baştan sona okuyun
 
 **2. Firebase Setup (Yarım gün)**
+
 - Firebase Admin SDK kurulumu
 - Service Account Key oluşturma ([Firebase Setup](#-firebase-setup-gereksinimleri) bölümüne bakın)
 - Test environment'ı hazırlama
 - Frontend Firebase config'i alıp test edin
 
 **3. Database Tasarımı (1 gün)**
+
 - [Data Models](#-data-models) bölümündeki tablolarla başlayın
 - PostgreSQL veya MongoDB seçin (PostgreSQL önerilir)
 - Migration'ları hazırlayın
 - İlişkisel yapıyı kurun
 
 **4. Authentication - İlk Çalışan Endpoint (2 gün)**
+
 - Firebase Admin SDK entegrasyonu
 - Token verification middleware
 - `/api/auth/login` endpoint'ini implement edin
 - Frontend ile test edin (frontend sadece API URL'i değiştirecek)
 
 **5. Aşamalı Geliştirme**
+
 - Her endpoint'i implement ettikten sonra frontend ekibiyle test edin
 - Postman collection hazırlayın
 - Her phase'i tamamladıkça production'a alın
@@ -53,6 +58,7 @@ Bu doküman, frontend ekibinin tamamladığı Kronos projesine backend API deste
 **Hedef:** Kullanıcılar login olup rapor oluşturabilsin
 
 **Sprint 1 (1 hafta):**
+
 - ✅ Firebase Admin SDK setup
 - ✅ Database kurulumu ve migration'lar
 - ✅ Authentication middleware (token verification)
@@ -61,12 +67,14 @@ Bu doküman, frontend ekibinin tamamladığı Kronos projesine backend API deste
 - **Çıktı:** Kullanıcı login olup profilini görebilir
 
 **Sprint 2 (1 hafta):**
+
 - ✅ `/api/reports` POST - Haftalık rapor oluşturma
 - ✅ `/api/reports/:reportId` GET - Rapor detayları
 - ✅ `/api/reports` GET - Kullanıcının raporları (liste)
 - **Çıktı:** Kullanıcı rapor oluşturup görüntüleyebilir
 
 **Sprint 3 (1 hafta):**
+
 - ✅ `/api/dashboard/stats` - Dashboard istatistikleri
 - ✅ Error handling ve validation
 - ✅ Testing (unit + integration)
@@ -80,12 +88,14 @@ Frontend ekibi bu aşamada localStorage'dan API'ye geçiş yapabilir. Aynı data
 #### **Phase 2: Essential Features (2 hafta)**
 
 **Sprint 4 (1 hafta):**
+
 - ✅ `/api/users/me/avatar` POST - Avatar upload (Firebase Storage)
 - ✅ `/api/users/me` PUT - Profil güncelleme
 - ✅ `/api/reports/daily/:date` PUT - Günlük rapor güncelleme
 - **Çıktı:** Kullanıcı profilini ve avatarını düzenleyebilir
 
 **Sprint 5 (1 hafta):**
+
 - ✅ `/api/reports/:reportId/pdf` GET - PDF export
 - ✅ Pagination ve filtering optimization
 - ✅ API documentation (Swagger)
@@ -97,12 +107,14 @@ Frontend ekibi bu aşamada localStorage'dan API'ye geçiş yapabilir. Aynı data
 #### **Phase 3: Advanced Features (3-4 hafta)**
 
 **Sprint 6-7:**
+
 - ✅ Token refresh mechanism
 - ✅ User registration endpoint
 - ✅ Report edit/delete endpoints
 - ✅ Search & filtering (raporlarda arama)
 
 **Sprint 8:**
+
 - ✅ Admin panel API'leri (user management)
 - ✅ Role-based permissions (manager, admin)
 - ✅ Analytics endpoints (team statistics)
@@ -139,26 +151,31 @@ Sprint Sonu:
 ### 🛠️ Teknik Stack Önerileri
 
 **Backend Framework:**
+
 - **Node.js + Express** (Hızlı başlangıç, Firebase Admin SDK kolay entegrasyon)
 - **NestJS** (Enterprise-grade, TypeScript, modüler yapı)
 - **Python + FastAPI** (Modern, async, otomatik docs)
 
 **Database:**
+
 - **PostgreSQL** ✅ Önerilen (ilişkisel veri, güçlü query, JSONB desteği)
 - **MongoDB** (Document-based, hızlı development)
 - **Firebase Firestore** (Firebase ekosisteminde kalma, basit setup)
 
 **ORM/ODM:**
+
 - **Prisma** (TypeScript, modern, migration tool)
 - **TypeORM** (NestJS ile uyumlu)
 - **Sequelize** (Mature, geniş community)
 
 **Testing:**
+
 - **Jest** (Unit + Integration tests)
 - **Supertest** (API endpoint testing)
 - **Postman/Newman** (API testing automation)
 
 **DevOps:**
+
 - **Docker** (Containerization)
 - **GitHub Actions** (CI/CD)
 - **Vercel/Railway/Render** (Deployment - Node.js için)
@@ -202,21 +219,25 @@ Sprint Sonu:
 ### 🤝 Frontend-Backend Koordinasyon
 
 **Günlük Sync (15 dakika):**
+
 - Bugün hangi endpoint'ler implement ediliyor?
 - Frontend'de değişiklik gerekiyor mu?
 - Bloker var mı?
 
 **Haftalık API Review (1 saat):**
+
 - Yeni endpoint'leri birlikte test edin
 - Response format'ları kontrol edin
 - Breaking change varsa planla
 
 **Communication Channels:**
+
 - **Slack:** #kronos-dev (daily updates)
 - **GitHub:** PR'larda karşılıklı review
 - **Postman:** Shared workspace (API collection)
 
 **API Contract Değişiklikleri:**
+
 - Backend breaking change yapacaksa frontend'e 1 sprint önceden haber ver
 - Versioning kullan: `/api/v1/...` (future-proof)
 - Deprecation period: Min 2 sprint
@@ -241,12 +262,14 @@ Sprint Sonu:
 ### ⚠️ Dikkat Edilmesi Gerekenler
 
 **❌ Yapmayın:**
+
 - Tüm endpoint'leri aynı anda implement etmeye çalışmayın
 - Frontend format'ını değiştirmeyin (zaten mock data ile test edilmiş)
 - Firebase yerine custom auth yapmaya çalışmayın (zaten frontend Firebase kullanıyor)
 - Database migration'ları production'da manuel yapmayın
 
 **✅ Yapın:**
+
 - Her endpoint'i tek tek tamamlayıp frontend ile test edin
 - Frontend'in kullandığı data format'ına sadık kalın
 - Firebase Admin SDK'yı kullanın (frontend zaten Firebase Auth kullanıyor)
@@ -285,12 +308,14 @@ Sprint Sonu:
 ## 🎯 Genel Bilgiler
 
 ### Mevcut Durum
+
 - Frontend tamamen mock data ile çalışıyor (localStorage persistence)
 - API config dosyası hazır: `src/lib/services/api.config.ts`
 - Auth service skeleton mevcut: `src/lib/services/auth.service.ts`
 - Report service mock implementation: `src/lib/services/reportService.ts`
 
 ### Backend İhtiyaçları
+
 - **RESTful API** veya **GraphQL** (RESTful tercih edilir)
 - **Firebase Authentication** - Frontend'de kullanılan Firebase Auth ile entegrasyon
 - **Firebase Admin SDK** - Backend'de token verification ve user management
@@ -301,6 +326,7 @@ Sprint Sonu:
 - **File Storage**: **Firebase Storage** (tercih edilen) veya AWS S3, Cloudinary
 
 ### API Headers
+
 ```typescript
 {
   "Content-Type": "application/json",
@@ -322,20 +348,24 @@ Sprint Sonu:
 Frontend **Firebase Authentication** kullanıyor. Backend'de iki seçenek:
 
 **Seçenek 1: Firebase Admin SDK (Önerilen)**
+
 - Backend Firebase Admin SDK kullanır
 - Frontend'den gelen Firebase ID Token'ı verify eder
 - Custom claims ile role/permission management
 - Firebase Auth users ile senkronizasyon
 
 **Seçenek 2: Hybrid (Custom Backend + Firebase)**
+
 - Frontend Firebase Auth ile login yapar
 - Backend custom JWT token üretir
 - User data kendi database'de tutulur
 
 ### 1. Login
+
 **Endpoint:** `POST /api/auth/login`
 
 **Request Body:**
+
 ```json
 {
   "email": "user@atmosware.turkcell.com.tr",
@@ -344,19 +374,23 @@ Frontend **Firebase Authentication** kullanıyor. Backend'de iki seçenek:
 ```
 
 **Backend Implementation (Firebase Admin SDK):**
+
 ```javascript
 // Firebase Admin SDK ile token verification
-import admin from 'firebase-admin';
+import admin from "firebase-admin";
 
 // Frontend'den gelen Firebase ID Token'ı verify et
 const decodedToken = await admin.auth().verifyIdToken(firebaseIdToken);
 const uid = decodedToken.uid;
 
 // Custom claims ekle (role, permissions)
-await admin.auth().setCustomUserClaims(uid, { role: 'user', squad: 'Platform Team' });
+await admin
+  .auth()
+  .setCustomUserClaims(uid, { role: "user", squad: "Platform Team" });
 ```
 
 **Response (Success - 200):**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -377,6 +411,7 @@ await admin.auth().setCustomUserClaims(uid, { role: 'user', squad: 'Platform Tea
 ```
 
 **Response (Error - 401):**
+
 ```json
 {
   "registered": false,
@@ -391,11 +426,13 @@ await admin.auth().setCustomUserClaims(uid, { role: 'user', squad: 'Platform Tea
 ```
 
 **Frontend Kullanımı:**
+
 - `auth.service.ts:login()` fonksiyonu bu endpoint'i çağırıyor
 - Token `localStorage.setItem("token", token)` ile saklanıyor
 - User bilgisi `userStore` Svelte store'una yazılıyor
 
 **Validasyon:**
+
 - Email formatı kontrolü
 - Password minimum 6 karakter
 - Rate limiting: 5 deneme / 15 dakika
@@ -411,6 +448,7 @@ Firebase SDK otomatik token refresh yapar. Backend'de manuel refresh endpoint'i 
 **Endpoint:** `POST /api/auth/refresh`
 
 **Request Body:**
+
 ```json
 {
   "refreshToken": "firebase-refresh-token"
@@ -418,6 +456,7 @@ Firebase SDK otomatik token refresh yapar. Backend'de manuel refresh endpoint'i 
 ```
 
 **Response:**
+
 ```json
 {
   "token": "new-firebase-id-token",
@@ -426,6 +465,7 @@ Firebase SDK otomatik token refresh yapar. Backend'de manuel refresh endpoint'i 
 ```
 
 **Firebase Admin SDK Implementation:**
+
 ```javascript
 // Frontend Firebase SDK otomatik refresh yapar
 // Backend sadece verify eder
@@ -435,14 +475,17 @@ const decodedToken = await admin.auth().verifyIdToken(idToken);
 ---
 
 ### 3. Logout
+
 **Endpoint:** `POST /api/auth/logout`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Çıkış başarılı"
@@ -450,6 +493,7 @@ Authorization: Bearer {token}
 ```
 
 **Frontend Kullanımı:**
+
 - `removeAuthToken()` ile localStorage temizleniyor
 - `userStore.set({})` ile store sıfırlanıyor
 
@@ -458,14 +502,17 @@ Authorization: Bearer {token}
 ## 👤 User Management
 
 ### 1. Get Current User Profile
+
 **Endpoint:** `GET /api/users/me`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "user-uuid-123",
@@ -500,20 +547,24 @@ Authorization: Bearer {token}
 ```
 
 **Frontend Kullanımı:**
+
 - Page load'da `userStore` populate etmek için
 - Profile sayfasında form verilerini doldurmak için
 
 ---
 
 ### 2. Update User Profile
+
 **Endpoint:** `PUT /api/users/me`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request Body:**
+
 ```json
 {
   "title": "Senior Frontend Developer",
@@ -527,34 +578,42 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Profil başarıyla güncellendi",
-  "user": { /* Updated user object */ }
+  "user": {
+    /* Updated user object */
+  }
 }
 ```
 
 **Notlar:**
+
 - `firstName`, `lastName`, `email` **değiştirilemez** (frontend'de disabled)
 - `avatarUrl` ayrı endpoint ile güncelleniyor (file upload)
 
 ---
 
 ### 3. Upload Avatar
+
 **Endpoint:** `POST /api/users/me/avatar`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 Content-Type: multipart/form-data
 ```
 
 **Request Body (FormData):**
+
 ```
 avatar: File (image/jpeg, image/png, image/webp)
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Avatar başarıyla yüklendi",
@@ -563,6 +622,7 @@ avatar: File (image/jpeg, image/png, image/webp)
 ```
 
 **Frontend Davranışı:**
+
 - Kullanıcı dosya seçtiğinde frontend'de **otomatik sıkıştırma** yapılıyor
 - Canvas API ile 300x300px'e resize
 - WebP formatına dönüştürme (quality: 0.75)
@@ -570,6 +630,7 @@ avatar: File (image/jpeg, image/png, image/webp)
 - **Backend entegrasyonu sonrası:** Base64 veya File object olarak upload edilmeli
 
 **File Validasyonu (Backend):**
+
 - Max file size: 5MB
 - Allowed formats: `image/jpeg`, `image/png`, `image/webp`
 - Resize to: 300x300px (backend'de de resize yapılabilir)
@@ -577,12 +638,14 @@ avatar: File (image/jpeg, image/png, image/webp)
 - Store in CDN/S3 bucket
 
 **Önerilen Flow:**
+
 1. Frontend: Resim seç → Compress → Base64
 2. Backend endpoint'e POST `{ "avatar": "data:image/webp;base64,..." }`
 3. Backend: Base64 decode → File storage → CDN URL döndür
 4. Frontend: `avatarUrl` güncelle → `userStore` ve `tempFormData` update
 
 **Alternative Flow (Multipart Upload):**
+
 1. Frontend: File object'i direkt FormData ile gönder
 2. Backend: Multer/Busboy ile file parse → Storage → URL döndür
 
@@ -591,14 +654,17 @@ avatar: File (image/jpeg, image/png, image/webp)
 ## 📊 Report Management
 
 ### 1. Create Weekly Report
+
 **Endpoint:** `POST /api/reports`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request Body:**
+
 ```json
 {
   "title": "Haftalık Rapor",
@@ -635,6 +701,7 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "report-uuid-456",
@@ -647,33 +714,43 @@ Authorization: Bearer {token}
 ```
 
 **Frontend Kullanımı:**
+
 - `NewReportModal` component'inden çağrılıyor
 - `createWeeklyReport()` service fonksiyonu
 - 7 günlük rapor validation (başlangıç + 6 gün = 7 gün)
 
 **Validasyon (Backend):**
+
 - `startDate` ve `endDate` tarih formatı kontrolü
 - `dailyReports` array boş olmamalı
 - Her gün için `day` ve `date` required
 - `isOnLeave: true` ise `tasks`, `blockers`, `meetings`, `untrackedWork` boş olabilir
 - `isOnLeave: false` ise en az 1 task olmalı veya diğer alanlardan biri dolu olmalı
+- **Task status** validation: "Analiz" | "Devam Ediyor" | "Tamamlandı" (opsiyonel)
+- **Blockers** format: `string[]` veya `string` (backward compatibility)
+- **Meetings** format: `Meeting[]` (name + duration) veya `string[]` veya `string`
+- Meeting duration: `number` (saat cinsinden, 0.5 step allowed)
 
 ---
 
 ### 2. Get User's Reports (List)
+
 **Endpoint:** `GET /api/reports?page=1&limit=10&sort=desc`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Pagination page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 - `sort` (optional): `asc` | `desc` (default: desc - newest first)
 
 **Response:**
+
 ```json
 {
   "reports": [
@@ -714,20 +791,24 @@ Authorization: Bearer {token}
 ```
 
 **Frontend Kullanımı:**
+
 - Dashboard sayfasında "Son Raporlar" bölümü
 - Archive sayfasında (şu an yok, gelecekte eklenecek)
 
 ---
 
 ### 3. Get Report Details
+
 **Endpoint:** `GET /api/reports/:reportId`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "report-uuid-1",
@@ -754,11 +835,17 @@ Authorization: Bearer {token}
           "taskName": "Login Sayfası Geliştirme",
           "taskNumber": "KRON-123",
           "estimatedHours": 4,
-          "description": "Firebase Authentication entegrasyonu tamamlandı."
+          "description": "Firebase Authentication entegrasyonu tamamlandı.",
+          "status": "Tamamlandı"
         }
       ],
-      "blockers": "Firebase config dosyası environment variable'lara taşınması gerekiyor.",
-      "meetings": "Daily Standup (15dk), Sprint Planning (1 saat)",
+      "blockers": [
+        "Firebase config dosyası environment variable'lara taşınması gerekiyor"
+      ],
+      "meetings": [
+        { "name": "Daily Standup", "duration": 0.25 },
+        { "name": "Sprint Planning", "duration": 1 }
+      ],
       "untrackedWork": "Yeni geliştiricinin onboarding sürecinde yardımcı olundu (1 saat).",
       "isOnLeave": false
     },
@@ -776,28 +863,34 @@ Authorization: Bearer {token}
 ```
 
 **Frontend Kullanımı:**
+
 - Archive detail page: `/archive/[reportId]`
 - Report preview modal
 
 ---
 
 ### 4. Export Report as PDF
+
 **Endpoint:** `GET /api/reports/:reportId/pdf`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 - Content-Type: `application/pdf`
 - Binary PDF file download
 
 **Frontend Kullanımı:**
+
 - Archive detail page "📥 PDF İndir" butonu
 - `downloadReportPdf(reportId)` service fonksiyonu
 
 **Backend Implementation:**
+
 - PDF generation library (puppeteer, pdfkit, jsPDF)
 - Template-based rendering (HTML → PDF)
 - Include user info, report dates, daily reports with tasks
@@ -806,14 +899,17 @@ Authorization: Bearer {token}
 ---
 
 ### 5. Update Daily Report (Single Day)
+
 **Endpoint:** `PUT /api/reports/daily/:date`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Request Body:**
+
 ```json
 {
   "day": "Pazartesi",
@@ -834,19 +930,24 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Günlük rapor başarıyla güncellendi",
-  "report": { /* Updated daily report object */ }
+  "report": {
+    /* Updated daily report object */
+  }
 }
 ```
 
 **Frontend Kullanımı:**
+
 - `DailyReportModal` component'inden çağrılıyor
 - `saveDailyReport()` store fonksiyonu
 - Dashboard'daki WeeklyDayCard'dan tek gün raporu girişi
 
 **Notlar:**
+
 - Bu endpoint **haftalık rapora dahil edilmemiş** günlük raporları saklamak için
 - Haftalık rapor oluşturulduğunda bu veriler kullanılıyor
 - İzinli gün (`isOnLeave: true`) olduğunda diğer alanlar temizleniyor (frontend validation)
@@ -856,14 +957,17 @@ Authorization: Bearer {token}
 ## 📈 Dashboard & Statistics
 
 ### 1. Get Dashboard Stats
+
 **Endpoint:** `GET /api/dashboard/stats`
 
 **Headers:**
+
 ```
 Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "reportsSent": 42,
@@ -907,11 +1011,13 @@ Authorization: Bearer {token}
 ```
 
 **Frontend Kullanımı:**
+
 - Dashboard ana sayfası
 - `getDashboardStats()` service fonksiyonu
 - StatCard component'leri için veri kaynağı
 
 **Calculation Logic:**
+
 - `reportsSent`: Kullanıcının oluşturduğu toplam haftalık rapor sayısı
 - `tasksCompleted`: Tüm raporlardaki tamamlanan task sayısı
 - `avgCompletionRate`: Ortalama tamamlama yüzdesi (task estimations vs actuals)
@@ -927,20 +1033,23 @@ Authorization: Bearer {token}
 **Storage Options:**
 
 **1. Firebase Storage (Önerilen - Proje Zaten Firebase Kullanıyor)**
-   - Firebase Console'dan setup kolay
-   - Firebase Admin SDK ile backend entegrasyonu
-   - Automatic CDN (Google Cloud CDN)
-   - Security rules ile access control
-   - Signed URLs ile secure access
-   - Storage triggers (Cloud Functions)
-   
-   **장점:**
-   - Firebase Auth ile kolay entegrasyon
-   - Kullanıcı UID'ye göre path structure: `avatars/{uid}/profile.webp`
-   - Otomatik authentication (Firebase token kullanarak)
-   - Free tier: 5 GB storage, 1 GB/day download
+
+- Firebase Console'dan setup kolay
+- Firebase Admin SDK ile backend entegrasyonu
+- Automatic CDN (Google Cloud CDN)
+- Security rules ile access control
+- Signed URLs ile secure access
+- Storage triggers (Cloud Functions)
+
+**장점:**
+
+- Firebase Auth ile kolay entegrasyon
+- Kullanıcı UID'ye göre path structure: `avatars/{uid}/profile.webp`
+- Otomatik authentication (Firebase token kullanarak)
+- Free tier: 5 GB storage, 1 GB/day download
 
 2. **AWS S3**
+
    - Public bucket for avatars
    - CloudFront CDN distribution
    - Lifecycle policies for old files
@@ -951,16 +1060,19 @@ Authorization: Bearer {token}
    - Transform API for resizing
 
 **File Naming Convention (Firebase Storage):**
+
 ```
 avatars/{firebaseUid}/profile.webp
 ```
 
 **Example:**
+
 ```
 avatars/xR7fK3mP9QYh2nL8cZ5d/profile.webp
 ```
 
 **Firebase Storage Security Rules:**
+
 ```javascript
 rules_version = '2';
 service firebase.storage {
@@ -980,26 +1092,27 @@ service firebase.storage {
 ```
 
 **Backend Implementation (Firebase Admin SDK):**
+
 ```javascript
-import admin from 'firebase-admin';
+import admin from "firebase-admin";
 
 const bucket = admin.storage().bucket();
 const filePath = `avatars/${userId}/profile.webp`;
 const file = bucket.file(filePath);
 
 // Base64'ten upload
-const buffer = Buffer.from(base64Data, 'base64');
+const buffer = Buffer.from(base64Data, "base64");
 await file.save(buffer, {
   metadata: {
-    contentType: 'image/webp',
+    contentType: "image/webp",
   },
   public: true, // Public URL için
 });
 
 // Public URL al
 const [url] = await file.getSignedUrl({
-  action: 'read',
-  expires: '03-01-2500', // Long-term URL
+  action: "read",
+  expires: "03-01-2500", // Long-term URL
 });
 
 // Veya public ise:
@@ -1007,6 +1120,7 @@ const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 ```
 
 **Security:**
+
 - Files should be validated server-side (MIME type, size)
 - Firebase Storage rules ile access control
 - Generate unique file names (user UID kullan)
@@ -1017,73 +1131,78 @@ const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 ## 📐 Data Models
 
 ### User Model
+
 ```typescript
 interface User {
-  id: string;                    // UUID (veya Firebase UID kullan)
-  firebaseUid: string;           // Firebase Auth User UID (Unique, indexed)
-  email: string;                 // Unique, indexed
+  id: string; // UUID (veya Firebase UID kullan)
+  firebaseUid: string; // Firebase Auth User UID (Unique, indexed)
+  email: string; // Unique, indexed
   firstName: string;
   lastName: string;
-  password?: string;             // Firebase Auth kullanıyorsa gerekmez
-  title: string;                 // Job title
-  squad: string;                 // Team/Squad name
-  avatarUrl: string | null;      // CDN URL
-  startDate: string | null;      // ISO date string
-  projects: string[];            // Array of project names
-  trainings: string[];           // Array of training names
-  awards: string[];              // Array of award titles
-  certifications: string[];      // Array of certification names
-  role: "user" | "admin";        // User role (future: manager, etc.)
-  isActive: boolean;             // Account status
-  createdAt: Date;               // Timestamp
-  updatedAt: Date;               // Timestamp
+  password?: string; // Firebase Auth kullanıyorsa gerekmez
+  title: string; // Job title
+  squad: string; // Team/Squad name
+  avatarUrl: string | null; // CDN URL
+  startDate: string | null; // ISO date string
+  projects: string[]; // Array of project names
+  trainings: string[]; // Array of training names
+  awards: string[]; // Array of award titles
+  certifications: string[]; // Array of certification names
+  role: "user" | "admin"; // User role (future: manager, etc.)
+  isActive: boolean; // Account status
+  createdAt: Date; // Timestamp
+  updatedAt: Date; // Timestamp
 }
 ```
 
 ### Report Model
+
 ```typescript
 interface Report {
-  id: string;                    // UUID
-  userId: string;                // Foreign key to User
-  title: string;                 // "Haftalık Rapor"
-  startDate: string;             // Format: "DD.MM.YYYY"
-  endDate: string;               // Format: "DD.MM.YYYY"
-  dailyReports: DailyReport[];   // Embedded documents or separate table
+  id: string; // UUID
+  userId: string; // Foreign key to User
+  title: string; // "Haftalık Rapor"
+  startDate: string; // Format: "DD.MM.YYYY"
+  endDate: string; // Format: "DD.MM.YYYY"
+  dailyReports: DailyReport[]; // Embedded documents or separate table
   createdAt: Date;
   updatedAt: Date;
 }
 ```
 
 ### Daily Report Model
+
 ```typescript
 interface DailyReport {
-  id?: string;                   // Optional if embedded
-  reportId?: string;             // Foreign key if separate table
-  day: string;                   // "Pazartesi", "Salı", etc.
-  date: string;                  // Format: "DD.MM.YYYY"
-  tasks: Task[];                 // Array of tasks
-  blockers: string;              // Text field
-  meetings: string;              // Text field
-  untrackedWork: string;         // Text field
-  isOnLeave: boolean;            // İzinli gün flag
+  id?: string; // Optional if embedded
+  reportId?: string; // Foreign key if separate table
+  day: string; // "Pazartesi", "Salı", etc.
+  date: string; // Format: "DD.MM.YYYY"
+  tasks: Task[]; // Array of tasks
+  blockers: string; // Text field
+  meetings: string; // Text field
+  untrackedWork: string; // Text field
+  isOnLeave: boolean; // İzinli gün flag
   createdAt?: Date;
   updatedAt?: Date;
 }
 ```
 
 ### Task Model
+
 ```typescript
 interface Task {
-  id?: string;                   // Optional if embedded
-  dailyReportId?: string;        // Foreign key if separate table
+  id?: string; // Optional if embedded
+  dailyReportId?: string; // Foreign key if separate table
   taskName: string;
-  taskNumber: string;            // Jira/ticket number
+  taskNumber: string; // Jira/ticket number
   estimatedHours: number;
   description: string;
 }
 ```
 
 ### Database Relationships
+
 ```
 User (1) ----< (N) Report
 Report (1) ----< (N) DailyReport
@@ -1091,6 +1210,7 @@ DailyReport (1) ----< (N) Task
 ```
 
 **Indexing Strategy:**
+
 - `User.email` → Unique index
 - `Report.userId` → Index for user reports query
 - `Report.createdAt` → Index for sorting
@@ -1101,48 +1221,563 @@ DailyReport (1) ----< (N) Task
 ## 🔗 API Endpoint Listesi
 
 ### Authentication
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/login` | User login | ❌ |
-| POST | `/api/auth/refresh` | Refresh JWT token | ✅ |
-| POST | `/api/auth/logout` | User logout | ✅ |
-| POST | `/api/auth/register` | New user registration (future) | ❌ |
+
+| Method | Endpoint             | Description                    | Auth Required |
+| ------ | -------------------- | ------------------------------ | ------------- |
+| POST   | `/api/auth/login`    | User login                     | ❌            |
+| POST   | `/api/auth/refresh`  | Refresh JWT token              | ✅            |
+| POST   | `/api/auth/logout`   | User logout                    | ✅            |
+| POST   | `/api/auth/register` | New user registration (future) | ❌            |
 
 ### User Management
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/users/me` | Get current user profile | ✅ |
-| PUT | `/api/users/me` | Update user profile | ✅ |
-| POST | `/api/users/me/avatar` | Upload avatar image | ✅ |
-| DELETE | `/api/users/me/avatar` | Delete avatar image | ✅ |
+
+| Method | Endpoint               | Description              | Auth Required |
+| ------ | ---------------------- | ------------------------ | ------------- |
+| GET    | `/api/users/me`        | Get current user profile | ✅            |
+| PUT    | `/api/users/me`        | Update user profile      | ✅            |
+| POST   | `/api/users/me/avatar` | Upload avatar image      | ✅            |
+| DELETE | `/api/users/me/avatar` | Delete avatar image      | ✅            |
 
 ### Report Management
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/reports` | Create weekly report | ✅ |
-| GET | `/api/reports` | Get user's reports (list) | ✅ |
-| GET | `/api/reports/:reportId` | Get report details | ✅ |
-| GET | `/api/reports/:reportId/pdf` | Download report as PDF | ✅ |
-| PUT | `/api/reports/:reportId` | Update report (future) | ✅ |
-| DELETE | `/api/reports/:reportId` | Delete report (future) | ✅ |
+
+| Method | Endpoint                     | Description               | Auth Required |
+| ------ | ---------------------------- | ------------------------- | ------------- |
+| POST   | `/api/reports`               | Create weekly report      | ✅            |
+| GET    | `/api/reports`               | Get user's reports (list) | ✅            |
+| GET    | `/api/reports/:reportId`     | Get report details        | ✅            |
+| GET    | `/api/reports/:reportId/pdf` | Download report as PDF    | ✅            |
+| PUT    | `/api/reports/:reportId`     | Update report (future)    | ✅            |
+| DELETE | `/api/reports/:reportId`     | Delete report (future)    | ✅            |
 
 ### Daily Reports
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| PUT | `/api/reports/daily/:date` | Save/Update daily report | ✅ |
-| GET | `/api/reports/daily/:date` | Get daily report | ✅ |
-| GET | `/api/reports/daily` | Get daily reports in range | ✅ |
+
+| Method | Endpoint                   | Description                | Auth Required |
+| ------ | -------------------------- | -------------------------- | ------------- |
+| PUT    | `/api/reports/daily/:date` | Save/Update daily report   | ✅            |
+| GET    | `/api/reports/daily/:date` | Get daily report           | ✅            |
+| GET    | `/api/reports/daily`       | Get daily reports in range | ✅            |
 
 ### Dashboard
+
+| Method | Endpoint               | Description              | Auth Required |
+| ------ | ---------------------- | ------------------------ | ------------- |
+| GET    | `/api/dashboard/stats` | Get dashboard statistics | ✅            |
+
+### Archive (Rapor Arşivi)
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| GET | `/api/dashboard/stats` | Get dashboard statistics | ✅ |
+| GET | `/api/archive/reports` | Get archived reports with pagination | ✅ |
+| GET | `/api/archive/reports/:reportId` | Get archived report details | ✅ |
+| GET | `/api/archive/stats` | Get archive statistics | ✅ |
+
+---
+
+## 📦 Archive Management (Rapor Arşivi)
+
+### Genel Bilgi
+Archive sayfası, kullanıcıların geçmişte oluşturulmuş tüm haftalık raporlarını görüntüleyebildiği, arama yapabildiği ve detaylarına erişebildiği bir sayfadır. Frontend `/archive` route'unda bulunuyor.
+
+### 1. Get Archived Reports (Pagination + Search)
+**Endpoint:** `GET /api/archive/reports`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+```typescript
+{
+  page?: number;           // Sayfa numarası (default: 1)
+  limit?: number;          // Sayfa başına kayıt (default: 10)
+  sort?: "asc" | "desc";   // Tarihe göre sıralama (default: "desc" - yeniden eskiye)
+  search?: string;         // Arama query (başlık, tarih)
+  startDate?: string;      // Filtreleme için başlangıç tarihi (DD.MM.YYYY)
+  endDate?: string;        // Filtreleme için bitiş tarihi (DD.MM.YYYY)
+}
+```
+
+**Example Request:**
+```
+GET /api/archive/reports?page=1&limit=10&sort=desc&search=Haftalık
+```
+
+**Response:**
+```json
+{
+  "reports": [
+    {
+      "id": "report-uuid-1",
+      "title": "Haftalık Rapor",
+      "startDate": "21.10.2024",
+      "endDate": "25.10.2024",
+      "createdAt": "2024-10-28T10:30:00Z",
+      "taskCount": 12,
+      "totalHours": 35,
+      "status": "recent"
+    },
+    {
+      "id": "report-uuid-2",
+      "title": "Haftalık Rapor",
+      "startDate": "14.10.2024",
+      "endDate": "18.10.2024",
+      "createdAt": "2024-10-21T09:00:00Z",
+      "taskCount": 8,
+      "totalHours": 28,
+      "status": "archived"
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalReports": 42,
+    "itemsPerPage": 10,
+    "hasMore": true
+  }
+}
+```
+
+**Field Açıklamaları:**
+- `taskCount`: Rapordaki toplam task sayısı (tüm günlerdeki tasklar)
+- `totalHours`: Rapordaki toplam estimated hours
+- `status`: "recent" (son 2 hafta) veya "archived" (eski raporlar)
+- `hasMore`: Sonraki sayfa var mı kontrolü
+
+**Frontend Kullanımı:**
+- Archive sayfasında (`/routes/archive/+page.svelte`)
+- `loadArchiveReports()` fonksiyonu
+- Pagination component ile sayfalama
+- Search bar ile arama
+
+**Backend Logic:**
+```typescript
+// Örnek implementasyon
+async function getArchivedReports(userId: string, params: ArchiveParams) {
+  const { page = 1, limit = 10, sort = 'desc', search } = params;
+  const skip = (page - 1) * limit;
+  
+  let query = { userId };
+  
+  // Arama varsa filtrele
+  if (search) {
+    query = {
+      ...query,
+      $or: [
+        { title: { $regex: search, $options: 'i' } },
+        { startDate: { $regex: search } },
+        { endDate: { $regex: search } }
+      ]
+    };
+  }
+  
+  // Total count al
+  const totalReports = await Report.countDocuments(query);
+  
+  // Raporları getir
+  const reports = await Report.find(query)
+    .sort({ createdAt: sort === 'desc' ? -1 : 1 })
+    .skip(skip)
+    .limit(limit)
+    .select('id title startDate endDate createdAt');
+  
+  // Her rapor için task count ve hours hesapla
+  const reportsWithStats = await Promise.all(
+    reports.map(async (report) => {
+      const dailyReports = await DailyReport.find({ reportId: report.id });
+      const tasks = await Task.find({ 
+        dailyReportId: { $in: dailyReports.map(d => d.id) } 
+      });
+      
+      const taskCount = tasks.length;
+      const totalHours = tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
+      
+      // Son 2 haftalık rapor mu kontrol et
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+      const status = new Date(report.createdAt) > twoWeeksAgo ? 'recent' : 'archived';
+      
+      return {
+        id: report.id,
+        title: report.title,
+        startDate: report.startDate,
+        endDate: report.endDate,
+        createdAt: report.createdAt,
+        taskCount,
+        totalHours,
+        status
+      };
+    })
+  );
+  
+  return {
+    reports: reportsWithStats,
+    pagination: {
+      currentPage: page,
+      totalPages: Math.ceil(totalReports / limit),
+      totalReports,
+      itemsPerPage: limit,
+      hasMore: page < Math.ceil(totalReports / limit)
+    }
+  };
+}
+```
+
+**Performans Optimizasyonu:**
+- Database index: `userId + createdAt` (composite index)
+- Caching: Redis ile frequently accessed data cache
+- Aggregation pipeline kullan (MongoDB)
+- JOIN optimize et (PostgreSQL)
+
+---
+
+### 2. Get Archived Report Details
+**Endpoint:** `GET /api/archive/reports/:reportId`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "id": "report-uuid-1",
+  "title": "Haftalık Rapor",
+  "startDate": "21.10.2024",
+  "endDate": "25.10.2024",
+  "createdAt": "2024-10-28T10:30:00Z",
+  "user": {
+    "id": "user-uuid-123",
+    "firstName": "Ahmet",
+    "lastName": "Yılmaz",
+    "email": "ahmet.yilmaz@atmosware.turkcell.com.tr",
+    "avatarUrl": "https://storage.googleapis.com/kronos-bucket/avatars/user-123.webp",
+    "title": "Senior Frontend Developer",
+    "squad": "Platform Team"
+  },
+  "dailyReports": [
+    {
+      "day": "Pazartesi",
+      "date": "21.10.2024",
+      "tasks": [
+        {
+          "taskName": "Login Sayfası Geliştirme",
+          "taskNumber": "KRON-123",
+          "estimatedHours": 4,
+          "description": "Firebase Authentication entegrasyonu tamamlandı."
+        }
+      ],
+      "blockers": "Firebase config dosyası environment variable'lara taşınması gerekiyor.",
+      "meetings": "Daily Standup (15dk), Sprint Planning (1 saat)",
+      "untrackedWork": "Yeni geliştiricinin onboarding sürecinde yardımcı olundu (1 saat).",
+      "isOnLeave": false
+    },
+    {
+      "day": "Salı",
+      "date": "22.10.2024",
+      "tasks": [],
+      "blockers": "",
+      "meetings": "",
+      "untrackedWork": "",
+      "isOnLeave": true
+    }
+  ]
+}
+```
+
+**Frontend Kullanımı:**
+- Archive detail page (`/routes/archive/[reportId]/+page.svelte`)
+- "Detayları Gör" butonuna tıklandığında
+- `getReportDetails(reportId)` service fonksiyonu
+
+**Not:** Bu endpoint mevcut `/api/reports/:reportId` endpoint'i ile aynı. Archive sayfası için ayrı endpoint oluşturmaya gerek yok, mevcut endpoint kullanılabilir.
+
+---
+
+### 3. Get Archive Statistics
+**Endpoint:** `GET /api/archive/stats`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "totalReports": 42,
+  "totalTasks": 385,
+  "totalHours": 1248,
+  "avgTasksPerReport": 9.2,
+  "avgHoursPerReport": 29.7,
+  "firstReportDate": "2024-01-15T08:00:00Z",
+  "lastReportDate": "2024-10-28T10:30:00Z",
+  "reportsByMonth": [
+    {
+      "month": "2024-10",
+      "count": 4,
+      "totalTasks": 38,
+      "totalHours": 115
+    },
+    {
+      "month": "2024-09",
+      "count": 4,
+      "totalTasks": 42,
+      "totalHours": 128
+    }
+  ]
+}
+```
+
+**Frontend Kullanımı:**
+- Archive sayfasının üst kısmındaki statistics cards
+- Şu an frontend'de sadece 3 stat gösteriliyor (toplam rapor, task, saat)
+- Gelecekte chart/graph eklenebilir
+
+**Backend Logic:**
+```typescript
+async function getArchiveStats(userId: string) {
+  // Tüm raporları getir
+  const reports = await Report.find({ userId });
+  
+  // Statistics hesapla
+  const stats = {
+    totalReports: reports.length,
+    totalTasks: 0,
+    totalHours: 0
+  };
+  
+  for (const report of reports) {
+    const dailyReports = await DailyReport.find({ reportId: report.id });
+    const tasks = await Task.find({ 
+      dailyReportId: { $in: dailyReports.map(d => d.id) } 
+    });
+    
+    stats.totalTasks += tasks.length;
+    stats.totalHours += tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
+  }
+  
+  stats.avgTasksPerReport = stats.totalReports > 0 
+    ? stats.totalTasks / stats.totalReports 
+    : 0;
+    
+  stats.avgHoursPerReport = stats.totalReports > 0 
+    ? stats.totalHours / stats.totalReports 
+    : 0;
+  
+  return stats;
+}
+```
+
+---
+
+### Archive Sayfası - Frontend Flow
+
+**1. Sayfa Yüklenir:**
+```typescript
+// /routes/archive/+page.svelte
+async function loadArchiveReports() {
+  loading = true;
+  try {
+    const response = await fetch(
+      `${API_URL}/api/archive/reports?page=${currentPage}&limit=${itemsPerPage}&sort=desc`,
+      {
+        headers: {
+          ...API_HEADERS,
+          Authorization: `Bearer ${getAuthToken()}`
+        }
+      }
+    );
+    
+    const data = await response.json();
+    allReports = data.reports;
+    filteredReports = [...allReports];
+    updatePaginatedReports();
+  } catch (error) {
+    console.error("Arşiv raporları yüklenirken hata:", error);
+  } finally {
+    loading = false;
+  }
+}
+```
+
+**2. Arama Yapılır:**
+```typescript
+function handleSearch() {
+  if (!searchValue.trim()) {
+    filteredReports = [...allReports];
+  } else {
+    // Frontend-side filtering (alternatif: backend'e search query gönder)
+    const query = searchValue.toLowerCase().trim();
+    filteredReports = allReports.filter((report) => {
+      return (
+        report.title.toLowerCase().includes(query) ||
+        report.startDate.includes(query) ||
+        report.endDate.includes(query)
+      );
+    });
+  }
+  currentPage = 1;
+  updatePaginatedReports();
+}
+```
+
+**3. Rapor Detayına Gidilir:**
+```typescript
+function openReportDetail(reportId: string) {
+  window.location.href = `/archive/${reportId}`;
+}
+
+// Veya SvelteKit navigation
+import { goto } from "$app/navigation";
+function openReportDetail(reportId: string) {
+  goto(`/archive/${reportId}`);
+}
+```
+
+---
+
+### Archive Data Model (Referans)
+
+**Ayrı Archive tablosuna gerek YOK.** Mevcut `Report` tablosu kullanılacak. Archive sayfası sadece raporları tarih sırasına göre listeleme ve filtreleme yapıyor.
+
+**Existing Report Model:**
+```typescript
+interface Report {
+  id: string;
+  userId: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  dailyReports: DailyReport[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+**Query Optimization:**
+```sql
+-- PostgreSQL örneği
+CREATE INDEX idx_reports_user_created ON reports(user_id, created_at DESC);
+CREATE INDEX idx_reports_dates ON reports(start_date, end_date);
+
+-- MongoDB örneği
+db.reports.createIndex({ userId: 1, createdAt: -1 });
+db.reports.createIndex({ startDate: 1, endDate: 1 });
+```
+
+---
+
+### Archive - Backend Implementation Checklist
+
+**Phase 1: Basic Archive (MVP)**
+- [ ] GET `/api/archive/reports` - Pagination desteği
+- [ ] GET `/api/archive/reports/:reportId` - Mevcut endpoint kullan
+- [ ] GET `/api/archive/stats` - Temel istatistikler
+- [ ] Database indexing (performance)
+- [ ] Response format validation
+
+**Phase 2: Enhanced Features**
+- [ ] Search query desteği (title, date, task)
+- [ ] Date range filtering (startDate, endDate params)
+- [ ] Sorting options (date, taskCount, hours)
+- [ ] Caching (Redis) - frequently accessed reports
+- [ ] Export multiple reports (bulk PDF download)
+
+**Phase 3: Advanced Analytics**
+- [ ] Monthly/Quarterly report statistics
+- [ ] Task completion trends
+- [ ] Working hours analytics
+- [ ] Most used task categories
+- [ ] Team comparison (manager view)
+
+---
+
+### Archive - Test Scenarios
+
+**Unit Tests:**
+```typescript
+describe('Archive API', () => {
+  test('GET /api/archive/reports - returns paginated reports', async () => {
+    const response = await request(app)
+      .get('/api/archive/reports?page=1&limit=10')
+      .set('Authorization', `Bearer ${validToken}`);
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('reports');
+    expect(response.body).toHaveProperty('pagination');
+    expect(response.body.reports).toHaveLength(10);
+  });
+  
+  test('GET /api/archive/reports - search filter works', async () => {
+    const response = await request(app)
+      .get('/api/archive/reports?search=Haftalık')
+      .set('Authorization', `Bearer ${validToken}`);
+    
+    expect(response.status).toBe(200);
+    expect(response.body.reports[0].title).toContain('Haftalık');
+  });
+  
+  test('GET /api/archive/stats - returns correct statistics', async () => {
+    const response = await request(app)
+      .get('/api/archive/stats')
+      .set('Authorization', `Bearer ${validToken}`);
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('totalReports');
+    expect(response.body).toHaveProperty('totalTasks');
+    expect(response.body).toHaveProperty('totalHours');
+  });
+});
+```
+
+**Integration Tests:**
+- Pagination navigation (next/previous pages)
+- Search with special characters
+- Empty result handling
+- Performance test (1000+ reports)
+
+---
+
+### Archive - Performance Considerations
+
+**Database Optimization:**
+1. **Indexing:** `userId + createdAt` composite index
+2. **Select Only Required Fields:** Listede sadece gerekli alanları getir
+3. **Lazy Loading:** Rapor detaylarını on-demand yükle
+4. **Caching:** Redis ile popular queries cache
+
+**API Response Time Targets:**
+- Archive list (10 items): < 200ms
+- Archive stats: < 300ms
+- Single report detail: < 150ms
+
+**Pagination Strategy:**
+- Default: 10 items/page
+- Max: 50 items/page
+- Offset-based (simple) veya Cursor-based (scalable)
+
+**Caching Strategy:**
+```typescript
+// Redis cache örneği
+const cacheKey = `archive:${userId}:page${page}:limit${limit}`;
+const cached = await redis.get(cacheKey);
+
+if (cached) {
+  return JSON.parse(cached);
+}
+
+const data = await getArchivedReports(userId, { page, limit });
+await redis.setex(cacheKey, 300, JSON.stringify(data)); // 5 min cache
+return data;
+```
 
 ---
 
 ## ⚠️ Error Handling
 
 ### Standard Error Response
+
 ```json
 {
   "error": true,
@@ -1157,21 +1792,23 @@ DailyReport (1) ----< (N) Task
 ```
 
 ### HTTP Status Codes
-| Code | Description | Usage |
-|------|-------------|-------|
-| 200 | OK | Successful request |
-| 201 | Created | Resource created successfully |
-| 400 | Bad Request | Invalid request data |
-| 401 | Unauthorized | Missing or invalid token |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Resource not found |
-| 409 | Conflict | Duplicate resource (email exists) |
-| 422 | Unprocessable Entity | Validation errors |
-| 429 | Too Many Requests | Rate limit exceeded |
-| 500 | Internal Server Error | Server error |
-| 503 | Service Unavailable | Server maintenance |
+
+| Code | Description           | Usage                             |
+| ---- | --------------------- | --------------------------------- |
+| 200  | OK                    | Successful request                |
+| 201  | Created               | Resource created successfully     |
+| 400  | Bad Request           | Invalid request data              |
+| 401  | Unauthorized          | Missing or invalid token          |
+| 403  | Forbidden             | Insufficient permissions          |
+| 404  | Not Found             | Resource not found                |
+| 409  | Conflict              | Duplicate resource (email exists) |
+| 422  | Unprocessable Entity  | Validation errors                 |
+| 429  | Too Many Requests     | Rate limit exceeded               |
+| 500  | Internal Server Error | Server error                      |
+| 503  | Service Unavailable   | Server maintenance                |
 
 ### Error Codes
+
 ```typescript
 enum ErrorCodes {
   INVALID_CREDENTIALS = "INVALID_CREDENTIALS",
@@ -1190,6 +1827,7 @@ enum ErrorCodes {
 ```
 
 ### Frontend Error Handling
+
 ```typescript
 // auth.service.ts
 try {
@@ -1198,13 +1836,13 @@ try {
     headers: API_HEADERS,
     body: JSON.stringify(credentials),
   });
-  
+
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.message || "Giriş başarısız");
   }
-  
+
   return data;
 } catch (error) {
   console.error("Login error:", error);
@@ -1213,6 +1851,7 @@ try {
 ```
 
 **Toast Notification System:**
+
 - Frontend'de `toastStore` kullanılıyor
 - Error mesajları user-friendly Türkçe olmalı
 - Success mesajları için `success: true` flag
@@ -1224,6 +1863,7 @@ try {
 ### 1. Authentication
 
 **Firebase Authentication Kullanımı:**
+
 - Firebase ID Token verification (Firebase Admin SDK)
 - Token expiration: Firebase default (1 saat, otomatik refresh)
 - Password management Firebase tarafından yapılıyor
@@ -1231,28 +1871,30 @@ try {
   - Email verification
   - Password strength (Firebase settings)
   - Multi-factor authentication (optional)
-  
+
 **Backend Middleware:**
+
 ```javascript
 // Token verification middleware
 const verifyFirebaseToken = async (req, res, next) => {
-  const idToken = req.headers.authorization?.split('Bearer ')[1];
-  
+  const idToken = req.headers.authorization?.split("Bearer ")[1];
+
   if (!idToken) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({ error: "No token provided" });
   }
-  
+
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     req.user = decodedToken; // { uid, email, ... }
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({ error: "Invalid token" });
   }
 };
 ```
 
 **Custom JWT Kullanıyorsanız:**
+
 - Token expiration: 1 saat (refresh token 7 gün)
 - Password hashing: bcrypt (salt rounds: 10)
 - Password policy:
@@ -1260,6 +1902,7 @@ const verifyFirebaseToken = async (req, res, next) => {
   - En az 1 büyük harf, 1 küçük harf, 1 rakam
 
 ### 2. Authorization
+
 - Route-level middleware (protect endpoints)
 - User can only access their own data
 - **Role-based access control:**
@@ -1269,34 +1912,37 @@ const verifyFirebaseToken = async (req, res, next) => {
 - Admin role için future endpoint'ler (user management, etc.)
 
 **Role Kontrolü:**
+
 ```javascript
 // Middleware example
 const requireRole = (allowedRoles) => {
   return (req, res, next) => {
-    const userRole = req.user.role || 'user';
-    
+    const userRole = req.user.role || "user";
+
     if (!allowedRoles.includes(userRole)) {
-      return res.status(403).json({ 
-        error: 'Insufficient permissions',
-        requiredRole: allowedRoles 
+      return res.status(403).json({
+        error: "Insufficient permissions",
+        requiredRole: allowedRoles,
       });
     }
-    
+
     next();
   };
 };
 
 // Usage
-app.get('/api/admin/users', verifyToken, requireRole(['admin']), getUsers);
+app.get("/api/admin/users", verifyToken, requireRole(["admin"]), getUsers);
 ```
 
 ### 3. Input Validation
+
 - All inputs sanitized and validated
 - SQL/NoSQL injection prevention
 - XSS protection
 - CSRF tokens (if using cookies)
 
 ### 4. Rate Limiting
+
 ```
 Login: 5 attempts / 15 minutes
 API calls: 100 requests / minute
@@ -1304,6 +1950,7 @@ File uploads: 10 uploads / hour
 ```
 
 ### 5. CORS Configuration
+
 ```javascript
 {
   origin: [
@@ -1318,6 +1965,7 @@ File uploads: 10 uploads / hour
 ```
 
 ### 6. Security Headers
+
 ```
 Content-Security-Policy
 Strict-Transport-Security
@@ -1327,6 +1975,7 @@ X-XSS-Protection: 1; mode=block
 ```
 
 ### 7. Data Privacy
+
 - GDPR compliance
 - User data encryption at rest
 - Secure file storage (S3 with encryption)
@@ -1339,16 +1988,19 @@ X-XSS-Protection: 1; mode=block
 ### Backend Firebase Admin SDK Setup
 
 **1. Firebase Project Configuration:**
+
 ```bash
 npm install firebase-admin
 ```
 
 **2. Service Account Key:**
+
 - Firebase Console → Project Settings → Service Accounts
 - "Generate New Private Key" butonu
 - JSON dosyasını güvenli yere kaydet (`.gitignore`'a ekle)
 
 **3. Environment Variables:**
+
 ```env
 FIREBASE_PROJECT_ID=kronos-project-id
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk@kronos-project.iam.gserviceaccount.com
@@ -1357,14 +2009,15 @@ FIREBASE_STORAGE_BUCKET=kronos-project.appspot.com
 ```
 
 **4. Backend Initialization:**
+
 ```javascript
-import admin from 'firebase-admin';
+import admin from "firebase-admin";
 
 admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   }),
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
 });
@@ -1376,6 +2029,7 @@ export const firestore = admin.firestore(); // Optional
 
 **5. Frontend Firebase Config (Referans):**
 Frontend'de zaten kullanılan Firebase config:
+
 ```javascript
 // Frontend tarafında (referans için)
 const firebaseConfig = {
@@ -1384,7 +2038,7 @@ const firebaseConfig = {
   projectId: "kronos-project-id",
   storageBucket: "kronos-project.appspot.com",
   messagingSenderId: "...",
-  appId: "..."
+  appId: "...",
 };
 ```
 
@@ -1393,28 +2047,33 @@ const firebaseConfig = {
 ## �📦 Ek Gereksinimler
 
 ### 1. Logging
+
 - Request/Response logging
 - Error tracking (Sentry, LogRocket)
 - Performance monitoring (New Relic, DataDog)
 
 ### 2. Testing
+
 - Unit tests (Jest, Mocha)
 - Integration tests (Supertest)
 - E2E tests (Cypress, Playwright)
 - API documentation (Swagger/OpenAPI)
 
 ### 3. Documentation
+
 - Swagger UI for API documentation
 - Postman collection
 - README with setup instructions
 
 ### 4. Deployment
+
 - CI/CD pipeline (GitHub Actions, GitLab CI)
 - Environment variables (`.env` files)
 - Docker containerization (optional)
 - Health check endpoint: `GET /api/health`
 
 ### 5. Monitoring
+
 - Uptime monitoring (UptimeRobot, Pingdom)
 - Performance metrics
 - Database connection pooling
@@ -1425,6 +2084,7 @@ const firebaseConfig = {
 ## 🚀 Öncelik Sırası
 
 ### Phase 1: MVP (Minimum Viable Product)
+
 1. ✅ Authentication (login, logout)
 2. ✅ User profile (get, update)
 3. ✅ Create weekly report
@@ -1432,12 +2092,14 @@ const firebaseConfig = {
 5. ✅ Dashboard stats
 
 ### Phase 2: Essential Features
+
 6. ✅ Avatar upload
 7. ✅ Daily report update (single day)
 8. ✅ Report list with pagination
 9. ✅ PDF export
 
 ### Phase 3: Advanced Features
+
 10. ⏳ Token refresh mechanism
 11. ⏳ User registration
 12. ⏳ Report editing/deletion
@@ -1449,21 +2111,25 @@ const firebaseConfig = {
 ## 📞 İletişim & Koordinasyon
 
 ### Frontend Team
+
 - **Tech Lead:** [İsim]
 - **Developers:** [İsimler]
 - **Repository:** https://github.com/FreeFrontendTeam/kronos
 
 ### Backend Team
+
 - **Tech Lead:** [İsim]
 - **Developers:** [İsimler]
 - **Repository:** [Backend repo URL]
 
 ### Communication Channels
+
 - **Slack:** #kronos-dev
 - **Daily Standup:** 10:00 (Teams)
 - **API Review Meetings:** Perşembe 14:00
 
 ### API Contract
+
 - OpenAPI spec'i backend team tarafından sağlanacak
 - Frontend mock data'yı backend response format'ına göre güncelleyecek
 - Breaking changes önceden bildirilecek (1 sprint öncesi)

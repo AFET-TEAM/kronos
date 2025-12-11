@@ -10,4 +10,20 @@ export type LoginResponse = {
   registered?: boolean;
   message?: string;
   errors?: Array<{ message: string }>;
+  user?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    title: string;
+    squad: string;
+    department?: string;
+    avatarUrl: string;
+    role: string;
+    startDate?: string;
+    projects?: string[];
+    trainings?: string[];
+    awards?: string[];
+    certifications?: string[];
+  };
 };
