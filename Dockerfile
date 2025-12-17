@@ -24,7 +24,6 @@
     
     # SvelteKit build çıktısını kopyala (hem client hem server)
     COPY --from=builder /app/.svelte-kit/output /app/.svelte-kit/output
-    COPY --from=builder /app/build /app/build
     
     # Static assets varsa
     COPY --from=builder /app/static /app/static
