@@ -18,10 +18,9 @@
     
     ENV NODE_ENV=production
     
-    # Package files'ları kopyala
     COPY package*.json ./
     
-    # Production dependencies + SvelteKit runtime dependencies
+    # Tüm dependencies'leri yükle
     RUN npm install
     
     # SvelteKit build çıktısını kopyala
@@ -29,9 +28,6 @@
     
     # Static assets
     COPY --from=builder /app/static /app/static
-    
-    # node_modules'ü builder'dan kopyala (daha güvenli)
-    COPY --from=builder /app/node_modules /app/node_modules
     
     RUN chown -R node:node /app
     
