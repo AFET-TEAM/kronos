@@ -11,18 +11,14 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
                         env.CONTAINER_NAME = "${BASE_APP_NAME}-prod"
-                        env.HOST_PORT = "8010" // Prod Portu
-                        echo ">>> CANLI ORTAM (PROD) Hazırlanıyor..."
+                        env.HOST_PORT = "8010" 
+                        echo ">>> PROD ORTAMI SEÇİLDİ"
                     } 
                     else if (env.BRANCH_NAME == 'integration') {
                         env.CONTAINER_NAME = "${BASE_APP_NAME}-integration"
-                        env.HOST_PORT = "8011" // Integration Portu
-                        echo ">>> ENTEGRASYON ORTAMI (INTEGRATION) Hazırlanıyor..."
+                        env.HOST_PORT = "8011"
+                        echo ">>> INTEGRATION ORTAMI SEÇİLDİ"
                     } 
-                    else {
-                        env.CONTAINER_NAME = "${BASE_APP_NAME}-test-${env.BRANCH_NAME}"
-                        env.HOST_PORT = "8012" 
-                    }
                 }
             }
         }
@@ -46,11 +42,13 @@ pipeline {
                         --name ${env.CONTAINER_NAME} \
                         --network ${NETWORK_NAME} \
                         --restart always \
-                        -p ${env.HOST_PORT}:80 \
+                        -e PORT=3000 \
+                        -e ORIGIN=http://localhost:${env.HOST_PORT} \
+                        -p ${env.HOST_PORT}:3000 \
                         ${BASE_APP_NAME}:${env.BRANCH_NAME}
                     """
                     
-                    echo "Başarıyla kuruldu: ${env.CONTAINER_NAME} port: ${env.HOST_PORT}"
+                    echo "Kurulum tamam: ${env.CONTAINER_NAME} -> Port: ${env.HOST_PORT}"
                 }
             }
         }
