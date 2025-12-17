@@ -1,4 +1,11 @@
-stages {
+pipeline {
+    agent any
+    environment {
+        BASE_APP_NAME = "kronos-fe"
+        NETWORK_NAME = "app-network"
+    }
+
+    stages {
         stage('Branch Analizi') {
             steps {
                 script {
@@ -16,11 +23,12 @@ stages {
                     else {
                         env.CONTAINER_NAME = "${BASE_APP_NAME}-test-${env.BRANCH_NAME}"
                         env.HOST_PORT = "8012"
+                        // Test ortamı için IP adresi veya test domaini
                         env.APP_ORIGIN = "http://212.64.199.127:8012"
                     }
                 }
             }
-        }        
+        }
 
         stage('Build Image') {
             steps {
@@ -33,9 +41,11 @@ stages {
         stage('Deploy') {
             steps {
                 script {
+                    // Eski container varsa durdur ve sil
                     sh "docker stop ${env.CONTAINER_NAME} || true"
                     sh "docker rm ${env.CONTAINER_NAME} || true"
                     
+                    // Yeni container'ı başlat
                     sh """
                         docker run -d \
                         --name ${env.CONTAINER_NAME} \
@@ -53,3 +63,4 @@ stages {
             }
         }
     }
+}
