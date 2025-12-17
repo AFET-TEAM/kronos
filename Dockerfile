@@ -1,19 +1,32 @@
 # --- AŞAMA 1: Builder ---
     FROM node:18-alpine AS builder
+
     WORKDIR /app
+
     COPY package*.json ./
-    # Tüm paketleri yükle
+    
     RUN npm install
+
     COPY . .
+ 
     RUN npm run build
     
     # --- AŞAMA 2: Production ---
     FROM node:18-alpine
+    
     WORKDIR /app
     
-    COPY --from=builder /app/node_modules ./node_modules
-    COPY --from=builder /app/.svelte-kit ./.svelte-kit
-    COPY --from=builder /app/package.json ./package.json
+    ENV NODE_ENV=production
+    
+    COPY package*.json ./
+  
+    COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+    
+
+    COPY --from=builder --chown=node:node /app/build ./build
+    
+    USER node
     
     EXPOSE 3000
-    CMD ["node", ".svelte-kit/output/server/index.js"]
+    
+    CMD ["node", "build/index.js"]
