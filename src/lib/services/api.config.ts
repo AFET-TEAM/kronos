@@ -1,4 +1,4 @@
-export const API_URL = "https://backend-api-gateway.vercel.app";
+export const API_URL = "https://kronos-prod.afet.space";
 
 export const API_HEADERS = {
   "Content-Type": "application/json",
