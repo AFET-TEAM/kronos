@@ -22,6 +22,14 @@ stages {
             }
         }        
 
+        stage('Build Image') {
+            steps {
+                script {
+                    sh "docker build -t ${BASE_APP_NAME}:${env.BRANCH_NAME} ."
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 script {
