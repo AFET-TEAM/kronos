@@ -1,25 +1,10 @@
-import adapter from '@sveltejs/adapter-node';
+import adapter from "@sveltejs/adapter-auto";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   kit: {
     adapter: adapter(),
-    csp: {
-      mode: 'auto',
-      directives: {
-        'default-src': ["'self'"],
-        'script-src': ["'self'", "'unsafe-inline'"],
-        'style-src': ["'self'", "'unsafe-inline'"],
-        'connect-src': [
-          "'self'", 
-          "ws://localhost:3000", 
-          "http://localhost:4000",
-          "https://*.afet.space",
-        ],
-        'img-src': ["'self'", "data:", "https:"],
-      }
-    }
   },
   preprocess: vitePreprocess({
     scss: {
