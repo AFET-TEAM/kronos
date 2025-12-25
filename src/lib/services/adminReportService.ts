@@ -113,11 +113,11 @@ export async function getAdminReports(
           totalHours: 40,
           isReviewed: false,
           user: {
-            id: "user1",
+            id: "user-1",
             firstName: "Ahmet",
             lastName: "Yılmaz",
-            email: "ahmet.yilmaz@atmosware.com",
-            squad: "Frontend Team",
+            email: "ahmet.yilmaz@atmosware.turkcell.com.tr",
+            squad: "Platform Team",
           },
         },
         {
@@ -130,12 +130,12 @@ export async function getAdminReports(
           totalHours: 35,
           isReviewed: true,
           user: {
-            id: "user2",
+            id: "user-4",
             firstName: "Zeynep",
-            lastName: "Kaya",
-            email: "zeynep.kaya@atmosware.com",
-            avatarUrl: "https://i.pravatar.cc/150?img=5",
-            squad: "Backend Team",
+            lastName: "Arslan",
+            email: "zeynep.arslan@atmosware.turkcell.com.tr",
+            avatarUrl: "https://ui-avatars.com/api/?name=Zeynep+Arslan&background=f59e0b&color=fff",
+            squad: "API Team",
           },
         },
         {
@@ -148,11 +148,11 @@ export async function getAdminReports(
           totalHours: 42,
           isReviewed: true,
           user: {
-            id: "user3",
+            id: "user-3",
             firstName: "Mehmet",
-            lastName: "Demir",
-            email: "mehmet.demir@atmosware.com",
-            squad: "DevOps Team",
+            lastName: "Kaya",
+            email: "mehmet.kaya@atmosware.turkcell.com.tr",
+            squad: "Platform Team",
           },
         },
         {
@@ -165,11 +165,11 @@ export async function getAdminReports(
           totalHours: 38,
           isReviewed: false,
           user: {
-            id: "user1",
+            id: "user-1",
             firstName: "Ahmet",
             lastName: "Yılmaz",
-            email: "ahmet.yilmaz@atmosware.com",
-            squad: "Frontend Team",
+            email: "ahmet.yilmaz@atmosware.turkcell.com.tr",
+            squad: "Platform Team",
           },
         },
         {
@@ -182,12 +182,12 @@ export async function getAdminReports(
           totalHours: 41,
           isReviewed: true,
           user: {
-            id: "user4",
+            id: "user-2",
             firstName: "Ayşe",
-            lastName: "Şahin",
-            email: "ayse.sahin@atmosware.com",
-            avatarUrl: "https://i.pravatar.cc/150?img=9",
-            squad: "Frontend Team",
+            lastName: "Demir",
+            email: "ayse.demir@atmosware.turkcell.com.tr",
+            avatarUrl: "https://ui-avatars.com/api/?name=Ayse+Demir&background=ec4899&color=fff",
+            squad: "UI/UX Team",
           },
         },
         {
@@ -200,12 +200,12 @@ export async function getAdminReports(
           totalHours: 32,
           isReviewed: true,
           user: {
-            id: "user2",
+            id: "user-4",
             firstName: "Zeynep",
-            lastName: "Kaya",
-            email: "zeynep.kaya@atmosware.com",
-            avatarUrl: "https://i.pravatar.cc/150?img=5",
-            squad: "Backend Team",
+            lastName: "Arslan",
+            email: "zeynep.arslan@atmosware.turkcell.com.tr",
+            avatarUrl: "https://ui-avatars.com/api/?name=Zeynep+Arslan&background=f59e0b&color=fff",
+            squad: "API Team",
           },
         },
         {
@@ -218,11 +218,11 @@ export async function getAdminReports(
           totalHours: 45,
           isReviewed: false,
           user: {
-            id: "user5",
+            id: "user-5",
             firstName: "Can",
             lastName: "Öztürk",
-            email: "can.ozturk@atmosware.com",
-            squad: "QA Team",
+            email: "can.ozturk@atmosware.turkcell.com.tr",
+            squad: "UI/UX Team",
           },
         },
         {
@@ -235,11 +235,11 @@ export async function getAdminReports(
           totalHours: 39,
           isReviewed: true,
           user: {
-            id: "user3",
+            id: "user-3",
             firstName: "Mehmet",
-            lastName: "Demir",
-            email: "mehmet.demir@atmosware.com",
-            squad: "DevOps Team",
+            lastName: "Kaya",
+            email: "mehmet.kaya@atmosware.turkcell.com.tr",
+            squad: "Platform Team",
           },
         },
       ];
@@ -413,3 +413,4 @@ export async function markReportAsUnreviewed(reportId: string): Promise<void> {
     }, 300);
   });
 }
+
