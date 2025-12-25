@@ -6,7 +6,9 @@ export type LoginCredentials = {
 export type LoginResponse = {
   token: string;
   email: string;
-  idToken: string;
+  idToken?: string;
+  uid?: string;
+  emailVerified?: boolean;
   registered?: boolean;
   message?: string;
   errors?: Array<{ message: string }>;
