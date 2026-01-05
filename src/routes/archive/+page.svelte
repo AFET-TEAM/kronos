@@ -172,7 +172,7 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen">
   <Header
     theme={$themeStore}
     {isSidebarOpen}
@@ -458,7 +458,7 @@
                                         <div class="flex gap-2">
                                           <button
                                             on:click={() => openReportDetail(report.id)}
-                                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                                            class="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-white text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap"
                                           >
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

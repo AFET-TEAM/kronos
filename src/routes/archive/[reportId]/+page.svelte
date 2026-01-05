@@ -85,7 +85,7 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen">
   <Header
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
@@ -106,7 +106,7 @@
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >
-    <div class="container">
+    <div class="container p-6 pt-16">
       {#if loading}
         <div class="animate-pulse space-y-6">
           <div class="h-8 bg-gray-300 dark:bg-gray-700 rounded w-1/4"></div>
@@ -130,7 +130,7 @@
         <Button
           onClick={goBack}
           text="← Arşiv'e Dön"
-          className="mb-6 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors bg-transparent border-0"
+          className="mb-6 text-gray-600 dark:text-gray-400 hover:bg-blue-200 dark:hover:text-indigo-400 transition-colors bg-transparent border-0"
         />
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
@@ -451,7 +451,7 @@
           <Button
             onClick={goBack}
             text="Arşiv'e Dön"
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
+            className="px-5 py-2.5 bg-blue-200 hover:bg-blue-200 text-white font-medium rounded-md transition-colors"
           />
         </div>
       {/if}

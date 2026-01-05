@@ -123,7 +123,7 @@
       class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"
     >
       <svg
-        class="w-6 h-6 text-indigo-600"
+        class="w-6 h-6 text-blue-600"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

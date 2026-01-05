@@ -325,7 +325,7 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen">
   <Header
     theme={$themeStore}
     {isSidebarOpen}
@@ -389,7 +389,7 @@
                   bind:value={userSearchQuery}
                   on:input={(e) => handleUserSearch(e.currentTarget.value)}
                   on:focus={() => userSearchResults.length > 0 && (showUserDropdown = true)}
-                  class="w-full px-4 py-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all"
+                  class="w-full px-4 py-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-100 transition-all"
                 />
                 {#if selectedUser}
                   <button
@@ -409,7 +409,7 @@
                         on:click={() => selectUser(user)}
                         class="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-white font-bold flex-shrink-0">
                           {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                         </div>
                         <div class="flex-1 min-w-0">
@@ -423,7 +423,7 @@
                             {user.squad} · {user.title}
                           </p>
                         </div>
-                        <span class="px-2 py-1 text-xs rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300">
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
                           {user.reportCount} rapor
                         </span>
                       </button>
@@ -433,7 +433,7 @@
 
                 {#if isSearchingUsers}
                   <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg class="w-5 h-5 animate-spin text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 animate-spin text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   </div>
@@ -441,10 +441,10 @@
               </div>
 
               {#if selectedUser}
-                <div class="mt-3 p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-white text-sm font-bold">
                         {selectedUser.firstName.charAt(0)}{selectedUser.lastName.charAt(0)}
                       </div>
                       <div>
@@ -496,7 +496,7 @@
                   <select
                     bind:value={selectedSquad}
                     on:change={() => handleSquadChange(selectedSquad)}
-                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-100"
                   >
                     {#each squadOptions as option}
                       <option value={option.value}>{option.label}</option>
@@ -511,7 +511,7 @@
                   <input
                     type="date"
                     bind:value={dateRangeStart}
-                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -522,7 +522,7 @@
                   <input
                     type="date"
                     bind:value={dateRangeEnd}
-                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -543,8 +543,8 @@
                   {statistics.totalReports}
                 </p>
               </div>
-              <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
@@ -597,8 +597,8 @@
                 <button
                   on:click={() => handleFilterChange(filter.value)}
                   class="px-5 py-2.5 rounded-lg font-medium transition-all duration-200 {activeFilter === filter.value
-                    ? 'bg-indigo-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}"
+                    ? 'bg-blue-100 text-white shadow-lg scale-105'
+                    : 'bg-gray-100 dark:bg-blue-200 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}"
                 >
                   <span class="mr-2">{filter.icon}</span>
                   {filter.label}
@@ -611,7 +611,7 @@
               <select
                 bind:value={sortOrder}
                 on:change={() => handleSortChange(sortOrder)}
-                class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-indigo-500 transition-all"
+                class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-100 transition-all"
               >
                 {#each sortOptions as option}
                   <option value={option.value}>{option.label}</option>
@@ -622,12 +622,12 @@
 
           {#if showBulkActions}
             <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-lg">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
                 <div class="flex items-center gap-3">
-                  <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-blue-100 dark:text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  <span class="font-semibold text-indigo-900 dark:text-indigo-100">
+                  <span class="font-semibold text-blue-100 dark:text-blue-200">
                     {selectedReports.size} rapor seçildi
                   </span>
                 </div>
@@ -702,7 +702,7 @@
                 type="checkbox"
                 checked={selectedReports.size === reportsList.length && reportsList.length > 0}
                 on:change={toggleSelectAll}
-                class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                class="w-5 h-5 text-blue-100 border-gray-300 rounded focus:ring-blue-100"
               />
               <span class="font-medium text-gray-700 dark:text-gray-300">
                 Tümünü Seç ({reportsList.length} rapor)
@@ -713,16 +713,16 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {#each reportsList as report}
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden {selectedReports.has(report.id) ? 'ring-2 ring-indigo-500' : ''}">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden {selectedReports.has(report.id) ? 'ring-2 ring-blue-500' : ''}">
               <div class="p-6">
                 <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                   <input
                     type="checkbox"
                     checked={selectedReports.has(report.id)}
                     on:change={() => toggleReportSelection(report.id)}
-                    class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer flex-shrink-0"
+                    class="w-5 h-5 text-blue-100 border-gray-300 rounded focus:ring-blue-100 cursor-pointer flex-shrink-0"
                   />
-                  <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                  <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                     {getUserInitials(report.user.firstName, report.user.lastName)}
                   </div>
                   <div class="flex-1 min-w-0">
@@ -766,14 +766,14 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                  <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-3">
+                  <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3">
                     <div class="flex items-center gap-2 mb-1">
-                      <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 text-blue-100 dark:text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                       <span class="text-xs text-gray-600 dark:text-gray-400 font-medium">Task</span>
                     </div>
-                    <p class="text-xl font-bold text-indigo-700 dark:text-indigo-300">
+                    <p class="text-xl font-bold text-blue-100 dark:text-blue-300">
                       {report.taskCount}
                     </p>
                   </div>
@@ -794,7 +794,7 @@
                 <div class="flex gap-3">
                   <button
                     on:click={() => viewReportDetails(report.id)}
-                    class="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                    class="flex-1 px-4 py-2.5 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -844,7 +844,7 @@
                 <button
                   on:click={() => handlePageSwitch(index + 1)}
                   class="px-4 py-2 rounded-lg font-medium transition-colors {activePage === index + 1
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-blue-100 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}"
                 >
                   {index + 1}
@@ -869,3 +869,4 @@
     </div>
   </main>
 </div>
+

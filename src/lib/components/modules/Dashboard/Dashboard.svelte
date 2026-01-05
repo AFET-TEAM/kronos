@@ -295,7 +295,7 @@
 
 <style>
   .dashboard-container {
-    padding: 2rem;
+    padding: 2rem 3rem;
     min-width: 100%;
     background: linear-gradient(
       to top right,

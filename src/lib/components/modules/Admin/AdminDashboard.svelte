@@ -141,13 +141,13 @@
     <!-- Recent Users -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div
-        class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 flex items-center justify-between"
+        class="bg-gradient-to-r from-blue-100 to-blue-200 px-6 py-4 flex items-center justify-between"
       >
         <h2 class="text-xl font-bold text-white">Kullanıcılar</h2>
         <Button
           onClick={() => goto("/admin/users")}
           text="Tümünü Gör"
-          variant="secondary"
+          variant="tertiary"
           size="small"
           className="bg-white/20 hover:bg-white/30 text-white border-0"
         />
@@ -186,7 +186,7 @@
                 <img
                   src={user.avatarUrl}
                   alt={`${user.firstName} ${user.lastName}`}
-                  class="w-12 h-12 rounded-full ring-2 ring-indigo-400"
+                  class="w-12 h-12 rounded-full ring-2 ring-blue-400"
                   loading="lazy"
                 />
                 <div class="flex-1 min-w-0">
@@ -225,7 +225,7 @@
 
     <!-- Recent Activities -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-      <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+      <div class="bg-gradient-to-r from-blue-100 to-blue-200  px-6 py-4">
         <h2 class="text-xl font-bold text-white">Son Aktiviteler</h2>
       </div>
 
@@ -253,7 +253,7 @@
             {#each activities as activity}
               <div class="flex items-start gap-4">
                 <div
-                  class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-lg flex-shrink-0"
+                  class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200  rounded-full flex items-center justify-center text-white text-lg flex-shrink-0"
                 >
                   {getActivityIcon(activity.type)}
                 </div>
@@ -286,19 +286,16 @@
         onClick={() => goto("/admin/users")}
         text="👥 Kullanıcı Yönetimi"
         variant="primary"
-        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4"
       />
       <Button
         onClick={() => goto("/admin/reports")}
         text="📊 Rapor Yönetimi"
         variant="primary"
-        className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4"
       />
       <Button
         onClick={() => goto("/admin/settings")}
         text="⚙️ Sistem Ayarları"
-        variant="primary"
-        className="w-full bg-gray-600 hover:bg-gray-700 text-white py-4"
+        variant="tertiary"
       />
     </div>
   </div>
