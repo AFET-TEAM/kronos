@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import Input from "$lib/components/ui/Input/Input.svelte";
   import TextArea from "$lib/components/ui/TextArea/TextArea.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
   import Checkbox from "$lib/components/ui/Checkbox/Checkbox.svelte";
   import type { Meeting } from "$lib/services/reportService.js";
+
+  const dispatch = createEventDispatcher();
 
   export let day: string;
   export let date: string;
@@ -29,6 +32,11 @@
     description: string;
     status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
   };
+  
+  // Her değişiklikte parent'a haber ver
+  function notifyChange() {
+    dispatch('change');
+  }
 
   // Convert old string format to array format
   let blockersArray: string[] = [];
@@ -114,10 +122,12 @@
         status: "Devam Ediyor",
       },
     ];
+    notifyChange();
   }
 
   function removeTask(index: number) {
     tasks = tasks.filter((_, i) => i !== index);
+    notifyChange();
   }
 
   function toggleExpand() {
@@ -140,6 +150,7 @@
     untrackedWork = "";
     updateBlockers();
     updateMeetings();
+    notifyChange();
   }
 
   $: hasContent =
@@ -261,9 +272,13 @@
           class="bg-sky-50 dark:bg-sky-900/30 border border-sky-200 dark:border-sky-700 rounded-lg p-3"
         >
           <Checkbox
-            bind:checked={isOnLeave}
+            checked={isOnLeave}
             label="🏖️ Bu gün izinliyim"
             name="isOnLeave-{date}"
+            on:change={(e) => {
+              isOnLeave = e.detail.checked;
+              notifyChange();
+            }}
           />
           {#if isOnLeave}
             <p class="text-xs text-sky-700 dark:text-sky-100 mt-2 ml-7">
@@ -606,9 +621,13 @@
         </div>
         <TextArea
           placeholder="Opsiyonel..."
-          bind:value={untrackedWork}
+          value={untrackedWork}
           rows={2}
           disabled={isOnLeave}
+          on:input={(e) => {
+            untrackedWork = e.detail.value;
+            notifyChange();
+          }}
         />
       </div>
     </div>

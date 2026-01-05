@@ -1263,6 +1263,515 @@ DailyReport (1) ----< (N) Task
 | ------ | ---------------------- | ------------------------ | ------------- |
 | GET    | `/api/dashboard/stats` | Get dashboard statistics | ✅            |
 
+### Archive (Rapor Arşivi)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/archive/reports` | Get archived reports with pagination | ✅ |
+| GET | `/api/archive/reports/:reportId` | Get archived report details | ✅ |
+| GET | `/api/archive/stats` | Get archive statistics | ✅ |
+
+---
+
+## 📦 Archive Management (Rapor Arşivi)
+
+### Genel Bilgi
+Archive sayfası, kullanıcıların geçmişte oluşturulmuş tüm haftalık raporlarını görüntüleyebildiği, arama yapabildiği ve detaylarına erişebildiği bir sayfadır. Frontend `/archive` route'unda bulunuyor.
+
+### 1. Get Archived Reports (Pagination + Search)
+**Endpoint:** `GET /api/archive/reports`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+```typescript
+{
+  page?: number;           // Sayfa numarası (default: 1)
+  limit?: number;          // Sayfa başına kayıt (default: 10)
+  sort?: "asc" | "desc";   // Tarihe göre sıralama (default: "desc" - yeniden eskiye)
+  search?: string;         // Arama query (başlık, tarih)
+  startDate?: string;      // Filtreleme için başlangıç tarihi (DD.MM.YYYY)
+  endDate?: string;        // Filtreleme için bitiş tarihi (DD.MM.YYYY)
+}
+```
+
+**Example Request:**
+```
+GET /api/archive/reports?page=1&limit=10&sort=desc&search=Haftalık
+```
+
+**Response:**
+```json
+{
+  "reports": [
+    {
+      "id": "report-uuid-1",
+      "title": "Haftalık Rapor",
+      "startDate": "21.10.2024",
+      "endDate": "25.10.2024",
+      "createdAt": "2024-10-28T10:30:00Z",
+      "taskCount": 12,
+      "totalHours": 35,
+      "status": "recent"
+    },
+    {
+      "id": "report-uuid-2",
+      "title": "Haftalık Rapor",
+      "startDate": "14.10.2024",
+      "endDate": "18.10.2024",
+      "createdAt": "2024-10-21T09:00:00Z",
+      "taskCount": 8,
+      "totalHours": 28,
+      "status": "archived"
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalReports": 42,
+    "itemsPerPage": 10,
+    "hasMore": true
+  }
+}
+```
+
+**Field Açıklamaları:**
+- `taskCount`: Rapordaki toplam task sayısı (tüm günlerdeki tasklar)
+- `totalHours`: Rapordaki toplam estimated hours
+- `status`: "recent" (son 2 hafta) veya "archived" (eski raporlar)
+- `hasMore`: Sonraki sayfa var mı kontrolü
+
+**Frontend Kullanımı:**
+- Archive sayfasında (`/routes/archive/+page.svelte`)
+- `loadArchiveReports()` fonksiyonu
+- Pagination component ile sayfalama
+- Search bar ile arama
+
+**Backend Logic:**
+```typescript
+// Örnek implementasyon
+async function getArchivedReports(userId: string, params: ArchiveParams) {
+  const { page = 1, limit = 10, sort = 'desc', search } = params;
+  const skip = (page - 1) * limit;
+  
+  let query = { userId };
+  
+  // Arama varsa filtrele
+  if (search) {
+    query = {
+      ...query,
+      $or: [
+        { title: { $regex: search, $options: 'i' } },
+        { startDate: { $regex: search } },
+        { endDate: { $regex: search } }
+      ]
+    };
+  }
+  
+  // Total count al
+  const totalReports = await Report.countDocuments(query);
+  
+  // Raporları getir
+  const reports = await Report.find(query)
+    .sort({ createdAt: sort === 'desc' ? -1 : 1 })
+    .skip(skip)
+    .limit(limit)
+    .select('id title startDate endDate createdAt');
+  
+  // Her rapor için task count ve hours hesapla
+  const reportsWithStats = await Promise.all(
+    reports.map(async (report) => {
+      const dailyReports = await DailyReport.find({ reportId: report.id });
+      const tasks = await Task.find({ 
+        dailyReportId: { $in: dailyReports.map(d => d.id) } 
+      });
+      
+      const taskCount = tasks.length;
+      const totalHours = tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
+      
+      // Son 2 haftalık rapor mu kontrol et
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+      const status = new Date(report.createdAt) > twoWeeksAgo ? 'recent' : 'archived';
+      
+      return {
+        id: report.id,
+        title: report.title,
+        startDate: report.startDate,
+        endDate: report.endDate,
+        createdAt: report.createdAt,
+        taskCount,
+        totalHours,
+        status
+      };
+    })
+  );
+  
+  return {
+    reports: reportsWithStats,
+    pagination: {
+      currentPage: page,
+      totalPages: Math.ceil(totalReports / limit),
+      totalReports,
+      itemsPerPage: limit,
+      hasMore: page < Math.ceil(totalReports / limit)
+    }
+  };
+}
+```
+
+**Performans Optimizasyonu:**
+- Database index: `userId + createdAt` (composite index)
+- Caching: Redis ile frequently accessed data cache
+- Aggregation pipeline kullan (MongoDB)
+- JOIN optimize et (PostgreSQL)
+
+---
+
+### 2. Get Archived Report Details
+**Endpoint:** `GET /api/archive/reports/:reportId`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "id": "report-uuid-1",
+  "title": "Haftalık Rapor",
+  "startDate": "21.10.2024",
+  "endDate": "25.10.2024",
+  "createdAt": "2024-10-28T10:30:00Z",
+  "user": {
+    "id": "user-uuid-123",
+    "firstName": "Ahmet",
+    "lastName": "Yılmaz",
+    "email": "ahmet.yilmaz@atmosware.turkcell.com.tr",
+    "avatarUrl": "https://storage.googleapis.com/kronos-bucket/avatars/user-123.webp",
+    "title": "Senior Frontend Developer",
+    "squad": "Platform Team"
+  },
+  "dailyReports": [
+    {
+      "day": "Pazartesi",
+      "date": "21.10.2024",
+      "tasks": [
+        {
+          "taskName": "Login Sayfası Geliştirme",
+          "taskNumber": "KRON-123",
+          "estimatedHours": 4,
+          "description": "Firebase Authentication entegrasyonu tamamlandı."
+        }
+      ],
+      "blockers": "Firebase config dosyası environment variable'lara taşınması gerekiyor.",
+      "meetings": "Daily Standup (15dk), Sprint Planning (1 saat)",
+      "untrackedWork": "Yeni geliştiricinin onboarding sürecinde yardımcı olundu (1 saat).",
+      "isOnLeave": false
+    },
+    {
+      "day": "Salı",
+      "date": "22.10.2024",
+      "tasks": [],
+      "blockers": "",
+      "meetings": "",
+      "untrackedWork": "",
+      "isOnLeave": true
+    }
+  ]
+}
+```
+
+**Frontend Kullanımı:**
+- Archive detail page (`/routes/archive/[reportId]/+page.svelte`)
+- "Detayları Gör" butonuna tıklandığında
+- `getReportDetails(reportId)` service fonksiyonu
+
+**Not:** Bu endpoint mevcut `/api/reports/:reportId` endpoint'i ile aynı. Archive sayfası için ayrı endpoint oluşturmaya gerek yok, mevcut endpoint kullanılabilir.
+
+---
+
+### 3. Get Archive Statistics
+**Endpoint:** `GET /api/archive/stats`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "totalReports": 42,
+  "totalTasks": 385,
+  "totalHours": 1248,
+  "avgTasksPerReport": 9.2,
+  "avgHoursPerReport": 29.7,
+  "firstReportDate": "2024-01-15T08:00:00Z",
+  "lastReportDate": "2024-10-28T10:30:00Z",
+  "reportsByMonth": [
+    {
+      "month": "2024-10",
+      "count": 4,
+      "totalTasks": 38,
+      "totalHours": 115
+    },
+    {
+      "month": "2024-09",
+      "count": 4,
+      "totalTasks": 42,
+      "totalHours": 128
+    }
+  ]
+}
+```
+
+**Frontend Kullanımı:**
+- Archive sayfasının üst kısmındaki statistics cards
+- Şu an frontend'de sadece 3 stat gösteriliyor (toplam rapor, task, saat)
+- Gelecekte chart/graph eklenebilir
+
+**Backend Logic:**
+```typescript
+async function getArchiveStats(userId: string) {
+  // Tüm raporları getir
+  const reports = await Report.find({ userId });
+  
+  // Statistics hesapla
+  const stats = {
+    totalReports: reports.length,
+    totalTasks: 0,
+    totalHours: 0
+  };
+  
+  for (const report of reports) {
+    const dailyReports = await DailyReport.find({ reportId: report.id });
+    const tasks = await Task.find({ 
+      dailyReportId: { $in: dailyReports.map(d => d.id) } 
+    });
+    
+    stats.totalTasks += tasks.length;
+    stats.totalHours += tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
+  }
+  
+  stats.avgTasksPerReport = stats.totalReports > 0 
+    ? stats.totalTasks / stats.totalReports 
+    : 0;
+    
+  stats.avgHoursPerReport = stats.totalReports > 0 
+    ? stats.totalHours / stats.totalReports 
+    : 0;
+  
+  return stats;
+}
+```
+
+---
+
+### Archive Sayfası - Frontend Flow
+
+**1. Sayfa Yüklenir:**
+```typescript
+// /routes/archive/+page.svelte
+async function loadArchiveReports() {
+  loading = true;
+  try {
+    const response = await fetch(
+      `${API_URL}/api/archive/reports?page=${currentPage}&limit=${itemsPerPage}&sort=desc`,
+      {
+        headers: {
+          ...API_HEADERS,
+          Authorization: `Bearer ${getAuthToken()}`
+        }
+      }
+    );
+    
+    const data = await response.json();
+    allReports = data.reports;
+    filteredReports = [...allReports];
+    updatePaginatedReports();
+  } catch (error) {
+    console.error("Arşiv raporları yüklenirken hata:", error);
+  } finally {
+    loading = false;
+  }
+}
+```
+
+**2. Arama Yapılır:**
+```typescript
+function handleSearch() {
+  if (!searchValue.trim()) {
+    filteredReports = [...allReports];
+  } else {
+    // Frontend-side filtering (alternatif: backend'e search query gönder)
+    const query = searchValue.toLowerCase().trim();
+    filteredReports = allReports.filter((report) => {
+      return (
+        report.title.toLowerCase().includes(query) ||
+        report.startDate.includes(query) ||
+        report.endDate.includes(query)
+      );
+    });
+  }
+  currentPage = 1;
+  updatePaginatedReports();
+}
+```
+
+**3. Rapor Detayına Gidilir:**
+```typescript
+function openReportDetail(reportId: string) {
+  window.location.href = `/archive/${reportId}`;
+}
+
+// Veya SvelteKit navigation
+import { goto } from "$app/navigation";
+function openReportDetail(reportId: string) {
+  goto(`/archive/${reportId}`);
+}
+```
+
+---
+
+### Archive Data Model (Referans)
+
+**Ayrı Archive tablosuna gerek YOK.** Mevcut `Report` tablosu kullanılacak. Archive sayfası sadece raporları tarih sırasına göre listeleme ve filtreleme yapıyor.
+
+**Existing Report Model:**
+```typescript
+interface Report {
+  id: string;
+  userId: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  dailyReports: DailyReport[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+**Query Optimization:**
+```sql
+-- PostgreSQL örneği
+CREATE INDEX idx_reports_user_created ON reports(user_id, created_at DESC);
+CREATE INDEX idx_reports_dates ON reports(start_date, end_date);
+
+-- MongoDB örneği
+db.reports.createIndex({ userId: 1, createdAt: -1 });
+db.reports.createIndex({ startDate: 1, endDate: 1 });
+```
+
+---
+
+### Archive - Backend Implementation Checklist
+
+**Phase 1: Basic Archive (MVP)**
+- [ ] GET `/api/archive/reports` - Pagination desteği
+- [ ] GET `/api/archive/reports/:reportId` - Mevcut endpoint kullan
+- [ ] GET `/api/archive/stats` - Temel istatistikler
+- [ ] Database indexing (performance)
+- [ ] Response format validation
+
+**Phase 2: Enhanced Features**
+- [ ] Search query desteği (title, date, task)
+- [ ] Date range filtering (startDate, endDate params)
+- [ ] Sorting options (date, taskCount, hours)
+- [ ] Caching (Redis) - frequently accessed reports
+- [ ] Export multiple reports (bulk PDF download)
+
+**Phase 3: Advanced Analytics**
+- [ ] Monthly/Quarterly report statistics
+- [ ] Task completion trends
+- [ ] Working hours analytics
+- [ ] Most used task categories
+- [ ] Team comparison (manager view)
+
+---
+
+### Archive - Test Scenarios
+
+**Unit Tests:**
+```typescript
+describe('Archive API', () => {
+  test('GET /api/archive/reports - returns paginated reports', async () => {
+    const response = await request(app)
+      .get('/api/archive/reports?page=1&limit=10')
+      .set('Authorization', `Bearer ${validToken}`);
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('reports');
+    expect(response.body).toHaveProperty('pagination');
+    expect(response.body.reports).toHaveLength(10);
+  });
+  
+  test('GET /api/archive/reports - search filter works', async () => {
+    const response = await request(app)
+      .get('/api/archive/reports?search=Haftalık')
+      .set('Authorization', `Bearer ${validToken}`);
+    
+    expect(response.status).toBe(200);
+    expect(response.body.reports[0].title).toContain('Haftalık');
+  });
+  
+  test('GET /api/archive/stats - returns correct statistics', async () => {
+    const response = await request(app)
+      .get('/api/archive/stats')
+      .set('Authorization', `Bearer ${validToken}`);
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('totalReports');
+    expect(response.body).toHaveProperty('totalTasks');
+    expect(response.body).toHaveProperty('totalHours');
+  });
+});
+```
+
+**Integration Tests:**
+- Pagination navigation (next/previous pages)
+- Search with special characters
+- Empty result handling
+- Performance test (1000+ reports)
+
+---
+
+### Archive - Performance Considerations
+
+**Database Optimization:**
+1. **Indexing:** `userId + createdAt` composite index
+2. **Select Only Required Fields:** Listede sadece gerekli alanları getir
+3. **Lazy Loading:** Rapor detaylarını on-demand yükle
+4. **Caching:** Redis ile popular queries cache
+
+**API Response Time Targets:**
+- Archive list (10 items): < 200ms
+- Archive stats: < 300ms
+- Single report detail: < 150ms
+
+**Pagination Strategy:**
+- Default: 10 items/page
+- Max: 50 items/page
+- Offset-based (simple) veya Cursor-based (scalable)
+
+**Caching Strategy:**
+```typescript
+// Redis cache örneği
+const cacheKey = `archive:${userId}:page${page}:limit${limit}`;
+const cached = await redis.get(cacheKey);
+
+if (cached) {
+  return JSON.parse(cached);
+}
+
+const data = await getArchivedReports(userId, { page, limit });
+await redis.setex(cacheKey, 300, JSON.stringify(data)); // 5 min cache
+return data;
+```
+
 ---
 
 ## ⚠️ Error Handling

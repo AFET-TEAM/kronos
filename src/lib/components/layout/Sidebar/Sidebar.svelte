@@ -97,11 +97,11 @@
       {#if $userStore.role === "admin"}
         <a
           href="/admin"
-          class="block px-3 py-2 rounded font-medium transition-colors {isActive(
+          class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
             '/admin'
           )
-            ? 'bg-indigo-600 text-white'
-            : 'text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}"
+            ? 'bg-blue-200'
+            : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
           >Admin</a
         >
       {/if}
