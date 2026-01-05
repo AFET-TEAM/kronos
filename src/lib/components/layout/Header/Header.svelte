@@ -2,6 +2,7 @@
   import Icon from "../../ui/Icon/Icon.svelte";
   import SearchBar from "../../ui/SearchBar/SearchBar.svelte";
   import { themeStore, toggleTheme } from "$lib/store/themeStore.js";
+  import { userStore } from "$lib/store/store.js";
   
   export let logo: string | null = null;
   export let isSidebarOpen: boolean = true;
@@ -103,10 +104,11 @@
               <strong>👤 Profil:</strong> Kişisel bilgilerinizi düzenleyin ve şifre
               değiştirin
             </li>
-            <li>
-              <strong>⚙️ Admin Panel:</strong> (Yalnızca admin) Kullanıcı ve rapor
-              yönetimi yapın
-            </li>
+            {#if $userStore.role === "admin"}
+              <li>
+                <strong>⚙️ Admin Panel:</strong> Kullanıcı ve rapor yönetimi yapın
+              </li>
+            {/if}
           </ul>
         </div>
       {/if}
@@ -125,8 +127,6 @@
 </div>
 
 {#if isMobileSearchOpen}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="mobile-search-overlay" on:click={toggleMobileSearch}>
     <div class="mobile-search-container {$themeStore}" on:click|stopPropagation>
       <div class="mobile-search-header {$themeStore}">

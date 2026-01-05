@@ -2,16 +2,26 @@
   import { onMount } from "svelte";
   import Button from "../../ui/Button/Button.svelte";
   import Input from "../../ui/Input/Input.svelte";
+  import ReportViewModal from "../../ui/ReportViewModal/ReportViewModal.svelte";
   import {
-    getAllReports,
+    getAdminReports,
+    getReportDetails,
     type AdminReport,
-  } from "$lib/services/admin.service.js";
+    type ReportDetail,
+  } from "$lib/services/adminReportService.js";
   import { goto } from "$app/navigation";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   let reports: AdminReport[] = [];
   let filteredReports: AdminReport[] = [];
   let loading = true;
   let searchQuery = "";
+  let errorMessage = "";
+  
+  // Modal state
+  let isModalOpen = false;
+  let selectedReport: ReportDetail | null = null;
+  let loadingReport = false;
 
   onMount(async () => {
     await loadReports();
@@ -19,14 +29,34 @@
 
   async function loadReports() {
     loading = true;
+    errorMessage = "";
     try {
-      reports = await getAllReports();
+      const response = await getAdminReports();
+      reports = response.reports;
       filteredReports = reports;
     } catch (error) {
-      console.error("Raporlar yüklenemedi:", error);
+      errorMessage = getErrorMessage(error);
     } finally {
       loading = false;
     }
+  }
+
+  async function handleViewReport(reportId: string) {
+    try {
+      loadingReport = true;
+      isModalOpen = true;
+      selectedReport = await getReportDetails(reportId);
+    } catch (error) {
+      errorMessage = getErrorMessage(error);
+      isModalOpen = false;
+    } finally {
+      loadingReport = false;
+    }
+  }
+
+  function handleCloseModal() {
+    isModalOpen = false;
+    selectedReport = null;
   }
 
   function handleSearch() {
@@ -38,10 +68,10 @@
     const query = searchQuery.toLowerCase();
     filteredReports = reports.filter(
       (report) =>
-        report.user.firstName.toLowerCase().includes(query) ||
-        report.user.lastName.toLowerCase().includes(query) ||
-        report.user.email.toLowerCase().includes(query) ||
-        report.title.toLowerCase().includes(query)
+        report.user?.firstName?.toLowerCase().includes(query) ||
+        report.user?.lastName?.toLowerCase().includes(query) ||
+        report.user?.email?.toLowerCase().includes(query) ||
+        report.title?.toLowerCase().includes(query),
     );
   }
 
@@ -139,55 +169,69 @@
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             {#each filteredReports as report}
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center gap-3">
-                    <img
-                      src={report.user.avatarUrl}
-                      alt={`${report.user.firstName} ${report.user.lastName}`}
-                      class="w-10 h-10 rounded-full ring-2 ring-indigo-400"
-                      loading="lazy"
-                    />
-                    <div>
-                      <div class="font-semibold text-gray-900 dark:text-white">
-                        {report.user.firstName}
-                        {report.user.lastName}
-                      </div>
-                      <div class="text-sm text-gray-500 dark:text-gray-400">
-                        {report.user.email}
+              {#if report.user}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      {#if report.user.avatarUrl}
+                        <img
+                          src={report.user.avatarUrl}
+                          alt={`${report.user.firstName} ${report.user.lastName}`}
+                          class="w-10 h-10 rounded-full ring-2 ring-indigo-400"
+                          loading="lazy"
+                        />
+                      {:else}
+                        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                          {report.user.firstName?.charAt(0) || '?'}
+                        </div>
+                      {/if}
+                      <div>
+                        <div class="font-semibold text-gray-900 dark:text-white">
+                          {report.user.firstName || 'İsimsiz'}
+                          {report.user.lastName || ''}
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                          {report.user.email || 'Email yok'}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
-                >
-                  {report.title}
-                </td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
-                >
-                  {report.startDate} - {report.endDate}
-                </td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
-                >
-                  {report.taskCount}
-                </td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
-                >
-                  {formatDate(report.createdAt)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <Button
-                    onClick={() => goto(`/archive/${report.id}`)}
-                    text="Görüntüle"
-                    variant="secondary"
-                    size="small"
-                  />
-                </td>
-              </tr>
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    {report.title || 'Başlıksız Rapor'}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    {report.startDate || '-'} - {report.endDate || '-'}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    {report.taskCount || 0}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    {report.createdAt ? formatDate(report.createdAt) : '-'}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <Button
+                      onClick={() => handleViewReport(report.id)}
+                      text="Görüntüle"
+                      variant="secondary"
+                      size="small"
+                    />
+                  </td>
+                </tr>
+              {:else}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    Kullanıcı bilgisi eksik olan rapor (ID: {report.id})
+                  </td>
+                </tr>
+              {/if}
             {/each}
           </tbody>
         </table>
@@ -201,3 +245,10 @@
     {/if}
   </div>
 </div>
+
+<ReportViewModal
+  bind:isOpen={isModalOpen}
+  bind:report={selectedReport}
+  loading={loadingReport}
+  on:close={handleCloseModal}
+/>

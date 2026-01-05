@@ -19,21 +19,22 @@
 
   const deleteItem = (field: string, index: number) => {
     tempFormData[field] = tempFormData[field].filter(
-      (_: any, i: number) => i !== index
+      (_: any, i: number) => i !== index,
     );
   };
 </script>
 
 <div class="max-w-4xl">
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl md:text-2xl font-bold profile-heading">Kurumsal Bilgiler</h2>
+    <h2 class="text-xl md:text-2xl font-bold profile-heading">
+      Kurumsal Bilgiler
+    </h2>
     {#if !isEditing}
       <Button
         type="button"
         text="Düzenle"
         variant="primary"
         size="medium"
-        theme="dark"
         className="profile-button-primary profile-button-primary-hover px-6 py-2"
         onClick={onEdit}
       />
@@ -66,7 +67,6 @@
               text="+ Ekle"
               variant="primary"
               size="small"
-              theme="dark"
               className="text-indigo-400 hover:text-indigo-300 text-sm font-semibold bg-transparent"
               onClick={() => addItem(items.key)}
             />
@@ -92,7 +92,6 @@
                   text="✕"
                   variant="primary"
                   size="small"
-                  theme="dark"
                   className="px-2 py-2 text-red-400 hover:text-red-300 bg-transparent"
                   onClick={() => deleteItem(items.key, i)}
                 />
@@ -110,7 +109,6 @@
           text="Değişiklikleri Kaydet"
           variant="primary"
           size="large"
-          theme="dark"
           className="flex-1 profile-button-primary profile-button-primary-hover py-2"
           onClick={onSave}
         />
@@ -119,7 +117,6 @@
           text="İptal"
           variant="secondary"
           size="large"
-          theme="dark"
           className="flex-1 profile-button-secondary profile-button-secondary-hover py-2"
           onClick={onCancel}
         />

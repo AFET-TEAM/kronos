@@ -14,6 +14,7 @@
   } from "$lib/services/reportService.js";
   import Icon from "$lib/components/ui/Icon/Icon.svelte";
   import { getReportDetails } from "$lib/services/archiveService.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   let stats: DashboardStats | null = null;
   let loading = true;
@@ -23,6 +24,7 @@
   let selectedReport: RecentReport | null = null;
   let selectedDate = "";
   let reportToEdit: ReportDetails | null = null;
+  let errorMessage = "";
 
   onMount(async () => {
     await loadDashboardData();
@@ -40,10 +42,11 @@
 
   async function loadDashboardData() {
     loading = true;
+    errorMessage = "";
     try {
       stats = await getDashboardStats();
     } catch (error) {
-      console.error("Dashboard stats yüklenirken hata:", error);
+      errorMessage = getErrorMessage(error);
     } finally {
       loading = false;
     }
@@ -72,7 +75,7 @@
         window.history.replaceState({}, document.title, "/dashboard");
       }
     } catch (error) {
-      console.error("Rapor yüklenirken hata:", error);
+      errorMessage = getErrorMessage(error);
       alert("Rapor yüklenirken bir hata oluştu.");
       window.history.replaceState({}, document.title, "/dashboard");
     }
@@ -107,7 +110,9 @@
   }
 
   function openDailyReportModal(date: string) {
-    selectedDate = date;
+    // DD.MM.YYYY formatını YYYY-MM-DD'ye çevir
+    const [day, month, year] = date.split('.');
+    selectedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     isDailyReportModalOpen = true;
   }
 
@@ -128,6 +133,11 @@
       window.history.replaceState({}, document.title, "/dashboard");
     }
     reportToEdit = null;
+  }
+
+  function handleDailyReportSaved() {
+    // Günlük rapor kaydedilince dashboard verilerini yenile
+    loadDashboardData();
   }
 
   function handleModalClose() {
@@ -199,6 +209,9 @@
           <WeeklyDayCard
             day={day.day}
             date={day.date}
+            hasReport={day.hasReport}
+            taskCount={day.taskCount}
+            onAddReport={() => openDailyReportModal(day.date)}
           />
         {/each}
       </div>
@@ -282,6 +295,7 @@
   bind:isOpen={isDailyReportModalOpen}
   {selectedDate}
   onClose={() => (isDailyReportModalOpen = false)}
+  onReportSaved={handleDailyReportSaved}
 />
 
 <NewReportModal

@@ -9,6 +9,7 @@
   } from "$lib/services/reportService.js";
   import { toastStore } from "$lib/store/toastStore.js";
   import Button from "$lib/components/ui/Button/Button.svelte";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   export let isOpen: boolean = false;
   export let report: RecentReport | null = null;
@@ -28,7 +29,8 @@
       try {
         reportDetails = await getReportDetails(report.id);
       } catch (error) {
-        console.error("Rapor detayları yüklenirken hata:", error);
+        const errorMsg = getErrorMessage(error);
+        toastStore.error(errorMsg);
       } finally {
         loading = false;
       }
@@ -54,8 +56,8 @@
         await downloadReportPdf(report.id);
         toastStore.success("PDF başarıyla indirildi!");
       } catch (error) {
-        console.error("PDF indirme hatası:", error);
-        toastStore.error("PDF indirme sırasında bir hata oluştu.");
+        const errorMsg = getErrorMessage(error);
+        toastStore.error(errorMsg);
       }
     }
   }

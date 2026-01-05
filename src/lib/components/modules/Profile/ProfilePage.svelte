@@ -6,15 +6,18 @@
   import ProfileTab from "./components/ProfileTab.svelte";
   import CorporateTab from "./components/CorporateTab.svelte";
   import SettingsTab from "./components/SettingsTab.svelte";
+  import { updateMyProfile, uploadAvatar } from "$lib/services/user.service.js";
+  import { toastStore } from "$lib/store/toastStore.js";
 
   let activeTab = "profile";
+  let saving = false;
 
   let formData = {
-    firstName: "Mert",
-    lastName: "Pasaoglu",
-    email: "mert.pasaoglu@atmosware.turkcell.com.tr",
-    title: "Frontend Developer",
-    squad: "DC-CORPORATE",
+    firstName: "",
+    lastName: "",
+    email: "",
+    title: "",
+    squad: "",
     department: "",
     avatarUrl: "",
     startDate: "",
@@ -36,11 +39,11 @@
     unsubscribeStore = userStore.subscribe((user: any) => {
       if (user.email) {
         formData = {
-          firstName: user.firstName || "Mert",
-          lastName: user.lastName || "Pasaoglu",
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
           email: user.email,
-          title: user.title || "Frontend Developer",
-          squad: user.squad || "DC-CORPORATE",
+          title: user.title || "",
+          squad: user.squad || "",
           department: user.department || "",
           avatarUrl: user.avatarUrl || "",
           startDate: user.startDate || "",
@@ -73,28 +76,54 @@
     tempFormData = { ...formData };
   };
 
-  const handleSaveChanges = () => {
-    formData = { ...tempFormData };
-    isEditing = false;
+  const handleSaveChanges = async () => {
+    if (saving) return;
+    
+    try {
+      saving = true;
+      
+      // Backend'e istek at
+      const updatedUser = await updateMyProfile({
+        title: tempFormData.title,
+        squad: tempFormData.squad,
+        department: tempFormData.department,
+        avatarUrl: tempFormData.avatarUrl,
+        startDate: tempFormData.startDate,
+        projects: tempFormData.projects,
+        trainings: tempFormData.trainings,
+        awards: tempFormData.awards,
+        certifications: tempFormData.certifications,
+      });
 
-    // Mevcut store'dan role'ü al ve koru
-    const currentUser = $userStore;
+      // Başarılı olursa local state'i güncelle
+      formData = { ...tempFormData };
+      isEditing = false;
 
-    userStore.set({
-      email: formData.email,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      title: formData.title,
-      squad: formData.squad,
-      department: formData.department,
-      avatarUrl: formData.avatarUrl,
-      role: currentUser.role || "admin", // Role'ü koru
-      startDate: formData.startDate,
-      projects: formData.projects,
-      trainings: formData.trainings,
-      awards: formData.awards,
-      certifications: formData.certifications,
-    });
+      // Store'u güncelle
+      const currentUser = $userStore;
+      userStore.set({
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        title: updatedUser.title || formData.title,
+        squad: updatedUser.squad || formData.squad,
+        department: updatedUser.department || formData.department,
+        avatarUrl: updatedUser.avatarUrl || formData.avatarUrl,
+        role: updatedUser.role || currentUser.role,
+        startDate: updatedUser.startDate || formData.startDate,
+        projects: updatedUser.projects || formData.projects,
+        trainings: updatedUser.trainings || formData.trainings,
+        awards: updatedUser.awards || formData.awards,
+        certifications: updatedUser.certifications || formData.certifications,
+      });
+
+      toastStore.success("Profil başarıyla güncellendi");
+    } catch (error: any) {
+      console.error("Profil güncellenirken hata:", error);
+      toastStore.error(error.message || "Profil güncellenirken bir hata oluştu");
+    } finally {
+      saving = false;
+    }
   };
 
   const handleCancel = () => {
@@ -102,8 +131,24 @@
     tempFormData = { ...formData };
   };
 
-  const handleAvatarChange = (url: string) => {
-    isEditing = true;
+  const handleAvatarChange = async (url: string) => {
+    if (!url) return;
+    
+    try {
+      // Avatar'ı backend'e yükle
+      const avatarUrl = await uploadAvatar(url);
+      
+      // Temp form data'yı güncelle
+      tempFormData.avatarUrl = avatarUrl;
+      
+      // Otomatik kaydet
+      await handleSaveChanges();
+      
+      toastStore.success("Avatar başarıyla yüklendi");
+    } catch (error: any) {
+      console.error("Avatar yüklenirken hata:", error);
+      toastStore.error(error.message || "Avatar yüklenirken bir hata oluştu");
+    }
   };
 </script>
 
@@ -122,6 +167,7 @@
             {isEditing}
             {tempFormData}
             {formData}
+            {saving}
             onEdit={handleEditClick}
             onSave={handleSaveChanges}
             onCancel={handleCancel}

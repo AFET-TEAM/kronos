@@ -1,5 +1,6 @@
 import { API_URL, API_HEADERS } from "./api.config.js";
 import type { LoginResponse, LoginCredentials } from "./auth.types.js";
+import { handleApiResponse } from "./errorHandler.js";
 
 export async function login(
   credentials: LoginCredentials
@@ -10,8 +11,7 @@ export async function login(
     body: JSON.stringify(credentials),
   });
 
-  const data = await response.json();
-  return data;
+  return await handleApiResponse<LoginResponse>(response);
 }
 
 export async function register(data: {
@@ -25,8 +25,7 @@ export async function register(data: {
     body: JSON.stringify(data),
   });
 
-  const result = await response.json();
-  return result;
+  return await handleApiResponse<LoginResponse>(response);
 }
 
 export async function forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
@@ -36,8 +35,7 @@ export async function forgotPassword(email: string): Promise<{ success: boolean;
     body: JSON.stringify({ email }),
   });
 
-  const data = await response.json();
-  return data;
+  return await handleApiResponse<{ success: boolean; message: string }>(response);
 }
 
 export async function resetPassword(oobCode: string, newPassword: string): Promise<{ success: boolean; message: string }> {
@@ -47,8 +45,7 @@ export async function resetPassword(oobCode: string, newPassword: string): Promi
     body: JSON.stringify({ oobCode, newPassword }),
   });
 
-  const data = await response.json();
-  return data;
+  return await handleApiResponse<{ success: boolean; message: string }>(response);
 }
 
 export async function logout(): Promise<void> {
@@ -63,13 +60,12 @@ export async function logout(): Promise<void> {
           ...API_HEADERS,
           Authorization: `Bearer ${token}`,
         },
-      }).catch(err => {
+      }).catch(() => {
         // Backend hatası önemli değil, kullanıcıyı yine de çıkış yap
-        console.warn('Backend logout başarısız oldu (normal):', err.message);
       });
     }
   } catch (error) {
-    console.warn('Logout backend hatası (yok sayılıyor):', error);
+    // Logout backend hatası sessizce yoksay
   }
   
   // Her durumda local storage ve cookie'leri temizle
@@ -82,8 +78,8 @@ export async function logout(): Promise<void> {
 export function setAuthToken(token: string): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem("token", token);
-    // Cookie olarak da sakla (server-side redirect için)
-    document.cookie = `token=${token}; path=/; max-age=3600; SameSite=Strict`;
+    // Cookie olarak da sakla (server-side redirect için) - 7 gün
+    document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Strict`;
   }
 }
 

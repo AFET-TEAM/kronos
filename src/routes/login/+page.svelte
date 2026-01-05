@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   import Input from "$lib/components/ui/Input/Input.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
   import { login, setAuthToken } from "$lib/services/auth.service.js";
@@ -17,6 +18,16 @@
     if (typeof window !== "undefined") {
       const savedTheme = localStorage.getItem("theme") || "light";
       themeStore.set(savedTheme as "light" | "dark");
+    }
+
+    // URL'de session=expired parametresi varsa kullanıcıya bilgi ver
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("session") === "expired") {
+        toastStore.warning("Oturum süreniz doldu. Lütfen tekrar giriş yapın.");
+        // URL'den parametreyi temizle
+        window.history.replaceState({}, "", "/login");
+      }
     }
   });
 
@@ -43,11 +54,11 @@
           title: "",
           squad: "",
           avatarUrl: "",
-          role: "admin", // Default role
+          role: "user", // Default role: user (admin değil!)
         };
 
-        // Development için her zaman admin yap
-        const userRole = "admin"; // TODO: Production'da user.role kullanılacak
+        // Backend'den gelen role'u kullan
+        const userRole = user.role || "user";
 
         const userData = {
           email: user.email,
@@ -71,8 +82,6 @@
         if (typeof window !== "undefined") {
           localStorage.setItem("userProfile", JSON.stringify(userData));
         }
-
-        console.log("User data saved:", userData); // Debug için
 
         toastStore.success("Giriş başarılı!");
         goto("/");

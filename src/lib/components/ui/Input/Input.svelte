@@ -24,26 +24,26 @@
 
   let inputElement: HTMLInputElement;
   let containerElement: HTMLDivElement;
-  
+
   // Parent'tan gelen value değiştiğinde input'u güncelle (eğer user yazarken değilse)
   $: if (inputElement) {
     if (document.activeElement !== inputElement) {
       inputElement.value = value;
     }
   }
-  
+
   onMount(() => {
     inputId = `input-${Math.random().toString(36).slice(2, 9)}`;
     if (inputElement) {
       inputElement.value = value;
     }
   });
-  
+
   function handleInput(e: Event) {
     const target = e.target as HTMLInputElement;
     const newValue = target.value;
     value = newValue;
-    dispatch('input', { value: newValue, originalEvent: e });
+    dispatch("input", { value: newValue, originalEvent: e });
   }
 
   async function toggleShowPassword() {
@@ -167,24 +167,20 @@
       />
     {/if}
 
-    {#if type === "password" && focused && !disabled}
-      {#key showPassword}
-        <Button
-          type="button"
-          size="small"
-          {theme}
-          variant="primary"
-          {disabled}
-          className="pl-1 pr-3 flex items-center"
-          onClick={toggleShowPassword}
-        >
-          <Icon
-            name={showPassword ? "eye-off" : "eye"}
-            width="18"
-            height="18"
-          />
-        </Button>
-      {/key}
+    {#if type === "password" && !disabled}
+      <button
+        type="button"
+        on:click={toggleShowPassword}
+        class="px-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-r-md flex items-center justify-center"
+        tabindex="-1"
+      >
+        <Icon
+          name={showPassword ? "eye-off" : "eye"}
+          width="20"
+          height="20"
+          className="text-gray-600 dark:text-gray-400"
+        />
+      </button>
     {/if}
 
     {#if iconRight}
