@@ -15,13 +15,14 @@
       : $userStore.email || "User Profile";
 
   $: currentPath = $page.url.pathname;
+  $: isManager = $userStore.role === "manager" || $userStore.role === "admin";
 
   function isActive(path: string): boolean {
     if (path === "/" || path === "/dashboard") {
       return currentPath === "/" || currentPath === "/dashboard";
     }
-    if (path === "/admin") {
-      return currentPath.startsWith("/admin");
+    if (path === "/manager") {
+      return currentPath.startsWith("/manager");
     }
     return currentPath === path;
   }
@@ -57,63 +58,120 @@
     : '-translate-x-full'}"
 >
   <div class="flex flex-col h-full justify-between">
-    <nav class="mt-4 space-y-2">
-      <a
-        href="/"
-        class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300  relative {isActive(
-          '/'
-        )
-          ? 'bg-blue-200'
-          : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Ana Sayfa</a
-      >
-      <a
-        href="/kpi"
-        class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
-          '/kpi'
-        )
-          ? 'bg-blue-200'
-          : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >KPI</a
-      >
-      <a
-        href="/archive"
-        class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
-          '/archive'
-        )
-          ? 'bg-blue-200'
-          : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Arşiv</a
-      >
-      <a
-        href="/reports"
-        class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
-          '/reports'
-        )
-          ? 'bg-blue-200'
-          : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Raporlar</a
-      >
-      {#if $userStore.role === "admin"}
+    <nav class="mt-4 space-y-2 overflow-y-auto">
+      {#if !isManager}
+        <!-- Normal User Menüleri -->
+        <div class="px-3">
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Menü
+          </p>
+        </div>
+
         <a
-          href="/admin"
-          class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
-            '/admin'
+          href="/"
+          class="flex items-center gap-3 w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
+            '/'
           )
             ? 'bg-blue-200'
             : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-          >Admin</a
         >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Ana Sayfa
+        </a>
+
+        <a
+          href="/kpi"
+          class="flex items-center gap-3 w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
+            '/kpi'
+          )
+            ? 'bg-blue-200'
+            : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          KPI
+        </a>
+
+        <a
+          href="/archive"
+          class="flex items-center gap-3 w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
+            '/archive'
+          )
+            ? 'bg-blue-200'
+            : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+          Arşiv
+        </a>
+      {:else}
+        <!-- Manager/Admin Menüleri -->
+        <div class="px-3">
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Yönetici Panel
+          </p>
+        </div>
+
+        <a
+          href="/manager"
+          class="flex items-center gap-3 w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
+            '/manager'
+          ) && currentPath === '/manager'
+            ? 'bg-blue-200'
+            : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          Dashboard
+        </a>
+
+        <a
+          href="/manager/users"
+          class="flex items-center gap-3 w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
+            '/manager/users'
+          )
+            ? 'bg-blue-200'
+            : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          Kullanıcı Yönetimi
+        </a>
+
+        <a
+          href="/manager/organization"
+          class="flex items-center gap-3 w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
+            '/manager/organization'
+          )
+            ? 'bg-blue-200'
+            : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          Organizasyon Şeması
+        </a>
+
+        <a
+          href="/manager/reports"
+          class="flex items-center gap-3 w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
+            '/manager/reports'
+          )
+            ? 'bg-blue-200'
+            : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Rapor Yönetimi
+        </a>
       {/if}
-      <a
-        href="/profile"
-        class="block w-full px-5 py-2 rounded font-medium text-white transition-all duration-300 relative {isActive(
-          '/profile'
-        )
-          ? 'bg-blue-200'
-          : 'hover:bg-blue-400 hover:w-[calc(100%+20px)] hover:ml-[-10px] dark:hover:bg-gray-700'}"
-        >Profil</a
-      >
     </nav>
 
     <div
@@ -122,8 +180,8 @@
       <div class="flex-1 px-4">
         <ProfileCard
           name={userName}
-          title={$userStore.title || "Frontend Developer"}
-          squad={$userStore.squad || "DC-CORPORATE"}
+          title={$userStore.title || ""}
+          squad={$userStore.squad || ""}
           avatarUrl={$userStore.avatarUrl || ""}
           onClick={() => (location.href = "/profile")}
         />

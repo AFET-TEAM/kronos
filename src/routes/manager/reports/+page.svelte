@@ -4,7 +4,7 @@
   import { goto } from "$app/navigation";
   import Header from "$lib/components/layout/Header/Header.svelte";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
-  import UserManagement from "$lib/components/modules/Admin/UserManagement.svelte";
+  import ReportsManagement from "$lib/components/modules/Admin/ReportsManagement.svelte";
   import SearchBar from "$lib/components/ui/SearchBar/SearchBar.svelte";
   import { themeStore } from "$lib/store/themeStore.js";
 
@@ -26,7 +26,7 @@
 </script>
 
 <svelte:head>
-  <title>Kullanıcı Yönetimi - Kronos</title>
+  <title>Rapor Yönetimi - Kronos</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -36,7 +36,7 @@
     bind:searchValue
   >
     <SearchBar
-      placeholder="Kullanıcı ara..."
+      placeholder="Rapor ara..."
       bind:value={searchValue}
       icon="search"
       size="medium"
@@ -51,7 +51,7 @@
       : 'ml-0'}"
   >
     <div class="container mx-auto px-4 py-6 max-w-7xl">
-      <UserManagement />
+      <ReportsManagement />
     </div>
   </main>
 </div>

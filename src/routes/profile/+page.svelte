@@ -47,6 +47,8 @@
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >
-    <ProfilePage />
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+      <ProfilePage />
+    </div>
   </main>
 </div>

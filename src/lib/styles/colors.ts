@@ -103,6 +103,12 @@ export const lightTheme: ColorPalette = {
   secondaryLight: "#f0c55b",
   secondaryDark: "#c3a14a",
 
+  // Tertiary colors
+  tertiary: "#718096",
+  tertiaryHover: "#4A5568",
+  tertiaryLight: "#CBD5E0",
+  tertiaryDark: "#2D3748",
+
   // Background colors
   background: "#ffffff",
   backgroundSecondary: "rgba(248, 250, 253, 0.93)",
@@ -187,6 +193,12 @@ export const darkTheme: ColorPalette = {
   secondaryHover: "#f0c55b",
   secondaryLight: "#f0c55b",
   secondaryDark: "#c3a14a",
+
+  // Tertiary colors
+  tertiary: "#A0AEC0",
+  tertiaryHover: "#CBD5E0",
+  tertiaryLight: "#E2E8F0",
+  tertiaryDark: "#4A5568",
 
   // Background colors
   background: "#2c2c2c",
@@ -288,4 +300,3 @@ export const colors = {
   // Gradient colors (accessible directly)
   ...lightTheme.gradient,
 };
-

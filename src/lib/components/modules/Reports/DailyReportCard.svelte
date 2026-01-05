@@ -30,12 +30,18 @@
     taskNumber: string;
     estimatedHours: number;
     description: string;
-    status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
+    status?:
+      | "Analiz"
+      | "Devam Ediyor"
+      | "Tamamlandı"
+      | "IN_PROGRESS"
+      | "DONE"
+      | "TODO";
   };
-  
+
   // Her değişiklikte parent'a haber ver
   function notifyChange() {
-    dispatch('change');
+    dispatch("change");
   }
 
   // Convert old string format to array format
@@ -156,7 +162,7 @@
   $: hasContent =
     isOnLeave ||
     tasks.some(
-      (t) => t.taskName || t.taskNumber || t.estimatedHours || t.description
+      (t) => t.taskName || t.taskNumber || t.estimatedHours || t.description,
     ) ||
     blockersArray.length > 0 ||
     meetingsArray.length > 0 ||
@@ -164,7 +170,7 @@
 
   $: totalHours = tasks.reduce(
     (sum, task) => sum + (task.estimatedHours || 0),
-    0
+    0,
   );
 </script>
 

@@ -4,9 +4,10 @@
   import DailyReportCard from "./DailyReportCard.svelte";
   import WeeklyReportPreview from "./WeeklyReportPreview.svelte";
   import type { DailyReport, ReportDetails } from "$lib/services/reportService.js";
-  import { createWeeklyReport } from "$lib/services/reportService.js";
+  import { createWeeklyReport, updateWeeklyReport, getDailyReportsByDateRange } from "$lib/services/reportService.js";
   import { dailyReportsStore } from "$lib/store/reportStore.js";
   import { toastStore } from "$lib/store/toastStore.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   export let isOpen = false;
   export let onClose: () => void;
@@ -16,6 +17,7 @@
   let showPreview = false;
   let maxEndDate = "";
   let isEditMode = false;
+  let isLoadingPreviousReports = false;
 
   // Bugünün tarihi
   const today = new Date();
@@ -106,6 +108,120 @@
     return `${day}.${month}.${year}`;
   }
 
+  /**
+   * Tarih aralığındaki günlük raporları backend'den çek ve otomatik doldur
+   */
+  async function loadPreviousDailyReports(start: string, end: string) {
+    try {
+      isLoadingPreviousReports = true;
+
+      // Backend'den günlük raporları çek (DD.MM.YYYY formatında)
+      const formatForBackend = (dateStr: string) => {
+        const [year, month, day] = dateStr.split("-");
+        return `${day}.${month}.${year}`;
+      };
+
+      const formattedStart = formatForBackend(start);
+      const formattedEnd = formatForBackend(end);
+
+      const previousReports = await getDailyReportsByDateRange(formattedStart, formattedEnd);
+
+      // Tarihleri Map'e dönüştür (hızlı erişim için)
+      const reportsByDate = new Map<string, DailyReport>();
+      previousReports.forEach(report => {
+        reportsByDate.set(report.date, report);
+      });
+
+      // Günlük raporları oluştur veya doldur
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const reports: DailyReport[] = [];
+
+      for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+        const dateKey = formatDate(date);
+        const existingReport = reportsByDate.get(dateKey);
+
+        if (existingReport) {
+          // Backend'den gelen raporu kullan
+          reports.push({
+            day: existingReport.day,
+            date: existingReport.date,
+            tasks: existingReport.tasks.map(t => ({ ...t })),
+            blockers: existingReport.blockers || "",
+            meetings: existingReport.meetings || "",
+            untrackedWork: existingReport.untrackedWork || "",
+            isOnLeave: existingReport.isOnLeave || false
+          });
+        } else {
+          // Boş rapor oluştur
+          reports.push({
+            day: dayNames[date.getDay()],
+            date: dateKey,
+            tasks: [
+              {
+                taskName: "",
+                taskNumber: "",
+                estimatedHours: 0,
+                description: "",
+                status: "Devam Ediyor",
+              },
+            ],
+            blockers: [],
+            meetings: [],
+            untrackedWork: "",
+            isOnLeave: false,
+          });
+        }
+      }
+
+      dailyReports = reports;
+
+      // Eğer önceden kaydedilmiş raporlar varsa bildirim göster
+      if (previousReports.length > 0) {
+        toastStore.success(`${previousReports.length} günlük rapor otomatik olarak yüklendi! 🎉`, 3000);
+      }
+    } catch (error) {
+      console.error("Önceki raporları yüklerken hata:", error);
+      toastStore.warning("Önceki raporlar yüklenemedi, boş formla devam edebilirsiniz");
+      
+      // Hata durumunda boş raporlar oluştur
+      generateEmptyReports(start, end);
+    } finally {
+      isLoadingPreviousReports = false;
+    }
+  }
+
+  /**
+   * Boş günlük raporları oluştur (fallback)
+   */
+  function generateEmptyReports(start: string, end: string) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const reports: DailyReport[] = [];
+
+    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+      reports.push({
+        day: dayNames[date.getDay()],
+        date: formatDate(date),
+        tasks: [
+          {
+            taskName: "",
+            taskNumber: "",
+            estimatedHours: 0,
+            description: "",
+            status: "Devam Ediyor",
+          },
+        ],
+        blockers: [],
+        meetings: [],
+        untrackedWork: "",
+        isOnLeave: false,
+      });
+    }
+
+    dailyReports = reports;
+  }
+
   function generateWeeklyReports() {
     if (!startDate || !endDate) return;
 
@@ -126,45 +242,8 @@
       return;
     }
 
-    const reports: DailyReport[] = [];
-    let storeReports: Map<string, DailyReport>;
-
-    dailyReportsStore.subscribe((r) => {
-      storeReports = r;
-    })();
-
-    for (
-      let date = new Date(start);
-      date <= end;
-      date.setDate(date.getDate() + 1)
-    ) {
-      const dateKey = new Date(date).toISOString().split("T")[0];
-      const existingReport = storeReports!.get(dateKey);
-
-      if (existingReport) {
-        reports.push(existingReport);
-      } else {
-        reports.push({
-          day: dayNames[date.getDay()],
-          date: formatDate(date),
-          tasks: [
-            {
-              taskName: "",
-              taskNumber: "",
-              estimatedHours: 0,
-              description: "",
-              status: "Devam Ediyor",
-            },
-          ],
-          blockers: [],
-          meetings: [],
-          untrackedWork: "",
-          isOnLeave: false,
-        });
-      }
-    }
-
-    dailyReports = reports;
+    // Backend'den önceki raporları yükle
+    loadPreviousDailyReports(startDate, endDate);
   }
 
   function closeModal() {
@@ -243,7 +322,12 @@
       ? "Haftalık rapor başarıyla güncellendi!" 
       : "Haftalık rapor başarıyla oluşturuldu ve Son Gönderilen Raporlar listesine eklendi!";
 
-    createWeeklyReport(formattedStartDate, formattedEndDate, filledReports)
+    // Edit modundaysa updateWeeklyReport, değilse createWeeklyReport kullan
+    const reportPromise = isEditMode && reportToEdit
+      ? updateWeeklyReport(reportToEdit.id, formattedStartDate, formattedEndDate, filledReports)
+      : createWeeklyReport(formattedStartDate, formattedEndDate, filledReports);
+
+    reportPromise
       .then((newReport) => {
         console.log(
           isEditMode ? "Haftalık rapor başarıyla güncellendi:" : "Haftalık rapor başarıyla oluşturuldu:", 
@@ -259,10 +343,8 @@
         closeModal();
       })
       .catch((error) => {
-        console.error("Rapor işlenirken hata:", error);
-        toastStore.error(
-          "Rapor işlenirken bir hata oluştu. Lütfen tekrar deneyin."
-        );
+        const errorMsg = getErrorMessage(error);
+        toastStore.error(errorMsg);
       });
   }
 
@@ -414,7 +496,14 @@
               </div>
             {/if}
           </div>
-          {#if dailyReports.length > 0}
+          {#if isLoadingPreviousReports}
+            <div class="text-center py-8">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Önceki raporlar yükleniyor...
+              </p>
+            </div>
+          {:else if dailyReports.length > 0}
             <div class="space-y-3">
               <div class="flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">

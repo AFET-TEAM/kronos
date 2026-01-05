@@ -16,9 +16,11 @@ export type AdminUser = {
   lastLogin: string;
   reportCount: number;
   createdAt: string;
+  department?: string;
+  managerId?: string;
 };
 
-export type SystemStats = {
+export type AdminStats = {
   totalUsers: number;
   activeUsers: number;
   totalReports: number;

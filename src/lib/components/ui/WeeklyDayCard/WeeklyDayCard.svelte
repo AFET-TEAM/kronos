@@ -3,12 +3,34 @@
 
   export let day: string;
   export let date: string;
-  export let onAddReport: () => void = () => {};
+  export let hasReport: boolean = false;
+  export let taskCount: number = 0;
+  export let onAddReport: (() => void) | undefined = undefined;
 
   let actualHasReport = false;
   let actualTaskCount = 0;
 
+  // DD.MM.YYYY formatını Date objesine çevir
+  function parseDate(dateStr: string): Date {
+    const [day, month, year] = dateStr.split('.');
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
+
+  // Date objesini Türkçe formatta göster
+  function formatDateDisplay(dateStr: string): string {
+    try {
+      const date = parseDate(dateStr);
+      return date.toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "short",
+      });
+    } catch (e) {
+      return dateStr; // Parse edilemezse olduğu gibi döndür
+    }
+  }
+
   $: {
+    // Store'dan kontrol et
     const report = $dailyReportsStore.get(date);
     if (report) {
       actualHasReport =
@@ -19,8 +41,15 @@
         !!report.untrackedWork;
       actualTaskCount = report.tasks.filter((t) => t.taskName).length;
     } else {
-      actualHasReport = false;
-      actualTaskCount = 0;
+      // Store'da yoksa prop'tan al
+      actualHasReport = hasReport;
+      actualTaskCount = taskCount;
+    }
+  }
+
+  function handleClick() {
+    if (onAddReport) {
+      onAddReport();
     }
   }
 </script>
@@ -29,11 +58,11 @@
   class="weekly-day-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 hover:shadow-lg transition-all duration-300 cursor-pointer border-2 {actualHasReport
     ? 'border-green-500 dark:border-green-600'
     : 'border-gray-200 dark:border-gray-700'}"
-  on:click={onAddReport}
+  on:click={handleClick}
   on:keydown={(e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      onAddReport();
+      handleClick();
     }
   }}
   role="button"
@@ -45,10 +74,7 @@
         {day}
       </h3>
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        {new Date(date).toLocaleDateString("tr-TR", {
-          day: "numeric",
-          month: "short",
-        })}
+        {formatDateDisplay(date)}
       </p>
     </div>
     {#if actualHasReport}
@@ -77,14 +103,19 @@
           🏖️ İzinli
         </p>
       {:else}
-        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {actualTaskCount} Task{actualTaskCount !== 1 ? "s" : ""}
-        </p>
+        <div class="space-y-2">
+          <p class="text-sm font-medium text-green-600 dark:text-green-400">
+            ✅ Rapor girildi
+          </p>
+          <p class="text-xs text-gray-600 dark:text-gray-400">
+            {actualTaskCount} Task tamamlandı
+          </p>
+        </div>
       {/if}
     {:else}
       <button
         class="w-full py-2 px-3 bg-blue-100 hover:bg-blue-200 text-white text-sm font-medium rounded-md transition-colors duration-200"
-        on:click|stopPropagation={onAddReport}
+        on:click|stopPropagation={handleClick}
       >
         + Rapor Ekle
       </button>

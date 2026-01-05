@@ -14,7 +14,7 @@
   onMount(() => {
     const currentUser = $userStore;
 
-    if (currentUser.role !== "admin") {
+    if (currentUser.role !== "admin" && currentUser.role !== "manager") {
       goto("/dashboard");
     }
 
@@ -25,7 +25,7 @@
 </script>
 
 <svelte:head>
-  <title>Admin Panel - Kronos</title>
+  <title>Manager Dashboard - Kronos</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">

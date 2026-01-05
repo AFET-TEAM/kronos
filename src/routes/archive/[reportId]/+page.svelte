@@ -12,6 +12,7 @@
     downloadReportPdf,
     type ReportDetails,
   } from "$lib/services/reportService.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   let isSidebarOpen = true;
   let searchValue = "";
@@ -19,6 +20,7 @@
   let loading = true;
   let reportId: string;
   let expandedDays: Set<number> = new Set();
+  let errorMessage = "";
 
   $: reportId = $page.params.reportId;
 
@@ -31,6 +33,7 @@
 
   async function loadReportDetails() {
     loading = true;
+    errorMessage = "";
     try {
       reportDetails = await getReportDetails(reportId);
       if (!reportDetails) {
@@ -41,7 +44,7 @@
         );
       }
     } catch (error) {
-      console.error("Rapor detayları yüklenirken hata:", error);
+      errorMessage = getErrorMessage(error);
       goto("/dashboard");
     } finally {
       loading = false;
@@ -52,7 +55,7 @@
     try {
       await downloadReportPdf(reportId);
     } catch (error) {
-      console.error("PDF indirme hatası:", error);
+      errorMessage = getErrorMessage(error);
     }
   }
 
