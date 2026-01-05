@@ -47,7 +47,7 @@
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >
-    <div class="container mx-auto max-w-7xl">
+    <div>
       <Dashboard />
     </div>
   </main>

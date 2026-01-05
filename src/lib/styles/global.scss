@@ -52,6 +52,7 @@ body {
   font-family: "Montserrat", sans-serif;
   background: linear-gradient(to bottom, var(--color-gradient-body-gray1), var(--color-gradient-body-gray2));
   min-height: 100vh;
+  min-width: 100vw;
 
   h1 {
     font-weight: 700;

@@ -106,7 +106,7 @@
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >
-    <div class="container max-w-6xl">
+    <div class="container">
       {#if loading}
         <div class="animate-pulse space-y-6">
           <div class="h-8 bg-gray-300 dark:bg-gray-700 rounded w-1/4"></div>

@@ -43,7 +43,7 @@
   <Sidebar bind:isOpen={isSidebarOpen} />
 
   <main
-    class="transition-all duration-300 pt-16 {isSidebarOpen
+    class="transition-all duration-300 pt-8 {isSidebarOpen
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >

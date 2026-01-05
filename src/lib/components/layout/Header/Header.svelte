@@ -17,7 +17,7 @@
 
   function handleThemeToggle() {
     toggleTheme();
-
+  }
   function showHelp() {
     isHelpVisible = true;
   }
@@ -157,7 +157,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1rem;
-    height: 3rem;
+    height: 4rem;
     box-sizing: border-box;
     position: fixed;
     top: 0;

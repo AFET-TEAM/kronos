@@ -55,7 +55,7 @@
   }
 </script>
 
-<div class="dashboard-container min-h-screen  dark:bg-gray-900">
+<div class="dashboard-container min-h-screen dark:bg-gray-900">
   <section class="mb-8">
     <h2
       class="header-text mb-6 flex items-center justify-start gap-2"
@@ -213,6 +213,7 @@
 <style>
   .dashboard-container {
     padding: 2rem;
+    min-width: 100%;
     background: linear-gradient(
       to top right,
       var(--color-brand-blue-ribbon),
