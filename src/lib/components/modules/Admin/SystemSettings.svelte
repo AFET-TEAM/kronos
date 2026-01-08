@@ -4,6 +4,7 @@
   import Input from "../../ui/Input/Input.svelte";
   import GeneralSelectbox from "../../ui/GeneralSelectbox/GeneralSelectbox.svelte";
   import { toastStore } from "$lib/store/toastStore.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   let settings = {
     systemName: "Kronos",
@@ -39,7 +40,8 @@
         settings = { ...settings, ...JSON.parse(stored) };
       }
     } catch (error) {
-      console.error("Ayarlar yüklenemedi:", error);
+      const errorMsg = getErrorMessage(error);
+      toastStore.error(`Ayarlar yüklenemedi: ${errorMsg}`);
     }
   }
 

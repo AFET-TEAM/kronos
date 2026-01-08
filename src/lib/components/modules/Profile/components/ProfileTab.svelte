@@ -7,6 +7,7 @@
   export let isEditing = false;
   export let tempFormData: any;
   export let formData: any;
+  export let saving = false; // Yeni prop ekle
   export let onEdit: () => void = () => {};
   export let onSave: () => void = () => {};
   export let onCancel: () => void = () => {};
@@ -155,11 +156,12 @@
         <div class="flex flex-col md:flex-row gap-4 pt-4">
           <Button
             type="button"
-            text="Değişiklikleri Kaydet"
+            text={saving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
             variant="primary"
             size="medium"
             className="flex-1"
             onClick={onSave}
+            disabled={saving}
           />
           <Button
             type="button"
@@ -168,6 +170,7 @@
             size="medium"
             className="flex-1"
             onClick={onCancel}
+            disabled={saving}
           />
         </div>
       {/if}

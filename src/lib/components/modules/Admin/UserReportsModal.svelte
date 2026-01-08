@@ -2,23 +2,35 @@
   import { onMount } from "svelte";
   import Button from "../../ui/Button/Button.svelte";
   import { goto } from "$app/navigation";
-  import type {
-    AdminUser,
-    UserWithReports,
-  } from "$lib/services/admin.service.js";
-  import { getUserById } from "$lib/services/admin.service.js";
+  import type { AdminUser } from "$lib/services/admin.service.js";
+  import {
+    getAdminReports,
+    type AdminReport,
+  } from "$lib/services/adminReportService.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   export let user: AdminUser;
   export let onClose: () => void;
+
+  type UserWithReports = AdminUser & {
+    recentReports: AdminReport[];
+  };
 
   let userWithReports: UserWithReports | null = null;
   let loading = true;
 
   onMount(async () => {
     try {
-      userWithReports = await getUserById(user.id);
+      // Fetch reports for this user
+      const response = await getAdminReports({ userId: user.id, limit: 100 });
+
+      userWithReports = {
+        ...user,
+        recentReports: response.reports,
+      };
     } catch (error) {
-      console.error("Kullanıcı raporları yüklenemedi:", error);
+      const errorMsg = getErrorMessage(error);
+      console.log('Kullanıcı raporları yüklenemedi:', errorMsg);
     } finally {
       loading = false;
     }
@@ -180,14 +192,11 @@
                           {report.title}
                         </h4>
                         <span
-                          class="px-2 py-1 rounded-full text-xs font-semibold {report.status ===
-                          'completed'
+                          class="px-2 py-1 rounded-full text-xs font-semibold {report.isReviewed
                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                             : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}"
                         >
-                          {report.status === "completed"
-                            ? "Tamamlandı"
-                            : "Taslak"}
+                          {report.isReviewed ? "İncelendi" : "Bekliyor"}
                         </span>
                       </div>
                       <div

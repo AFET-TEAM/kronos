@@ -8,6 +8,7 @@
     setAuthToken,
   } from "$lib/services/auth.service.js";
   import { userStore } from "$lib/store/store.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   let email = "";
   let password = "";
@@ -33,7 +34,7 @@
         userUid = "";
       } else {
         userEmail = result.email;
-        userUid = result.idToken;
+        userUid = result.idToken || "";
         message = "Giriş Başarılı";
 
         userStore.set({
@@ -56,8 +57,7 @@
         }, 2000);
       }
     } catch (error) {
-      console.error("Error:", error);
-      message = "Bir hata oluştu. Lütfen tekrar deneyin.";
+      message = getErrorMessage(error);
     }
   }
 </script>

@@ -7,17 +7,26 @@
   import { saveDailyReport, getDailyReport } from "$lib/store/reportStore.js";
   import { toastStore } from "$lib/store/toastStore.js";
   import type { Meeting } from "$lib/services/reportService.js";
+  import { createDailyReport, updateDailyReport } from "$lib/services/reportService.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   export let isOpen = false;
   export let selectedDate = "";
   export let onClose: () => void;
+  export let onReportSaved: (() => void) | undefined = undefined;
 
   type Task = {
     taskName: string;
     taskNumber: string;
     estimatedHours: number;
     description: string;
-    status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
+    status?:
+      | "Analiz"
+      | "Devam Ediyor"
+      | "Tamamlandı"
+      | "IN_PROGRESS"
+      | "DONE"
+      | "TODO";
   };
 
   const statusOptions = [
@@ -39,11 +48,10 @@
   let meetings: Meeting[] = [];
   let untrackedWork = "";
   let isOnLeave = false;
-
-  // Temporary input values for new items
   let newBlocker = "";
   let newMeetingName = "";
   let newMeetingDuration: number | string = "";
+  let isSaving = false;
 
   function closeModal() {
     isOpen = false;
@@ -57,6 +65,7 @@
     newBlocker = "";
     newMeetingName = "";
     newMeetingDuration = "";
+    isSaving = false;
     onClose();
   }
 
@@ -104,7 +113,7 @@
     meetings = meetings.filter((_, i) => i !== index);
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const hasAnyContent =
       isOnLeave ||
       tasks.some((t) => t.taskName) ||
@@ -114,7 +123,7 @@
 
     if (!selectedDate || !hasAnyContent) {
       toastStore.warning(
-        "Lütfen en az bir alan doldurun (Task, Blokaj, Toplantı veya Task Harici)"
+        "Lütfen en az bir alan doldurun (Task, Blokaj, Toplantı veya Task Harici)",
       );
       return;
     }
@@ -122,7 +131,7 @@
     const dayName = getDayName(selectedDate);
     const formattedDate = formatDate(selectedDate);
 
-    saveDailyReport(selectedDate, {
+    const dailyReportData = {
       day: dayName,
       date: formattedDate,
       tasks: isOnLeave ? [] : tasks.filter((t) => t.taskName),
@@ -130,15 +139,48 @@
       meetings: meetings,
       untrackedWork: untrackedWork.trim(),
       isOnLeave: isOnLeave,
-    });
+    };
 
-    toastStore.success("Günlük rapor başarıyla kaydedildi!");
-    closeModal();
+    // Önce localStorage'a kaydet (haftalık rapor oluştururken kullanılabilir)
+    saveDailyReport(selectedDate, dailyReportData);
+
+    // Backend'e kaydet
+    isSaving = true;
+    try {
+      await createDailyReport(formattedDate, dailyReportData);
+      toastStore.success("Günlük rapor başarıyla kaydedildi!");
+      
+      // Dashboard'ı yenile
+      if (onReportSaved) {
+        onReportSaved();
+      }
+      
+      closeModal();
+    } catch (error) {
+      const errorMsg = getErrorMessage(error);
+      toastStore.error(`Rapor kaydedilemedi: ${errorMsg}`);
+    } finally {
+      isSaving = false;
+    }
   }
 
   function formatDate(dateString: string): string {
     if (!dateString) return "";
+    
+    // YYYY-MM-DD formatında gelen tarihi parse et
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+      const [year, month, day] = parts;
+      return `${day}.${month}.${year}`;
+    }
+    
+    // Alternatif: Date objesi ile parse et
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', dateString);
+      return "";
+    }
+    
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
@@ -147,7 +189,13 @@
 
   function getDayName(dateString: string): string {
     if (!dateString) return "";
+    
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', dateString);
+      return "";
+    }
+    
     const dayNames = [
       "Pazar",
       "Pazartesi",
@@ -527,7 +575,7 @@
                         class="w-5 h-5"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24"
+                        viewBox="0 24 24"
                       >
                         <path
                           stroke-linecap="round"
