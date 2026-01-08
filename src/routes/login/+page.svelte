@@ -4,6 +4,7 @@
   import Input from "$lib/components/ui/Input/Input.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
   import { login, setAuthToken } from "$lib/services/auth.service.js";
+  import { getMyProfile } from "$lib/services/user.service.js";
   import { userStore } from "$lib/store/store.js";
   import { toastStore } from "$lib/store/toastStore.js";
   import { themeStore } from "$lib/store/themeStore.js";
@@ -46,41 +47,65 @@
       if (result.token && result.registered) {
         setAuthToken(result.token);
 
-        // Backend'den user objesi geliyorsa kullan, yoksa oluştur
-        const user = result.user || {
-          email: result.email || email,
-          firstName: "",
-          lastName: "",
-          title: "",
-          squad: "",
-          avatarUrl: "",
-          role: "user", // Default role: user (admin değil!)
-        };
+        // Backend'den tam profil bilgilerini çek
+        try {
+          const profile = await getMyProfile();
+          
+          const userData = {
+            email: profile.email,
+            firstName: profile.firstName || "",
+            lastName: profile.lastName || "",
+            title: profile.title || "",
+            squad: profile.squad || "",
+            department: profile.department || "",
+            avatarUrl: profile.avatarUrl || "",
+            role: profile.role || "user",
+            startDate: profile.startDate || "",
+            projects: profile.projects || [],
+            trainings: profile.trainings || [],
+            awards: profile.awards || [],
+            certifications: profile.certifications || [],
+          };
 
-        // Backend'den gelen role'u kullan
-        const userRole = user.role || "user";
+          // Store'u güncelle
+          userStore.set(userData);
 
-        const userData = {
-          email: user.email,
-          firstName: user.firstName || "",
-          lastName: user.lastName || "",
-          title: user.title || "",
-          squad: user.squad || "",
-          avatarUrl: user.avatarUrl || "",
-          role: userRole,
-          startDate: "",
-          projects: [],
-          trainings: [],
-          awards: [],
-          certifications: [],
-        };
+          // localStorage'ı da zorla güncelle
+          if (typeof window !== "undefined") {
+            localStorage.setItem("userProfile", JSON.stringify(userData));
+          }
+        } catch (profileError) {
+          // Profil çekilemezse login'deki user bilgilerini kullan
+          const user = result.user || {
+            email: result.email || email,
+            firstName: "",
+            lastName: "",
+            title: "",
+            squad: "",
+            avatarUrl: "",
+            role: "user",
+          };
 
-        // Store'u güncelle
-        userStore.set(userData);
+          const userData = {
+            email: user.email,
+            firstName: user.firstName || "",
+            lastName: user.lastName || "",
+            title: user.title || "",
+            squad: user.squad || "",
+            department: user.department || "",
+            avatarUrl: user.avatarUrl || "",
+            role: user.role || "user",
+            startDate: "",
+            projects: [],
+            trainings: [],
+            awards: [],
+            certifications: [],
+          };
 
-        // localStorage'ı da zorla güncelle
-        if (typeof window !== "undefined") {
-          localStorage.setItem("userProfile", JSON.stringify(userData));
+          userStore.set(userData);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("userProfile", JSON.stringify(userData));
+          }
         }
 
         toastStore.success("Giriş başarılı!");

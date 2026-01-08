@@ -177,7 +177,6 @@
     // Alternatif: Date objesi ile parse et
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      console.error('Invalid date:', dateString);
       return "";
     }
     
@@ -192,7 +191,6 @@
     
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      console.error('Invalid date:', dateString);
       return "";
     }
     

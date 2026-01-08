@@ -1,6 +1,7 @@
 <script lang="ts">
   import Input from "$lib/components/ui/Input/Input.svelte";
   import Button from "$lib/components/ui/Button/Button.svelte";
+  import { toastStore } from "$lib/store/toastStore.js";
 
   export let isEditing = false;
   export let tempFormData: any;
@@ -8,6 +9,52 @@
   export let onSave: () => void = () => {};
   export let onCancel: () => void = () => {};
   export let onKeyDown: (e: any) => void = () => {};
+
+  // Tarih validasyonu için min ve max değerleri
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  // Bugünden bir gün öncesi max tarih
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const maxDate = yesterday.toISOString().split('T')[0]; // Dün (YYYY-MM-DD)
+  const minDate = '2020-01-01'; // 2020'den öncesi olamaz
+
+  // Tarih değiştiğinde validasyon yap
+  function handleDateChange(e: Event) {
+    const target = e.target as HTMLInputElement;
+    const selectedDate = new Date(target.value);
+    selectedDate.setHours(0, 0, 0, 0);
+    const yesterdayDate = new Date(today);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    yesterdayDate.setHours(0, 0, 0, 0);
+    const minDateObj = new Date('2020-01-01');
+    minDateObj.setHours(0, 0, 0, 0);
+
+    if (selectedDate > yesterdayDate) {
+      toastStore.error("İşe başlama tarihi bugünden bir gün öncesi olabilir en geç");
+      target.value = tempFormData.startDate || maxDate;
+      return;
+    }
+
+    if (selectedDate < minDateObj) {
+      toastStore.error("İşe başlama tarihi 2020'den önce olamaz");
+      target.value = tempFormData.startDate || minDate;
+      return;
+    }
+
+    tempFormData.startDate = target.value;
+  }
+
+  // Tarihi Türkiye formatına çevir (gösterim için)
+  function formatDateForDisplay(dateString: string): string {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("tr-TR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
 
   const addItem = (field: string) => {
     tempFormData[field] = [...tempFormData[field], ""];
@@ -43,16 +90,25 @@
 
   <div class="space-y-6">
     <div>
-      <Input
-        label="İşe Başlama Tarihi"
-        placeholder="İşe başlama tarihi"
+      <label class="block mb-1 font-semibold text-gray-900 dark:text-gray-100">
+        İşe Başlama Tarihi
+      </label>
+      <input
         type="date"
+        min={minDate}
+        max={maxDate}
+        value={tempFormData.startDate || ""}
         disabled={!isEditing}
-        bind:value={tempFormData.startDate}
+        on:change={handleDateChange}
         on:keydown={onKeyDown}
-        theme="dark"
-        className="profile-input"
+        class="w-full px-3 py-2 profile-input rounded disabled:opacity-50"
+        title="İşe başlama tarihi 2020'den sonra ve bugünden bir gün öncesi olabilir"
       />
+      {#if tempFormData.startDate}
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Seçilen tarih: {formatDateForDisplay(tempFormData.startDate)}
+        </p>
+      {/if}
     </div>
 
     {#each [{ key: "projects", label: "Yer Aldığı Projeler", placeholder: "Proje adı" }, { key: "trainings", label: "Katıldığı Eğitimler", placeholder: "Eğitim adı" }, { key: "awards", label: "Ödüller", placeholder: "Ödül adı" }, { key: "certifications", label: "Sertifikalar", placeholder: "Sertifika adı" }] as items}

@@ -181,7 +181,6 @@
         toastStore.success(`${previousReports.length} günlük rapor otomatik olarak yüklendi! 🎉`, 3000);
       }
     } catch (error) {
-      console.error("Önceki raporları yüklerken hata:", error);
       toastStore.warning("Önceki raporlar yüklenemedi, boş formla devam edebilirsiniz");
       
       // Hata durumunda boş raporlar oluştur
@@ -329,11 +328,6 @@
 
     reportPromise
       .then((newReport) => {
-        console.log(
-          isEditMode ? "Haftalık rapor başarıyla güncellendi:" : "Haftalık rapor başarıyla oluşturuldu:", 
-          newReport
-        );
-
         toastStore.success(successMessage, 4000);
 
         if (onReportCreated) {

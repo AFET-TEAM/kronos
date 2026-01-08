@@ -43,14 +43,10 @@
     try {
       const result = await register({ name, email, password });
 
-      // Backend idToken dönüyor, onu token olarak kullan
-      const token = result.token || result.idToken;
-
-      if (token) {
-        setAuthToken(token);
-
-        toastStore.success("Kayıt başarılı! Hoş geldiniz.");
-        goto("/");
+      // Kayıt başarılı, token kaydetmeden login sayfasına yönlendir
+      if (result.registered) {
+        toastStore.success(result.message || "Kayıt başarılı! Lütfen giriş yapın.");
+        goto("/login");
       } else {
         toastStore.error(result.message || "Kayıt başarısız");
       }

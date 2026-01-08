@@ -149,8 +149,6 @@ async function handleUnauthorized(): Promise<void> {
   // Zaten login sayfasındaysak tekrar redirect yapma
   if (window.location.pathname === '/login') return;
 
-  console.warn('🔒 Oturum süresi doldu. Çıkış yapılıyor...');
-
   // Token ve kullanıcı bilgilerini temizle
   localStorage.removeItem('token');
   localStorage.removeItem('userProfile');

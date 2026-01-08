@@ -113,7 +113,6 @@
         </div>
       {/if}
     </div>
-    <Icon name={"globe"} alt="icon" width="20" height="20" />
     <button
       on:click={handleThemeToggle}
       class="theme-toggle-btn"

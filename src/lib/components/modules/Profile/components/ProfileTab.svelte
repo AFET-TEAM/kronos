@@ -3,6 +3,7 @@
   import Button from "$lib/components/ui/Button/Button.svelte";
   import { getInitials, getAvatarColor } from "../utils/avatarUtils.js";
   import { handleImageUpload } from "../utils/imageCompression.js";
+  import { API_URL } from "$lib/services/api.config.js";
 
   export let isEditing = false;
   export let tempFormData: any;
@@ -14,10 +15,41 @@
   export let onKeyDown: (e: any) => void = () => {};
   export let onAvatarChange: (url: string) => void = () => {};
 
+  // Avatar URL'ini düzelt (relative path ise API_URL ile birleştir)
+  function getAvatarUrl(url: string | undefined): string {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+      return url;
+    }
+    if (url.startsWith("/uploads/")) {
+      return `${API_URL}${url}`;
+    }
+    return url;
+  }
+
+  // Avatar gösterilebilir mi kontrol et
+  let avatarError = false;
+  let lastAvatarUrl = "";
+
+  $: hasAvatarUrl = !!(tempFormData.avatarUrl || formData.avatarUrl);
+  $: currentAvatarUrl = tempFormData.avatarUrl || formData.avatarUrl || "";
+  $: showAvatar = hasAvatarUrl && !avatarError;
+
+  // Avatar URL değiştiğinde hatayı sıfırla
+  $: if (currentAvatarUrl !== lastAvatarUrl) {
+    avatarError = false;
+    lastAvatarUrl = currentAvatarUrl;
+  }
+
+  function handleAvatarError() {
+    avatarError = true;
+  }
+
   const handleFileChange = async (e: Event) => {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
+      avatarError = false; // Yeni dosya seçildiğinde hatayı sıfırla
       const compressed = await handleImageUpload(file);
       tempFormData.avatarUrl = compressed;
       onAvatarChange(compressed);
@@ -27,28 +59,22 @@
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
   <div class="col-span-1 flex flex-col items-center text-center">
-    {#if tempFormData.avatarUrl}
+    {#if showAvatar}
       <img
-        src={tempFormData.avatarUrl}
+        src={getAvatarUrl(tempFormData.avatarUrl || formData.avatarUrl)}
         alt={`${formData.firstName} ${formData.lastName}`}
         loading="lazy"
         decoding="async"
         class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mb-6 shadow-lg border-4 profile-avatar-border"
+        on:error={handleAvatarError}
       />
-    {:else if formData.avatarUrl}
-      <img
-        src={formData.avatarUrl}
-        alt={`${formData.firstName} ${formData.lastName}`}
-        loading="lazy"
-        decoding="async"
-        class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mb-6 shadow-lg border-4 profile-avatar-border"
-      />
-    {:else}
+    {/if}
+    {#if !showAvatar}
       <div
-        class={`${getAvatarColor(formData.firstName, formData.lastName)} w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center mb-6 shadow-lg border-4 profile-avatar-border`}
+        class={`${getAvatarColor(formData.firstName || "U", formData.lastName || "S")} w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center mb-6 shadow-lg border-4 profile-avatar-border`}
       >
         <span class="text-3xl md:text-5xl font-bold text-white"
-          >{getInitials(formData.firstName, formData.lastName)}</span
+          >{getInitials(formData.firstName || "U", formData.lastName || "S")}</span
         >
       </div>
     {/if}
@@ -93,19 +119,21 @@
           label="Ad"
           placeholder="Ad"
           type="text"
-          disabled={true}
+          disabled={!isEditing}
           bind:value={tempFormData.firstName}
+          on:keydown={onKeyDown}
           theme="dark"
-          className="profile-input profile-input-disabled"
+          className="profile-input"
         />
         <Input
           label="Soyad"
           placeholder="Soyad"
           type="text"
-          disabled={true}
+          disabled={!isEditing}
           bind:value={tempFormData.lastName}
+          on:keydown={onKeyDown}
           theme="dark"
-          className="profile-input profile-input-disabled"
+          className="profile-input"
         />
       </div>
 

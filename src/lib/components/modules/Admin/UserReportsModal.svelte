@@ -29,8 +29,8 @@
         recentReports: response.reports,
       };
     } catch (error) {
+      // Hata sessizce yoksayılır
       const errorMsg = getErrorMessage(error);
-      console.log('Kullanıcı raporları yüklenemedi:', errorMsg);
     } finally {
       loading = false;
     }

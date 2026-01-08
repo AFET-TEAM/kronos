@@ -20,6 +20,8 @@ export interface UserProfile {
 }
 
 export interface UpdateProfileData {
+  firstName?: string;
+  lastName?: string;
   title?: string;
   squad?: string;
   department?: string;
@@ -76,5 +78,13 @@ export async function uploadAvatar(base64Image: string): Promise<string> {
   });
 
   const result = await handleApiResponse<{ avatarUrl: string }>(response);
-  return result.avatarUrl;
+  // Firebase Storage URL'leri direkt döner, relative path ise API_URL ile birleştir
+  const avatarUrl = result.avatarUrl;
+  if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+    return avatarUrl; // Firebase Storage URL'i direkt döndür
+  }
+  if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
+    return `${API_URL}${avatarUrl}`; // Eski lokal path için
+  }
+  return avatarUrl;
 }

@@ -6,8 +6,12 @@
   import { goto } from "$app/navigation";
   import { logout } from "$lib/services/auth.service.js";
   import { toastStore } from "$lib/store/toastStore.js";
+  import { onMount } from "svelte";
 
   export let isOpen: boolean = false;
+
+  // Loading durumu - sadece email yoksa loading göster
+  $: isLoading = !$userStore.email;
 
   $: userName =
     $userStore.firstName && $userStore.lastName
@@ -36,6 +40,7 @@
         lastName: "",
         title: "",
         squad: "",
+        department: "",
         avatarUrl: "",
         role: "user",
         startDate: "",
@@ -45,9 +50,16 @@
         certifications: [],
       });
       toastStore.success("Başarıyla çıkış yapıldı");
-      goto("/login");
+      // window.location.href kullanarak tam sayfa yenileme ile yönlendir
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     } catch (error) {
       toastStore.error("Çıkış yapılırken hata oluştu");
+      // Hata olsa bile yönlendir
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
   }
 </script>
@@ -59,7 +71,17 @@
 >
   <div class="flex flex-col h-full justify-between">
     <nav class="mt-4 space-y-2 overflow-y-auto">
-      {#if !isManager}
+      {#if isLoading}
+        <!-- Skeleton Loading -->
+        <div class="px-3 mb-4">
+          <div class="h-4 bg-gray-300 dark:bg-gray-700 rounded w-20 mb-2 animate-pulse"></div>
+        </div>
+        {#each Array(3) as _}
+          <div class="px-5 py-2">
+            <div class="h-6 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+          </div>
+        {/each}
+      {:else if !isManager}
         <!-- Normal User Menüleri -->
         <div class="px-3">
           <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
@@ -178,13 +200,24 @@
       class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-4 flex flex-col"
     >
       <div class="flex-1 px-4">
-        <ProfileCard
-          name={userName}
-          title={$userStore.title || ""}
-          squad={$userStore.squad || ""}
-          avatarUrl={$userStore.avatarUrl || ""}
-          onClick={() => (location.href = "/profile")}
-        />
+        {#if isLoading}
+          <!-- ProfileCard Skeleton -->
+          <div class="flex flex-col items-center text-center px-4 py-4 mb-5 space-y-1 w-full">
+            <div class="w-14 h-14 rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse mb-2"></div>
+            <div class="h-4 bg-gray-300 dark:bg-gray-700 rounded w-24 animate-pulse mb-1"></div>
+            <div class="h-3 bg-gray-300 dark:bg-gray-700 rounded w-20 animate-pulse mb-1"></div>
+            <div class="h-3 bg-gray-300 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+          </div>
+          <div class="h-10 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+        {:else}
+          <ProfileCard
+            name={userName}
+            title={$userStore.title || ""}
+            squad={$userStore.squad || ""}
+            avatarUrl={$userStore.avatarUrl || ""}
+            onClick={() => (location.href = "/profile")}
+          />
+        {/if}
       </div>
 
       <button
