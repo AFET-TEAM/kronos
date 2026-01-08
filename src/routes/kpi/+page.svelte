@@ -103,7 +103,10 @@
   }
 
   function formatDate(dateStr: string): string {
+    if (!dateStr) return "";
+    // DD.MM.YYYY formatını parse et
     const [day, month, year] = dateStr.split(".");
+    if (!day || !month || !year) return dateStr;
     const months = [
       "Ocak",
       "Şubat",

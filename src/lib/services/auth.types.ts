@@ -4,7 +4,7 @@ export type LoginCredentials = {
 };
 
 export type LoginResponse = {
-  token: string;
+  token?: string;
   email: string;
   idToken?: string;
   uid?: string;

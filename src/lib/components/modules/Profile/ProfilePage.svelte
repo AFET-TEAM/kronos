@@ -84,6 +84,8 @@
       
       // Backend'e istek at
       const updatedUser = await updateMyProfile({
+        firstName: tempFormData.firstName,
+        lastName: tempFormData.lastName,
         title: tempFormData.title,
         squad: tempFormData.squad,
         department: tempFormData.department,
@@ -99,27 +101,26 @@
       formData = { ...tempFormData };
       isEditing = false;
 
-      // Store'u güncelle
+      // Store'u güncelle - Backend'den dönen tüm verileri kullan
       const currentUser = $userStore;
       userStore.set({
-        email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        title: updatedUser.title || formData.title,
-        squad: updatedUser.squad || formData.squad,
-        department: updatedUser.department || formData.department,
-        avatarUrl: updatedUser.avatarUrl || formData.avatarUrl,
-        role: updatedUser.role || currentUser.role,
-        startDate: updatedUser.startDate || formData.startDate,
-        projects: updatedUser.projects || formData.projects,
-        trainings: updatedUser.trainings || formData.trainings,
-        awards: updatedUser.awards || formData.awards,
-        certifications: updatedUser.certifications || formData.certifications,
+        email: updatedUser.email || currentUser.email,
+        firstName: updatedUser.firstName || currentUser.firstName || "",
+        lastName: updatedUser.lastName || currentUser.lastName || "",
+        title: updatedUser.title || currentUser.title || "",
+        squad: updatedUser.squad || currentUser.squad || "",
+        department: updatedUser.department || currentUser.department || "",
+        avatarUrl: updatedUser.avatarUrl || currentUser.avatarUrl || "",
+        role: updatedUser.role || currentUser.role || "user",
+        startDate: updatedUser.startDate || currentUser.startDate || "",
+        projects: updatedUser.projects || currentUser.projects || [],
+        trainings: updatedUser.trainings || currentUser.trainings || [],
+        awards: updatedUser.awards || currentUser.awards || [],
+        certifications: updatedUser.certifications || currentUser.certifications || [],
       });
 
       toastStore.success("Profil başarıyla güncellendi");
     } catch (error: any) {
-      console.error("Profil güncellenirken hata:", error);
       toastStore.error(error.message || "Profil güncellenirken bir hata oluştu");
     } finally {
       saving = false;
@@ -146,7 +147,6 @@
       
       toastStore.success("Avatar başarıyla yüklendi");
     } catch (error: any) {
-      console.error("Avatar yüklenirken hata:", error);
       toastStore.error(error.message || "Avatar yüklenirken bir hata oluştu");
     }
   };
