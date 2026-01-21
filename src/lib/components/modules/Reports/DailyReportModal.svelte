@@ -8,7 +8,7 @@
   import { toastStore } from "$lib/store/toastStore.js";
   import type { Meeting } from "$lib/services/reportService.js";
   import { createDailyReport, updateDailyReport } from "$lib/services/reportService.js";
-  import { getErrorMessage } from "$lib/services/errorHandler.js";
+  import { getErrorMessage, getValidationErrors } from "$lib/services/errorHandler.js";
 
   export let isOpen = false;
   export let selectedDate = "";
@@ -157,8 +157,17 @@
       
       closeModal();
     } catch (error) {
-      const errorMsg = getErrorMessage(error);
-      toastStore.error(`Rapor kaydedilemedi: ${errorMsg}`);
+      const validationErrors = getValidationErrors(error);
+      if (validationErrors.length > 0) {
+        // Validasyon hatalarını göster
+        validationErrors.forEach(errMsg => {
+          toastStore.error(errMsg);
+        });
+      } else {
+        // Genel hata mesajını göster
+        const errorMsg = getErrorMessage(error);
+        toastStore.error(`Rapor kaydedilemedi: ${errorMsg}`);
+      }
     } finally {
       isSaving = false;
     }

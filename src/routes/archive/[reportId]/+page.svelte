@@ -34,10 +34,17 @@
   async function loadReportDetails() {
     loading = true;
     errorMessage = "";
+    console.log("[Archive Detail] Loading report with ID:", reportId);
     try {
       reportDetails = await getReportDetails(reportId);
+      console.log("[Archive Detail] Report loaded:", reportDetails ? "Success" : "Null");
       if (!reportDetails) {
-        goto("/archive");
+        errorMessage = "Rapor bulunamadı";
+        console.warn("[Archive Detail] Report not found, redirecting to archive...");
+        // Don't redirect immediately, show error message
+        setTimeout(() => {
+          goto("/archive");
+        }, 2000);
       } else {
         expandedDays = new Set(
           reportDetails.dailyReports.map((_, index) => index)
@@ -45,7 +52,11 @@
       }
     } catch (error) {
       errorMessage = getErrorMessage(error);
-      goto("/dashboard");
+      console.error("[Archive Detail] Error loading report details:", error);
+      // Show error for 2 seconds before redirecting
+      setTimeout(() => {
+        goto("/archive");
+      }, 2000);
     } finally {
       loading = false;
     }
@@ -444,6 +455,21 @@
             onClick={handleDownloadPdf}
             text="📥 PDF İndir"
             className="px-5 py-2.5 bg-blue-100 hover:bg-blue-200 text-white font-medium rounded-md transition-colors"
+          />
+        </div>
+      {:else if errorMessage}
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">⚠️</div>
+          <p class="text-xl text-gray-600 dark:text-gray-400 mb-2">
+            {errorMessage}
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-500 mb-4">
+            Arşiv sayfasına yönlendiriliyorsunuz...
+          </p>
+          <Button
+            onClick={goBack}
+            text="Arşiv'e Dön"
+            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors"
           />
         </div>
       {:else}

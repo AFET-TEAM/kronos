@@ -145,23 +145,45 @@ export async function getGroupedArchiveReports(
     search 
   });
 
-  const filteredReports = response.reports;
+  const filteredReports = response.reports || [];
+
+  // Debug: Log the number of reports received
+  console.log(`[Archive] Received ${filteredReports.length} reports from backend`);
 
   // Yıl > Ay > Hafta gruplandırması
   const yearMap = new Map<number, Map<number, Map<number, ArchiveReport[]>>>();
 
   filteredReports.forEach((report) => {
-    // endDate'i parse et (DD.MM.YYYY formatında)
-    const [day, month, year] = report.endDate.split('.');
-    const reportDate = new Date(
-      parseInt(year),
-      parseInt(month) - 1, // JavaScript months are 0-based
-      parseInt(day)
-    );
-    
-    const reportYear = reportDate.getFullYear();
-    const reportMonth = reportDate.getMonth() + 1; // 1-12
-    const weekOfMonth = getWeekOfMonth(reportDate);
+    // endDate kontrolü - eğer yoksa veya geçersizse atla
+    if (!report.endDate) {
+      console.warn(`[Archive] Report ${report.id} has no endDate, skipping`);
+      return;
+    }
+
+    try {
+      // endDate'i parse et (DD.MM.YYYY formatında)
+      const [day, month, year] = report.endDate.split('.');
+      
+      if (!day || !month || !year) {
+        console.warn(`[Archive] Report ${report.id} has invalid endDate format: ${report.endDate}, skipping`);
+        return;
+      }
+
+      const reportDate = new Date(
+        parseInt(year),
+        parseInt(month) - 1, // JavaScript months are 0-based
+        parseInt(day)
+      );
+
+      // Date validation
+      if (isNaN(reportDate.getTime())) {
+        console.warn(`[Archive] Report ${report.id} has invalid date: ${report.endDate}, skipping`);
+        return;
+      }
+      
+      const reportYear = reportDate.getFullYear();
+      const reportMonth = reportDate.getMonth() + 1; // 1-12
+      const weekOfMonth = getWeekOfMonth(reportDate);
 
     if (!yearMap.has(reportYear)) {
       yearMap.set(reportYear, new Map());
@@ -172,12 +194,15 @@ export async function getGroupedArchiveReports(
       monthMap.set(reportMonth, new Map());
     }
 
-    const weekMap = monthMap.get(reportMonth)!;
-    if (!weekMap.has(weekOfMonth)) {
-      weekMap.set(weekOfMonth, []);
-    }
+      const weekMap = monthMap.get(reportMonth)!;
+      if (!weekMap.has(weekOfMonth)) {
+        weekMap.set(weekOfMonth, []);
+      }
 
-    weekMap.get(weekOfMonth)!.push(report);
+      weekMap.get(weekOfMonth)!.push(report);
+    } catch (error) {
+      console.error(`[Archive] Error processing report ${report.id}:`, error);
+    }
   });
 
   // Map'leri YearGroup yapısına dönüştür

@@ -73,6 +73,7 @@ export type ReportDetails = {
   user: UserInfo;
   dailyReports: DailyReport[];
   createdAt: string;
+  originalId?: string; // Original report ID (for daily reports, this is the daily report ID)
 };
 
 // -- API CALLS --
@@ -107,7 +108,13 @@ export async function getReportById(id: string): Promise<RecentReport | null> {
 }
 
 export async function getReportDetails(reportId: string): Promise<ReportDetails | null> {
-  const response = await fetch(`${API_URL}/api/reports/${reportId}`, {
+  // Check if it's a daily report (starts with "daily-")
+  const isDailyReport = reportId.startsWith('daily-');
+  const endpoint = isDailyReport 
+    ? `${API_URL}/api/reports/daily/${reportId}`
+    : `${API_URL}/api/reports/${reportId}`;
+  
+  const response = await fetch(endpoint, {
     headers: {
       ...API_HEADERS,
       Authorization: `Bearer ${getAuthToken()}`,
@@ -115,7 +122,45 @@ export async function getReportDetails(reportId: string): Promise<ReportDetails 
   });
 
   if (response.status === 404) return null;
-  return await handleApiResponse<ReportDetails>(response);
+  
+  const data = await handleApiResponse<any>(response);
+  
+  // If it's a daily report, transform it to match ReportDetails format
+  if (isDailyReport) {
+    // Keep original daily report ID for reference
+    const originalDailyReportId = data.id;
+    // Use weeklyReportId if available, otherwise use daily report ID
+    const reportId = data.weeklyReportId || data.id;
+    return {
+      id: reportId, // Use weekly report ID for editing if available
+      originalId: originalDailyReportId, // Keep original ID for reference
+      title: `${data.user?.firstName || ''} ${data.user?.lastName || ''} - Günlük Rapor (${data.date})`.trim(),
+      startDate: data.date,
+      endDate: data.date,
+      createdAt: data.createdAt || data.date,
+      user: data.user || {
+        id: data.userId || '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        avatarUrl: '',
+        title: '',
+        squad: '',
+      },
+      dailyReports: [{
+        id: originalDailyReportId, // Keep daily report ID in dailyReports
+        day: data.day,
+        date: data.date,
+        tasks: data.tasks || [],
+        meetings: data.meetings || [],
+        blockers: data.blockers || [],
+        untrackedWork: data.untrackedWork || '',
+        isOnLeave: data.isOnLeave || false,
+      }],
+    };
+  }
+  
+  return data as ReportDetails;
 }
 
 export async function downloadReportPdf(reportId: string): Promise<void> {
@@ -145,6 +190,34 @@ export async function createWeeklyReport(
   endDate: string,
   dailyReports: DailyReport[]
 ): Promise<RecentReport> {
+  // Daily reports'ları backend formatına çevir
+  const formattedDailyReports = dailyReports.map(dayReport => {
+    // Meetings'i backend formatına çevir
+    const backendMeetings: BackendMeeting[] = Array.isArray(dayReport.meetings)
+      ? dayReport.meetings.map((m: any) => ({
+          meetName: m.name || m.meetName || "",
+          estimatedHours: m.duration || m.estimatedHours || 0,
+          description: m.description || ""
+        }))
+      : [];
+
+    // Tasks'ları backend formatına çevir (status mapping)
+    const backendTasks = dayReport.tasks.map(task => ({
+      taskName: task.taskName,
+      taskNumber: task.taskNumber,
+      estimatedHours: task.estimatedHours,
+      description: task.description,
+      status: mapStatusToBackend(task.status || "Devam Ediyor")
+    }));
+
+    return {
+      ...dayReport,
+      tasks: backendTasks,
+      meetings: backendMeetings,
+      blockers: Array.isArray(dayReport.blockers) ? dayReport.blockers : (dayReport.blockers ? [dayReport.blockers] : [])
+    };
+  });
+
   const response = await fetch(`${API_URL}/api/reports`, {
     method: "POST",
     headers: {
@@ -154,7 +227,7 @@ export async function createWeeklyReport(
     body: JSON.stringify({
       startDate,
       endDate,
-      dailyReports
+      dailyReports: formattedDailyReports
     }),
   });
 
@@ -176,6 +249,34 @@ export async function updateWeeklyReport(
   endDate: string,
   dailyReports: DailyReport[]
 ): Promise<RecentReport> {
+  // Daily reports'ları backend formatına çevir
+  const formattedDailyReports = dailyReports.map(dayReport => {
+    // Meetings'i backend formatına çevir
+    const backendMeetings: BackendMeeting[] = Array.isArray(dayReport.meetings)
+      ? dayReport.meetings.map((m: any) => ({
+          meetName: m.name || m.meetName || "",
+          estimatedHours: m.duration || m.estimatedHours || 0,
+          description: m.description || ""
+        }))
+      : [];
+
+    // Tasks'ları backend formatına çevir (status mapping)
+    const backendTasks = dayReport.tasks.map(task => ({
+      taskName: task.taskName,
+      taskNumber: task.taskNumber,
+      estimatedHours: task.estimatedHours,
+      description: task.description,
+      status: mapStatusToBackend(task.status || "Devam Ediyor")
+    }));
+
+    return {
+      ...dayReport,
+      tasks: backendTasks,
+      meetings: backendMeetings,
+      blockers: Array.isArray(dayReport.blockers) ? dayReport.blockers : (dayReport.blockers ? [dayReport.blockers] : [])
+    };
+  });
+
   const response = await fetch(`${API_URL}/api/reports/${reportId}`, {
     method: "PUT",
     headers: {
@@ -185,7 +286,7 @@ export async function updateWeeklyReport(
     body: JSON.stringify({
       startDate,
       endDate,
-      dailyReports
+      dailyReports: formattedDailyReports
     }),
   });
 

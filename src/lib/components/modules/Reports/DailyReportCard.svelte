@@ -362,7 +362,7 @@
                       for="task-name-{day}-{index}"
                       class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
                     >
-                      Task Adı
+                      Task Adı {#if !isOnLeave}<span class="text-red-500">*</span>{/if}
                     </label>
                     <input
                       id="task-name-{day}-{index}"
@@ -377,7 +377,7 @@
                       for="task-number-{day}-{index}"
                       class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
                     >
-                      Task No
+                      Task No {#if !isOnLeave}<span class="text-red-500">*</span>{/if}
                     </label>
                     <input
                       id="task-number-{day}-{index}"
@@ -395,7 +395,7 @@
                       for="task-hours-{day}-{index}"
                       class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
                     >
-                      Süre (saat)
+                      Süre (saat) {#if !isOnLeave}<span class="text-red-500">*</span>{/if}
                     </label>
                     <input
                       id="task-hours-{day}-{index}"
@@ -433,7 +433,7 @@
                     for="task-description-{day}-{index}"
                     class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
                   >
-                    Açıklama
+                    Açıklama {#if !isOnLeave}<span class="text-red-500">*</span>{/if}
                   </label>
                   <TextArea
                     placeholder="Yapılan iş açıklaması..."

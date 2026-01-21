@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
   import Header from "$lib/components/layout/Header/Header.svelte";
   import SearchBar from "$lib/components/ui/SearchBar/SearchBar.svelte";
@@ -89,7 +90,8 @@
   }
 
   function openReportDetail(reportId: string) {
-    window.location.href = `/archive/${reportId}`;
+    console.log("[Archive] Opening report detail for ID:", reportId);
+    goto(`/archive/${reportId}`);
   }
 
   /**
@@ -135,7 +137,7 @@
     }
 
     // Dashboard sayfasına yönlendir ve rapor ID'sini query parameter olarak gönder
-    window.location.href = `/dashboard?editReport=${report.id}`;
+    goto(`/dashboard?editReport=${report.id}`);
   }
 
   function getRelativeTime(dateStr: string): string {

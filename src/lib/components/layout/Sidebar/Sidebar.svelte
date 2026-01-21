@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import ProfileCard from "../../ui/ProfileCard/ProfileCard.svelte";
   import Button from "../../ui/Button/Button.svelte";
   import { userStore } from "$lib/store/store.js";
@@ -6,12 +7,17 @@
   import { goto } from "$app/navigation";
   import { logout } from "$lib/services/auth.service.js";
   import { toastStore } from "$lib/store/toastStore.js";
-  import { onMount } from "svelte";
 
   export let isOpen: boolean = false;
 
-  // Loading durumu - sadece email yoksa loading göster
-  $: isLoading = !$userStore.email;
+  // Loading durumu:
+  // SSR + ilk hydration anında (F5) yanlış rol menüsü "flash" etmesin diye skeleton göster.
+  // Ayrıca kullanıcı datası gelmemişse skeleton devam etsin.
+  let isHydrated = false;
+  onMount(() => {
+    isHydrated = true;
+  });
+  $: isLoading = !isHydrated || !$userStore.email;
 
   $: userName =
     $userStore.firstName && $userStore.lastName

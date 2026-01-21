@@ -54,11 +54,26 @@
       let startDate = customStartDate || undefined;
       let endDate = customEndDate || undefined;
 
+      console.log('KPI fetch başlatılıyor...', { startDate, endDate, selectedPeriod });
       const response = await getUserKPIs(startDate, endDate, selectedPeriod);
+      console.log('KPI response alındı:', response);
+      
+      if (!response || !response.data) {
+        console.error('KPI response boş veya data yok:', response);
+        errorMessage = 'KPI verileri alınamadı';
+        kpiData = null;
+        period = null;
+        return;
+      }
+      
       kpiData = response.data;
       period = response.period;
+      console.log('KPI data set edildi:', kpiData);
     } catch (err) {
+      console.error('KPI fetch hatası:', err);
       errorMessage = getErrorMessage(err);
+      kpiData = null;
+      period = null;
     } finally {
       isLoading = false;
     }

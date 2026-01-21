@@ -14,7 +14,8 @@ const initialUserData = storedUser
       squad: "",
       department: "",
       avatarUrl: "",
-      role: "admin",
+      // Default should never be "admin" to avoid flashing admin UI on first SSR paint.
+      role: "user",
       startDate: "",
       projects: [],
       trainings: [],
