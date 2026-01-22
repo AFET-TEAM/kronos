@@ -21,8 +21,14 @@
   let reportId: string;
   let expandedDays: Set<number> = new Set();
   let errorMessage = "";
+  let filterDate: string | null = null; // Sadece bu günü göster
 
   $: reportId = $page.params.reportId;
+  $: {
+    // Query parameter'dan date'i al
+    const urlParams = new URLSearchParams(window.location.search);
+    filterDate = urlParams.get('date');
+  }
 
   onMount(() => {
     if (window.innerWidth < 768) {
@@ -46,9 +52,19 @@
           goto("/archive");
         }, 2000);
       } else {
-        expandedDays = new Set(
-          reportDetails.dailyReports.map((_, index) => index)
-        );
+        // Eğer filterDate varsa, sadece o günü aç
+        if (filterDate) {
+          const dayIndex = reportDetails.dailyReports.findIndex(
+            (daily) => daily.date === filterDate
+          );
+          if (dayIndex !== -1) {
+            expandedDays = new Set([dayIndex]);
+          }
+        } else {
+          expandedDays = new Set(
+            reportDetails.dailyReports.map((_, index) => index)
+          );
+        }
       }
     } catch (error) {
       errorMessage = getErrorMessage(error);
@@ -202,10 +218,12 @@
             class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2"
           >
             <span>📅</span>
-            <span>Günlük Detaylar</span>
+            <span>{filterDate ? `${filterDate} - Günlük Detaylar` : 'Günlük Detaylar'}</span>
           </h2>
 
-          {#each reportDetails.dailyReports as dayReport, index}
+          {#each (filterDate 
+            ? reportDetails.dailyReports.filter((daily) => daily.date === filterDate)
+            : reportDetails.dailyReports) as dayReport, index}
             <div
               class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
             >

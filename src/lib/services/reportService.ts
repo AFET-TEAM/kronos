@@ -56,6 +56,7 @@ export type BackendMeeting = {
 };
 
 export type DailyReport = {
+  id?: string;
   day: string;
   date: string;
   tasks: DayTask[];
@@ -420,4 +421,13 @@ export async function getDailyReportsByDateRange(
 
   const result = await handleApiResponse<{ reports: DailyReport[] }>(response);
   return result.reports || [];
+}
+
+/**
+ * Belirli bir tarih için günlük rapor getir
+ */
+export async function getDailyReportByDate(date: string): Promise<DailyReport | null> {
+  // DD.MM.YYYY formatını kullan
+  const reports = await getDailyReportsByDateRange(date, date);
+  return reports.length > 0 ? reports[0] : null;
 }

@@ -12,6 +12,7 @@
 
   export let isOpen = false;
   export let selectedDate = "";
+  export let existingReport: import("$lib/services/reportService.js").DailyReport | null = null;
   export let onClose: () => void;
   export let onReportSaved: (() => void) | undefined = undefined;
 
@@ -53,6 +54,9 @@
   let newMeetingDuration: number | string = "";
   let isSaving = false;
 
+  let reportId: string | null = null;
+  let isEditMode = false;
+
   function closeModal() {
     isOpen = false;
     tasks = [
@@ -66,6 +70,8 @@
     newMeetingName = "";
     newMeetingDuration = "";
     isSaving = false;
+    reportId = null;
+    isEditMode = false;
     onClose();
   }
 
@@ -144,11 +150,18 @@
     // Önce localStorage'a kaydet (haftalık rapor oluştururken kullanılabilir)
     saveDailyReport(selectedDate, dailyReportData);
 
-    // Backend'e kaydet
+    // Backend'e kaydet veya güncelle
     isSaving = true;
     try {
-      await createDailyReport(formattedDate, dailyReportData);
-      toastStore.success("Günlük rapor başarıyla kaydedildi!");
+      if (isEditMode && reportId) {
+        // Mevcut raporu güncelle
+        await updateDailyReport(reportId, formattedDate, dailyReportData);
+        toastStore.success("Günlük rapor başarıyla güncellendi!");
+      } else {
+        // Yeni rapor oluştur
+        await createDailyReport(formattedDate, dailyReportData);
+        toastStore.success("Günlük rapor başarıyla kaydedildi!");
+      }
       
       // Dashboard'ı yenile
       if (onReportSaved) {
@@ -225,7 +238,24 @@
   $: dayName = getDayName(selectedDate);
 
   $: if (isOpen && selectedDate) {
-    loadExistingReport();
+    if (existingReport && existingReport.id) {
+      // Backend'den gelen raporu yükle
+      reportId = existingReport.id;
+      isEditMode = true;
+      loadReportFromBackend(existingReport);
+    } else {
+      // LocalStorage'dan yükle (yeni rapor için)
+      reportId = null;
+      isEditMode = false;
+      loadExistingReport();
+    }
+  }
+
+  // existingReport değiştiğinde de yükle
+  $: if (isOpen && existingReport && existingReport.id) {
+    reportId = existingReport.id;
+    isEditMode = true;
+    loadReportFromBackend(existingReport);
   }
 
   // Clear all data when on leave is checked
@@ -242,6 +272,72 @@
     blockers = [];
     meetings = [];
     untrackedWork = "";
+  }
+
+  function loadReportFromBackend(report: import("$lib/services/reportService.js").DailyReport) {
+    // Backend'den gelen raporu yükle
+    tasks =
+      report.tasks && report.tasks.length > 0
+        ? report.tasks.map((t: any) => ({
+            taskName: t.taskName || "",
+            taskNumber: t.taskNumber || "",
+            estimatedHours: t.estimatedHours || 0,
+            description: t.description || "",
+            status: mapStatusFromBackend(t.status) || "Devam Ediyor",
+          }))
+        : [
+            {
+              taskName: "",
+              taskNumber: "",
+              estimatedHours: 0,
+              description: "",
+              status: "Devam Ediyor",
+            },
+          ];
+
+    // Blockers
+    if (typeof report.blockers === "string") {
+      blockers = report.blockers.trim()
+        ? report.blockers
+            .split("\n")
+            .map((b) => b.trim())
+            .filter((b) => b)
+        : [];
+    } else {
+      blockers = Array.isArray(report.blockers) ? report.blockers : [];
+    }
+
+    // Meetings - backend formatından frontend formatına çevir
+    if (Array.isArray(report.meetings)) {
+      meetings = report.meetings.map((m: any) => {
+        // Backend formatı: { meetName, estimatedHours, description }
+        // Frontend formatı: { name, duration }
+        if (m.meetName) {
+          return { name: m.meetName, duration: m.estimatedHours || 0 };
+        }
+        // Frontend formatı zaten doğruysa
+        if (m.name) {
+          return { name: m.name, duration: m.duration || 0 };
+        }
+        // String ise
+        if (typeof m === "string") {
+          return { name: m, duration: 0 };
+        }
+        return { name: "", duration: 0 };
+      }).filter((m) => m.name);
+    } else if (typeof report.meetings === "string") {
+      meetings = report.meetings.trim()
+        ? report.meetings
+            .split("\n")
+            .map((m) => ({ name: m.trim(), duration: 0 }))
+            .filter((m) => m.name)
+        : [];
+    } else {
+      meetings = [];
+    }
+
+    untrackedWork = report.untrackedWork || "";
+    isOnLeave = report.isOnLeave || false;
   }
 
   function loadExistingReport() {
@@ -311,6 +407,18 @@
       isOnLeave = false;
     }
   }
+
+  function mapStatusFromBackend(status: string | undefined): string | undefined {
+    if (!status) return undefined;
+    const statusMap: Record<string, string> = {
+      "TODO": "Analiz",
+      "IN_PROGRESS": "Devam Ediyor",
+      "DONE": "Tamamlandı",
+      "WAITING": "Beklemede",
+      "XL_BLOCK": "Bloklu"
+    };
+    return statusMap[status] || status;
+  }
 </script>
 
 {#if isOpen}
@@ -341,7 +449,7 @@
               class="text-2xl font-bold text-gray-900 dark:text-white"
               id="modal-title"
             >
-              Günlük Rapor Ekle
+              {isEditMode ? "📝 Günlük Rapor Düzenle" : "Günlük Rapor Ekle"}
             </h2>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {dayName} - {formattedDate}
@@ -760,7 +868,7 @@
       >
         <Button text="İptal" variant="secondary" onClick={closeModal} />
         <Button
-          text="Raporu Kaydet"
+          text={isEditMode ? "Raporu Güncelle" : "Raporu Kaydet"}
           variant="primary"
           onClick={handleSubmit}
           disabled={!hasAnyContent}

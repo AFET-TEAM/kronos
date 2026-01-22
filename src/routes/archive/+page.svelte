@@ -12,6 +12,7 @@
     type MonthGroup,
     type WeekGroup,
     type ArchiveReport,
+    type DailyArchiveReport,
   } from "$lib/services/archiveService.js";
   import { getErrorMessage } from "$lib/services/errorHandler.js";
 
@@ -40,6 +41,7 @@
     errorMessage = "";
     try {
       archiveData = await getGroupedArchiveReports(searchValue);
+      console.log(`[Archive Page] Loaded archive data:`, archiveData);
 
       // İlk yılı otomatik aç
       if (archiveData && archiveData.years.length > 0) {
@@ -51,9 +53,20 @@
           expandedMonths.add(
             `${archiveData.years[0].year}-${firstMonth.monthNumber}`,
           );
+          
+          // İlk haftayı otomatik aç
+          if (firstMonth.weeks.length > 0) {
+            const firstWeek = firstMonth.weeks[0];
+            expandedWeeks.add(
+              `${archiveData.years[0].year}-${firstMonth.monthNumber}-${firstWeek.weekNumber}`,
+            );
+          }
         }
+      } else {
+        console.warn(`[Archive Page] No years found in archive data`);
       }
     } catch (error) {
+      console.error(`[Archive Page] Error loading archive data:`, error);
       errorMessage = getErrorMessage(error);
     } finally {
       loading = false;
@@ -92,6 +105,17 @@
   function openReportDetail(reportId: string) {
     console.log("[Archive] Opening report detail for ID:", reportId);
     goto(`/archive/${reportId}`);
+  }
+
+  function openDayReportDetail(date: string, dayReport: DailyArchiveReport) {
+    // O günün tüm tasklarını göstermek için özel bir sayfaya yönlendir
+    // Veya mevcut detay sayfasını kullan, ama gün bazında göster
+    // Şimdilik, ilk raporun ID'sini kullan (eğer varsa)
+    if (dayReport.reports.length > 0) {
+      const firstReport = dayReport.reports[0];
+      // Gün bazında gösterim için query parameter ekle
+      goto(`/archive/${firstReport.id}?date=${date}`);
+    }
   }
 
   /**
@@ -156,7 +180,7 @@
   }
 
   function countReportsInMonth(monthGroup: MonthGroup): number {
-    return monthGroup.weeks.reduce((sum, week) => sum + week.reports.length, 0);
+    return monthGroup.weeks.reduce((sum, week) => sum + (week.days?.length || 0), 0);
   }
 
   function countReportsInYear(yearGroup: YearGroup): number {
@@ -475,7 +499,7 @@
                                 <span
                                   class="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded"
                                 >
-                                  {weekGroup.reports.length} Rapor
+                                  {weekGroup.days?.length || 0} Gün
                                 </span>
                               </button>
 
@@ -483,8 +507,8 @@
                                 <div
                                   class="border-t border-gray-200 dark:border-gray-700 p-3 space-y-2"
                                 >
-                                  {#each weekGroup.reports as report}
-                                    <!-- Rapor Kartı -->
+                                  {#each weekGroup.days as dayGroup}
+                                    <!-- Gün Kartı -->
                                     <div
                                       class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                     >
@@ -498,46 +522,15 @@
                                             <h4
                                               class="text-base font-semibold text-gray-900 dark:text-white"
                                             >
-                                              {report.title}
+                                              {dayGroup.day} - {dayGroup.date}
                                             </h4>
-                                            {#if report.status === "recent"}
+                                            {#if dayGroup.report.isOnLeave}
                                               <span
-                                                class="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                                class="px-2 py-0.5 text-xs font-medium rounded-full bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200"
                                               >
-                                                YENİ
+                                                🏖️ İzinli
                                               </span>
                                             {/if}
-                                          </div>
-
-                                          <div
-                                            class="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 mb-3"
-                                          >
-                                            <div
-                                              class="flex items-center gap-1"
-                                            >
-                                              <svg
-                                                class="w-3.5 h-3.5"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                              >
-                                                <path
-                                                  stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                                />
-                                              </svg>
-                                              <span
-                                                >{report.startDate} - {report.endDate}</span
-                                              >
-                                            </div>
-                                            <span>•</span>
-                                            <span
-                                              >{getRelativeTime(
-                                                report.endDate,
-                                              )}</span
-                                            >
                                           </div>
 
                                           <div class="flex gap-3">
@@ -560,7 +553,7 @@
                                               <span
                                                 class="text-xs font-semibold text-indigo-700 dark:text-indigo-300"
                                               >
-                                                {report.taskCount} Task
+                                                {dayGroup.report.taskCount} Task
                                               </span>
                                             </div>
                                             <div
@@ -582,7 +575,7 @@
                                               <span
                                                 class="text-xs font-semibold text-blue-700 dark:text-blue-300"
                                               >
-                                                {report.totalHours}h
+                                                {dayGroup.report.totalHours}h
                                               </span>
                                             </div>
                                           </div>
@@ -591,7 +584,7 @@
                                         <div class="flex gap-2">
                                           <button
                                             on:click={() =>
-                                              openReportDetail(report.id)}
+                                              openDayReportDetail(dayGroup.date, dayGroup.report)}
                                             class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap"
                                           >
                                             <svg
@@ -615,51 +608,6 @@
                                             </svg>
                                             Görüntüle
                                           </button>
-
-                                          {#if isReportEditable(report)}
-                                            <button
-                                              on:click={() =>
-                                                openEditReportModal(report)}
-                                              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap"
-                                              title="Bu haftayı düzenle"
-                                            >
-                                              <svg
-                                                class="w-4 h-4"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                              >
-                                                <path
-                                                  stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                />
-                                              </svg>
-                                              Düzenle
-                                            </button>
-                                          {:else}
-                                            <button
-                                              disabled
-                                              class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium rounded-md cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap"
-                                              title="Gelecek haftalar düzenlenemez"
-                                            >
-                                              <svg
-                                                class="w-4 h-4"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                              >
-                                                <path
-                                                  stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                                                />
-                                              </svg>
-                                              Kilitli
-                                            </button>
-                                          {/if}
                                         </div>
                                       </div>
                                     </div>
