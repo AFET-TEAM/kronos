@@ -28,8 +28,10 @@
   }
 
   function handleConfirm() {
-    onConfirm();
-    closeModal();
+    if (onConfirm) {
+      onConfirm();
+    }
+    // Don't close modal here - let the parent component handle it after successful submission
   }
 
   $: totalTasks = dailyReports.reduce(

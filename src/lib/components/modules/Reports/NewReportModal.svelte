@@ -4,10 +4,10 @@
   import DailyReportCard from "./DailyReportCard.svelte";
   import WeeklyReportPreview from "./WeeklyReportPreview.svelte";
   import type { DailyReport, ReportDetails } from "$lib/services/reportService.js";
-  import { createWeeklyReport, updateWeeklyReport, getDailyReportsByDateRange } from "$lib/services/reportService.js";
+  import { createWeeklyReport, updateWeeklyReport, updateDailyReport, getDailyReportsByDateRange } from "$lib/services/reportService.js";
   import { dailyReportsStore } from "$lib/store/reportStore.js";
   import { toastStore } from "$lib/store/toastStore.js";
-  import { getErrorMessage } from "$lib/services/errorHandler.js";
+  import { getErrorMessage, getValidationErrors } from "$lib/services/errorHandler.js";
 
   export let isOpen = false;
   export let onClose: () => void;
@@ -77,10 +77,11 @@
       day: dr.day,
       date: dr.date,
       tasks: dr.tasks.map(t => ({
-        taskName: t.taskName,
-        taskNumber: t.taskNumber,
-        estimatedHours: t.estimatedHours,
-        description: t.description
+        taskName: t.taskName || "",
+        taskNumber: t.taskNumber || "",
+        estimatedHours: t.estimatedHours || 0,
+        description: t.description || "",
+        status: t.status || "Devam Ediyor"
       })),
       blockers: dr.blockers || "",
       meetings: dr.meetings || "",
@@ -250,17 +251,82 @@
   }
 
   function handlePreview() {
+    // Önce validasyon yap
+    const validationErrors: string[] = [];
+    
+    dailyReports.forEach((dayReport) => {
+      // İzinli günlerde validasyon yapma
+      if (dayReport.isOnLeave) {
+        return;
+      }
+
+      // Ama eğer blockers, meetings veya untrackedWork varsa, task zorunlu değil
+      const hasOtherContent = 
+        (Array.isArray(dayReport.blockers) ? dayReport.blockers.length > 0 : (typeof dayReport.blockers === 'string' && dayReport.blockers.trim())) ||
+        (Array.isArray(dayReport.meetings) ? dayReport.meetings.length > 0 : (typeof dayReport.meetings === 'string' && dayReport.meetings.trim())) ||
+        (dayReport.untrackedWork && dayReport.untrackedWork.trim());
+
+      // Çalışma günlerinde en az bir task olmalı
+      // Eğer tasks array'i boşsa veya hiç task yoksa hata ver
+      if (!dayReport.tasks || dayReport.tasks.length === 0) {
+        if (!hasOtherContent) {
+          validationErrors.push(`${dayReport.date} tarihinde en az bir görev eklemelisiniz`);
+        }
+        return;
+      }
+
+      // TaskName'i dolu olan task'ları filtrele (boş task'ları göz ardı et)
+      const tasksWithName = dayReport.tasks.filter(
+        (t) => t.taskName && t.taskName.trim()
+      );
+
+      // Eğer hiçbir task'ın taskName'i yoksa ve başka içerik de yoksa, bu da hata
+      if (tasksWithName.length === 0 && !hasOtherContent) {
+        validationErrors.push(`${dayReport.date} tarihinde en az bir görev adı girmelisiniz`);
+        return;
+      }
+
+      // Her task için zorunlu alanları kontrol et (sadece taskName'i olanlar için)
+      tasksWithName.forEach((task, taskIndex) => {
+        if (!task.taskName || !task.taskName.trim()) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Görev adı zorunludur`);
+        }
+        if (!task.taskNumber || !task.taskNumber.trim()) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Görev numarası zorunludur`);
+        }
+        if (task.estimatedHours === undefined || task.estimatedHours === null || task.estimatedHours <= 0) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Süre zorunludur ve 0'dan büyük olmalıdır`);
+        }
+        if (!task.description || !task.description.trim()) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Açıklama zorunludur`);
+        }
+        // Status default olarak ayarla eğer yoksa
+        if (!task.status) {
+          task.status = "Devam Ediyor";
+        }
+      });
+    });
+
+    if (validationErrors.length > 0) {
+      toastStore.error(validationErrors[0]);
+      if (validationErrors.length > 1) {
+        console.error("Validation errors:", validationErrors);
+      }
+      return;
+    }
+
+    // En az bir gün için içerik olmalı (untrackedWork zorunlu değil)
     const hasAnyContent = dailyReports.some(
       (day) =>
         day.isOnLeave ||
-        day.tasks.some((t) => t.taskName) ||
+        day.tasks.some((t) => t.taskName && t.taskName.trim()) ||
         (Array.isArray(day.blockers)
           ? day.blockers.length > 0
-          : day.blockers) ||
+          : (typeof day.blockers === 'string' && day.blockers.trim())) ||
         (Array.isArray(day.meetings)
           ? day.meetings.length > 0
-          : day.meetings) ||
-        day.untrackedWork
+          : (typeof day.meetings === 'string' && day.meetings.trim())) ||
+        (day.untrackedWork && day.untrackedWork.trim())
     );
 
     if (!hasAnyContent) {
@@ -272,17 +338,82 @@
   }
 
   function handleConfirmReport() {
+    // Önce validasyon yap
+    const validationErrors: string[] = [];
+    
+    dailyReports.forEach((dayReport, dayIndex) => {
+      // İzinli günlerde validasyon yapma
+      if (dayReport.isOnLeave) {
+        return;
+      }
+
+      // Ama eğer blockers, meetings veya untrackedWork varsa, task zorunlu değil
+      const hasOtherContent = 
+        (Array.isArray(dayReport.blockers) ? dayReport.blockers.length > 0 : (typeof dayReport.blockers === 'string' && dayReport.blockers.trim())) ||
+        (Array.isArray(dayReport.meetings) ? dayReport.meetings.length > 0 : (typeof dayReport.meetings === 'string' && dayReport.meetings.trim())) ||
+        (dayReport.untrackedWork && dayReport.untrackedWork.trim());
+
+      // Çalışma günlerinde en az bir task olmalı
+      // Eğer tasks array'i boşsa veya hiç task yoksa hata ver
+      if (!dayReport.tasks || dayReport.tasks.length === 0) {
+        if (!hasOtherContent) {
+          validationErrors.push(`${dayReport.date} tarihinde en az bir görev eklemelisiniz`);
+        }
+        return;
+      }
+
+      // TaskName'i dolu olan task'ları filtrele (boş task'ları göz ardı et)
+      const tasksWithName = dayReport.tasks.filter(
+        (t) => t.taskName && t.taskName.trim()
+      );
+
+      // Eğer hiçbir task'ın taskName'i yoksa ve başka içerik de yoksa, bu da hata
+      if (tasksWithName.length === 0 && !hasOtherContent) {
+        validationErrors.push(`${dayReport.date} tarihinde en az bir görev adı girmelisiniz`);
+        return;
+      }
+
+      // Her task için zorunlu alanları kontrol et (sadece taskName'i olanlar için)
+      tasksWithName.forEach((task, taskIndex) => {
+        if (!task.taskName || !task.taskName.trim()) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Görev adı zorunludur`);
+        }
+        if (!task.taskNumber || !task.taskNumber.trim()) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Görev numarası zorunludur`);
+        }
+        if (task.estimatedHours === undefined || task.estimatedHours === null || task.estimatedHours <= 0) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Süre zorunludur ve 0'dan büyük olmalıdır`);
+        }
+        if (!task.description || !task.description.trim()) {
+          validationErrors.push(`${dayReport.date} - Task ${taskIndex + 1}: Açıklama zorunludur`);
+        }
+        // Status default olarak ayarla eğer yoksa
+        if (!task.status) {
+          task.status = "Devam Ediyor";
+        }
+      });
+    });
+
+    if (validationErrors.length > 0) {
+      toastStore.error(validationErrors[0]);
+      if (validationErrors.length > 1) {
+        console.error("Validation errors:", validationErrors);
+      }
+      return;
+    }
+
     dailyReports.forEach((dayReport) => {
+      // İçerik kontrolü - untrackedWork zorunlu değil
       const hasContent =
         dayReport.isOnLeave ||
-        dayReport.tasks.some((t) => t.taskName) ||
+        dayReport.tasks.some((t) => t.taskName && t.taskName.trim()) ||
         (Array.isArray(dayReport.blockers)
           ? dayReport.blockers.length > 0
-          : dayReport.blockers) ||
+          : (typeof dayReport.blockers === 'string' && dayReport.blockers.trim())) ||
         (Array.isArray(dayReport.meetings)
           ? dayReport.meetings.length > 0
-          : dayReport.meetings) ||
-        dayReport.untrackedWork;
+          : (typeof dayReport.meetings === 'string' && dayReport.meetings.trim())) ||
+        (dayReport.untrackedWork && dayReport.untrackedWork.trim());
 
       if (hasContent) {
         const dateParts = dayReport.date.split(".");
@@ -304,27 +435,104 @@
     const formattedStartDate = formatDateForDisplay(startDate);
     const formattedEndDate = formatDateForDisplay(endDate);
 
-    const filledReports = dailyReports.filter(
-      (day) =>
-        day.isOnLeave ||
-        day.tasks.some((t) => t.taskName) ||
-        (Array.isArray(day.blockers)
-          ? day.blockers.length > 0
-          : day.blockers) ||
-        (Array.isArray(day.meetings)
-          ? day.meetings.length > 0
-          : day.meetings) ||
-        day.untrackedWork
-    );
+    // Sadece içerik olan günleri filtrele ve task'ları temizle
+    const filledReports = dailyReports
+      .filter(
+        (day) =>
+          day.isOnLeave ||
+          day.tasks.some((t) => t.taskName && t.taskName.trim()) ||
+          (Array.isArray(day.blockers)
+            ? day.blockers.length > 0
+            : (typeof day.blockers === 'string' && day.blockers.trim())) ||
+          (Array.isArray(day.meetings)
+            ? day.meetings.length > 0
+            : (typeof day.meetings === 'string' && day.meetings.trim())) ||
+          (day.untrackedWork && day.untrackedWork.trim())
+      )
+      .map((day) => {
+        // İzinli günlerde task'ları temizle
+        if (day.isOnLeave) {
+          return {
+            ...day,
+            tasks: [],
+            blockers: [],
+            meetings: [],
+            untrackedWork: "",
+          };
+        }
+
+        // Sadece geçerli task'ları al (taskName, taskNumber, estimatedHours, description dolu olanlar)
+        const validTasks = day.tasks.filter(
+          (t) =>
+            t.taskName &&
+            t.taskName.trim() &&
+            t.taskNumber &&
+            t.taskNumber.trim() &&
+            t.estimatedHours !== undefined &&
+            t.estimatedHours !== null &&
+            t.estimatedHours > 0 &&
+            t.description &&
+            t.description.trim()
+        );
+
+        // Status default olarak ayarla ve backend formatına hazırla
+        const preparedTasks = validTasks.map((task) => ({
+          ...task,
+          status: task.status || "Devam Ediyor",
+        }));
+
+        return {
+          ...day,
+          tasks: preparedTasks,
+        };
+      });
 
     const successMessage = isEditMode 
       ? "Haftalık rapor başarıyla güncellendi!" 
       : "Haftalık rapor başarıyla oluşturuldu ve Son Gönderilen Raporlar listesine eklendi!";
 
-    // Edit modundaysa updateWeeklyReport, değilse createWeeklyReport kullan
-    const reportPromise = isEditMode && reportToEdit
-      ? updateWeeklyReport(reportToEdit.id, formattedStartDate, formattedEndDate, filledReports)
-      : createWeeklyReport(formattedStartDate, formattedEndDate, filledReports);
+    // Edit modundaysa ID tipini kontrol et ve doğru update fonksiyonunu çağır
+    let reportPromise: Promise<any>;
+    if (isEditMode && reportToEdit) {
+      // Check if original reportId was a daily report ID (starts with "daily-")
+      const originalReportId = (reportToEdit as any).originalId || reportToEdit.id;
+      const isDailyReportId = originalReportId.startsWith('daily-');
+      
+      // Also check if it's a single day report
+      const isSingleDayReport = reportToEdit.dailyReports.length === 1 && 
+                                reportToEdit.startDate === reportToEdit.endDate;
+      
+      if (isDailyReportId || isSingleDayReport) {
+        // Daily report update - use the daily report ID from dailyReports array
+        const dailyReport = filledReports[0];
+        const dailyReportId = reportToEdit.dailyReports[0]?.id || originalReportId;
+        
+        // If dailyReportId doesn't start with "daily-", it might be a weekly report ID format
+        // In that case, use the original ID
+        const finalDailyReportId = dailyReportId.startsWith('daily-') 
+          ? dailyReportId 
+          : originalReportId;
+        
+        reportPromise = updateDailyReport(
+          finalDailyReportId,
+          formattedStartDate,
+          dailyReport
+        ).then(() => ({
+          id: reportToEdit.id,
+          title: reportToEdit.title,
+          date: reportToEdit.createdAt,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          tasks: []
+        }));
+      } else {
+        // Weekly report update
+        reportPromise = updateWeeklyReport(reportToEdit.id, formattedStartDate, formattedEndDate, filledReports);
+      }
+    } else {
+      // Create new report
+      reportPromise = createWeeklyReport(formattedStartDate, formattedEndDate, filledReports);
+    }
 
     reportPromise
       .then((newReport) => {
@@ -334,11 +542,23 @@
           onReportCreated();
         }
 
+        // Close preview modal first, then main modal
+        showPreview = false;
         closeModal();
       })
       .catch((error) => {
-        const errorMsg = getErrorMessage(error);
-        toastStore.error(errorMsg);
+        const validationErrors = getValidationErrors(error);
+        if (validationErrors.length > 0) {
+          // Validasyon hatalarını göster
+          validationErrors.forEach(errMsg => {
+            toastStore.error(errMsg);
+          });
+        } else {
+          // Genel hata mesajını göster
+          const errorMsg = getErrorMessage(error);
+          toastStore.error(errorMsg);
+        }
+        // Don't close modal on error - let user fix the issue
       });
   }
 
@@ -360,13 +580,15 @@
     }
   }
 
+  // Bir günün dolu sayılması için: isOnLeave=true VEYA en az bir task var VEYA blocker var VEYA meeting var VEYA untrackedWork var
+  // untrackedWork boş string olsa bile, diğer alanlar doluysa gün dolu sayılır
   $: filledDaysCount = dailyReports.filter(
     (day) =>
       day.isOnLeave ||
-      day.tasks.some((t) => t.taskName) ||
-      (Array.isArray(day.blockers) ? day.blockers.length > 0 : day.blockers) ||
-      (Array.isArray(day.meetings) ? day.meetings.length > 0 : day.meetings) ||
-      day.untrackedWork
+      day.tasks.some((t) => t.taskName && t.taskName.trim()) ||
+      (Array.isArray(day.blockers) ? day.blockers.length > 0 : (typeof day.blockers === 'string' && day.blockers.trim())) ||
+      (Array.isArray(day.meetings) ? day.meetings.length > 0 : (typeof day.meetings === 'string' && day.meetings.trim())) ||
+      (day.untrackedWork && day.untrackedWork.trim())
   ).length;
 </script>
 

@@ -8,9 +8,11 @@
   import ReportPreviewModal from "../Archive/ReportPreviewModal.svelte";
   import {
     getDashboardStats,
+    getDailyReportByDate,
     type DashboardStats,
     type RecentReport,
     type ReportDetails,
+    type DailyReport,
   } from "$lib/services/reportService.js";
   import Icon from "$lib/components/ui/Icon/Icon.svelte";
   import { getReportDetails } from "$lib/services/archiveService.js";
@@ -23,6 +25,7 @@
   let isPreviewModalOpen = false;
   let selectedReport: RecentReport | null = null;
   let selectedDate = "";
+  let selectedDailyReport: DailyReport | null = null;
   let reportToEdit: ReportDetails | null = null;
   let errorMessage = "";
 
@@ -109,10 +112,20 @@
     return reportEndDate >= previousWeekStart;
   }
 
-  function openDailyReportModal(date: string) {
+  async function openDailyReportModal(date: string) {
     // DD.MM.YYYY formatını YYYY-MM-DD'ye çevir
     const [day, month, year] = date.split('.');
     selectedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    
+    // Bu tarih için mevcut rapor var mı kontrol et
+    try {
+      const existingReport = await getDailyReportByDate(date);
+      selectedDailyReport = existingReport;
+    } catch (error) {
+      // Hata durumunda yeni rapor olarak aç
+      selectedDailyReport = null;
+    }
+    
     isDailyReportModalOpen = true;
   }
 
@@ -137,6 +150,7 @@
 
   function handleDailyReportSaved() {
     // Günlük rapor kaydedilince dashboard verilerini yenile
+    selectedDailyReport = null;
     loadDashboardData();
   }
 
@@ -294,7 +308,11 @@
 <DailyReportModal
   bind:isOpen={isDailyReportModalOpen}
   {selectedDate}
-  onClose={() => (isDailyReportModalOpen = false)}
+  existingReport={selectedDailyReport}
+  onClose={() => {
+    isDailyReportModalOpen = false;
+    selectedDailyReport = null;
+  }}
   onReportSaved={handleDailyReportSaved}
 />
 
