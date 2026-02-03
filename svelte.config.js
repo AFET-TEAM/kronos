@@ -15,7 +15,8 @@ const config = {
           "'self'", 
           "ws://localhost:3000", 
           "http://localhost:4000",
-          "https://kronos-prod.afet.space",
+          "https://api-kronos.afet.team",
+          "https://api-kronos-dev.afet.team",
         ],
         'img-src': ["'self'", "data:", "https:"],
       }
