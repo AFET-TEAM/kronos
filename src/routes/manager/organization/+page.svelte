@@ -4,7 +4,6 @@
   import { goto } from "$app/navigation";
   import Header from "$lib/components/layout/Header/Header.svelte";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
-  import SearchBar from "$lib/components/ui/SearchBar/SearchBar.svelte";
   import { getOrganizationChart } from "$lib/services/admin.service.js";
   import { toastStore } from "$lib/store/toastStore.js";
 
@@ -147,7 +146,7 @@
   }
 
   function exportToCSV() {
-    const headers = ["Ad Soyad", "E-posta", "Departman", "Pozisyon", "Rol", "Yönetici"];
+    const headers = ["Ad Soyad", "E-posta", "Direktörlük", "Pozisyon", "Rol", "Yönetici"];
     const rows: string[][] = [];
     
     organizationData.forEach(dept => {
@@ -229,15 +228,7 @@
   <Header
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
-    bind:searchValue
-  >
-    <SearchBar
-      placeholder="Kullanıcı, departman veya pozisyon ara..."
-      bind:value={searchValue}
-      icon="search"
-      size="medium"
-    />
-  </Header>
+  />
 
   <Sidebar bind:isOpen={isSidebarOpen} />
 
@@ -254,7 +245,7 @@
             Organizasyon Şeması
           </h1>
           <p class="text-gray-600 dark:text-gray-400">
-            Departmanlara göre şirket organizasyonu ve kullanıcı hiyerarşisi
+            Direktörlüklere göre şirket organizasyonu ve kullanıcı hiyerarşisi
           </p>
         </div>
         
@@ -367,7 +358,7 @@
                 </svg>
               </div>
               <div class="ml-4">
-                <p class="text-sm text-gray-600 dark:text-gray-400">Departman</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Direktörlük</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-white">{totalDepartments}</p>
               </div>
             </div>

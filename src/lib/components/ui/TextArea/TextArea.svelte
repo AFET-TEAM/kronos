@@ -53,11 +53,11 @@
   disabled={disabled}
     maxlength={maxLength ?? undefined}
     {rows}
-    class={`w-full resize-none rounded-md border px-3 py-2 focus:outline-none transition
+    class={`w-full resize-none rounded-md border px-3 py-2 focus:outline-none transition text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400
       ${
         theme === "dark"
           ? "bg-blue-charcoal border-mid-gray focus:border-primary placeholder:text-mid-gray"
-          : "bg-white border-light-gray focus:border-primary placeholder:text-light-gray"
+          : "bg-white dark:bg-gray-800 border-light-gray dark:border-gray-600 focus:border-primary focus:ring-2 focus:ring-indigo-500"
       }
       ${disabled ? "opacity-60 cursor-not-allowed" : ""}
       ${className}

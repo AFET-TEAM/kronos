@@ -1,20 +1,13 @@
 <script lang="ts">
   import Icon from "../../ui/Icon/Icon.svelte";
-  import SearchBar from "../../ui/SearchBar/SearchBar.svelte";
   import { themeStore, toggleTheme } from "$lib/store/themeStore.js";
   import { userStore } from "$lib/store/store.js";
   
   export let logo: string | null = null;
   export let isSidebarOpen: boolean = true;
   export let onToggleSidebar: () => void = () => {};
-  export let searchValue: string = "";
 
-  let isMobileSearchOpen = false;
   let isHelpVisible = false;
-
-  function toggleMobileSearch() {
-    isMobileSearchOpen = !isMobileSearchOpen;
-  }
 
   function handleThemeToggle() {
     toggleTheme();
@@ -34,7 +27,7 @@
     <button
       on:click={onToggleSidebar}
       class="hamburger-btn"
-      aria-label="Toggle sidebar"
+      aria-label="Kenar çubuğunu aç/kapat"
     >
       {isSidebarOpen ? "✕" : "☰"}
     </button>
@@ -48,18 +41,10 @@
     </div>
   </div>
 
-  <div class="center desktop-search">
-    <slot />
+  <div class="center">
   </div>
 
   <div class="right">
-    <button
-      on:click={toggleMobileSearch}
-      class="mobile-search-btn"
-      aria-label="Search"
-    >
-      🔍
-    </button>
     <div class="help-container">
       <button
         class="help-btn"
@@ -116,7 +101,7 @@
     <button
       on:click={handleThemeToggle}
       class="theme-toggle-btn"
-      aria-label="Toggle theme"
+      aria-label="Tema değiştir (açık/koyu)"
     >
       {#key $themeStore}
         <Icon name={$themeStore === "light" ? "theme-dark" : "theme-light"} alt="theme icon" width="20" height="20" />
@@ -125,47 +110,21 @@
   </div>
 </div>
 
-{#if isMobileSearchOpen}
-  <div class="mobile-search-overlay" on:click={toggleMobileSearch}>
-    <div class="mobile-search-container {$themeStore}" on:click|stopPropagation>
-      <div class="mobile-search-header {$themeStore}">
-        <span>Ara</span>
-        <button
-          on:click={toggleMobileSearch}
-          class="close-btn {$themeStore}"
-          aria-label="Close search"
-        >
-          ✕
-        </button>
-      </div>
-      <div class="mobile-search-content">
-        <SearchBar
-          placeholder="Rapor ara..."
-          bind:value={searchValue}
-          icon="search"
-          size="medium"
-        />
-      </div>
-    </div>
-  </div>
-{/if}
-
 <style>
   .header {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 1rem;
-    height: 3rem;
+    padding: 0 1.25rem;
+    height: 3.5rem;
     box-sizing: border-box;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 40;
-    transition:
-      background-color 0.3s ease,
-      color 0.3s ease;
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
   .light {
     background-color: var(--color-ui-header-background);
@@ -200,11 +159,7 @@
   }
 
   .hamburger-btn:hover {
-    background-color: rgba(79, 70, 229, 0.1);
-  }
-
-  .dark .hamburger-btn:hover {
-    background-color: rgba(129, 140, 248, 0.1);
+    background-color: var(--color-background-tertiary);
   }
 
   .logo {
@@ -233,85 +188,6 @@
     padding: 0 0.5rem;
   }
 
-  .desktop-search {
-    display: flex;
-  }
-
-  .mobile-search-btn {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 0.375rem;
-    transition: background-color 0.2s;
-  }
-
-  .mobile-search-btn {
-    color: var(--color-ui-header-icon);
-  }
-
-  .mobile-search-btn:hover {
-    background-color: rgba(79, 70, 229, 0.1);
-  }
-
-  .dark .mobile-search-btn:hover {
-    background-color: rgba(129, 140, 248, 0.1);
-  }
-
-  .mobile-search-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--color-background-overlay);
-    z-index: 100;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 3rem;
-  }
-
-  .mobile-search-container {
-    background: var(--color-ui-card-background);
-    border-radius: 0.5rem;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 4px 6px var(--color-ui-card-shadow);
-    overflow: hidden;
-  }
-
-  .mobile-search-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid var(--color-border);
-    font-weight: 600;
-  }
-
-  .mobile-search-content {
-    padding: 1rem;
-    display: flex;
-    justify-content: center;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    color: var(--color-text-tertiary);
-    transition: color 0.2s;
-  }
-
-  .close-btn:hover {
-    color: var(--color-text);
-  }
-
   .theme-toggle-btn {
     background: none;
     border: none;
@@ -326,22 +202,10 @@
   }
 
   .theme-toggle-btn:hover {
-    background-color: rgba(79, 70, 229, 0.1);
-  }
-
-  .dark .theme-toggle-btn:hover {
-    background-color: rgba(129, 140, 248, 0.1);
+    background-color: var(--color-background-tertiary);
   }
 
   @media (max-width: 768px) {
-    .desktop-search {
-      display: none;
-    }
-
-    .mobile-search-btn {
-      display: block;
-    }
-
     .center {
       padding: 0 0.25rem;
     }
@@ -369,10 +233,6 @@
   }
 
   @media (max-width: 480px) {
-    .center {
-      display: none;
-    }
-
     .hamburger-btn {
       font-size: 1.25rem;
       padding: 0.25rem;
@@ -422,22 +282,13 @@
     height: 1.25rem;
   }
 
-  .light .help-btn {
-    color: #4f46e5;
+  .help-btn {
+    color: var(--color-ui-header-icon);
   }
 
-  .light .help-btn:hover {
-    background-color: rgba(79, 70, 229, 0.1);
-    color: #4338ca;
-  }
-
-  .dark .help-btn {
-    color: #818cf8;
-  }
-
-  .dark .help-btn:hover {
-    background-color: rgba(129, 140, 248, 0.1);
-    color: #a5b4fc;
+  .help-btn:hover {
+    background-color: var(--color-background-tertiary);
+    color: var(--color-ui-header-icon-hover);
   }
 
   .help-popup {
@@ -453,13 +304,13 @@
   }
 
   .light .help-popup {
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
   }
 
   .dark .help-popup {
-    background: #1f2937;
-    border: 1px solid #374151;
+    background: var(--color-ui-card-background);
+    border: 1px solid var(--color-border);
   }
 
   @keyframes fadeIn {
@@ -478,16 +329,15 @@
     font-size: 0.95rem;
     font-weight: 600;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #4f46e5;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .light .help-title {
-    color: #1f2937;
+    color: var(--color-text);
   }
 
   .dark .help-title {
-    color: #f3f4f6;
-    border-bottom-color: #818cf8;
+    color: var(--color-text);
   }
 
   .help-list {
@@ -507,24 +357,13 @@
     margin-bottom: 0;
   }
 
-  .light .help-list li {
-    color: #4b5563;
-  }
-
-  .dark .help-list li {
-    color: #d1d5db;
+  .help-list li {
+    color: var(--color-text-secondary);
   }
 
   .help-list li strong {
     display: inline-block;
-  }
-
-  .light .help-list li strong {
-    color: #1f2937;
-  }
-
-  .dark .help-list li strong {
-    color: #f9fafb;
+    color: var(--color-text);
   }
 
   .icon {

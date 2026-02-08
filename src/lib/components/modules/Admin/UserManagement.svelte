@@ -161,7 +161,7 @@
       
       if (selectedDepartmentForUser !== selectedUserForAssign.department) {
         await updateUserDepartment(selectedUserForAssign.id, selectedDepartmentForUser);
-        toastStore.success("Departman güncellendi");
+        toastStore.success("Direktörlük güncellendi");
       }
       
       await loadUsers();
@@ -240,7 +240,7 @@
       >
         {#each departments as dept}
           <option value={dept}>
-            {dept === "all" ? "Tüm Departmanlar" : dept}
+            {dept === "all" ? "Tüm Direktörlükler" : dept}
           </option>
         {/each}
       </select>
@@ -260,7 +260,7 @@
               Kullanıcı
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
-              Departman
+              Direktörlük
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
               Yönetici
@@ -383,7 +383,7 @@
 
         <Input label="Ünvan" bind:value={editForm.title} type="text" placeholder="Ünvan" />
         <Input label="Takım" bind:value={editForm.squad} type="text" placeholder="Takım" />
-        <Input label="Departman" bind:value={editForm.department} type="text" placeholder="Departman" />
+        <Input label="Direktörlük" bind:value={editForm.department} type="text" placeholder="Direktörlük" />
 
         <GeneralSelectbox label="Role" bind:selected={editForm.role} options={roleOptions} />
         <GeneralSelectbox label="Durum" bind:selected={editForm.status} options={statusOptions} />
@@ -423,7 +423,7 @@
         </div>
 
         <Input
-          label="Departman"
+          label="Direktörlük"
           bind:value={selectedDepartmentForUser}
           type="text"
           placeholder="Örn: Engineering, Sales, HR"
@@ -445,7 +445,7 @@
         </div>
 
         <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-sm text-yellow-800 dark:text-yellow-200">
-          ℹ️ Kullanıcı seçilen yöneticiye ve departmana atanacak
+          ℹ️ Kullanıcı seçilen yöneticiye ve direktörlüğe atanacak
         </div>
 
         <div class="flex gap-4 mt-6">

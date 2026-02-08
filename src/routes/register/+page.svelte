@@ -66,32 +66,35 @@
 </svelte:head>
 
 <div
-  class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12 transition-colors duration-300"
+  class="auth-page min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 px-4 py-12 transition-colors duration-300"
 >
   <div class="w-full max-w-md">
     <!-- Logo ve Başlık -->
-    <div class="text-center mb-8">
-      <h1
-        class="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-2 transition-colors"
-      >
-        KRONOS
-      </h1>
-      <p class="text-2xl text-gray-700 dark:text-gray-300 transition-colors">
-        Hesap Oluştur
+    <div class="flex flex-col items-center gap-3 mb-8">
+      <div class="flex items-center gap-3">
+        <img src="/icons/favicon.svg" alt="Kronos" class="w-12 h-12" />
+        <h1
+          class="text-4xl font-bold text-slate-900 dark:text-slate-100 tracking-tight transition-colors"
+        >
+          KRONOS
+        </h1>
+      </div>
+      <p class="text-slate-600 dark:text-slate-400 text-lg transition-colors">
+        Hesap oluştur
       </p>
     </div>
 
     <!-- Register Form -->
     <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 transition-colors duration-300 text-gray-900 dark:text-gray-100"
+      class="auth-card rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 shadow-lg p-8 transition-colors duration-300 text-slate-900 dark:text-slate-100"
     >
       <h2
-        class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center transition-colors"
+        class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6 text-center transition-colors"
       >
-        Kayıt Ol
+        Kayıt ol
       </h2>
 
-      <form on:submit|preventDefault={handleRegister} class="space-y-4">
+      <form on:submit|preventDefault={handleRegister} class="space-y-5">
         <div>
           <Input
             type="text"
@@ -118,7 +121,7 @@
           <Input
             type="password"
             bind:value={password}
-            placeholder="Şifreniz (min 6 karakter)"
+            placeholder="Şifreniz (en az 6 karakter)"
             label="Şifre"
             disabled={loading}
             iconLeft="lock"
@@ -130,36 +133,36 @@
             type="password"
             bind:value={confirmPassword}
             placeholder="Şifrenizi tekrar girin"
-            label="Şifre Tekrar"
+            label="Şifre tekrar"
             disabled={loading}
             iconLeft="lock"
           />
         </div>
 
         <Button
-          text={loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
+          type="submit"
+          text={loading ? "Kayıt yapılıyor..." : "Kayıt ol"}
           variant="primary"
-          onClick={handleRegister}
           disabled={loading}
-          className="w-full"
+          className="w-full py-3 rounded-xl"
         />
       </form>
 
       <div
-        class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400 transition-colors"
+        class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-400 transition-colors"
       >
         Zaten hesabınız var mı?
         <a
           href="/login"
-          class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors ml-1"
+          class="text-slate-900 dark:text-slate-200 hover:underline font-semibold transition-colors ml-1"
         >
-          Giriş Yap
+          Giriş yap
         </a>
       </div>
     </div>
 
     <!-- Theme Toggle -->
-    <div class="mt-6 text-center">
+    <div class="mt-6 flex justify-center">
       <button
         on:click={() => {
           const newTheme = $themeStore === "light" ? "dark" : "light";
@@ -171,38 +174,18 @@
             document.documentElement.classList.remove("dark");
           }
         }}
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-md"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-sm font-medium"
       >
         {#if $themeStore === "light"}
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-            ></path>
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
           </svg>
-          <span class="text-sm font-medium">Karanlık Mod</span>
+          <span>Karanlık mod</span>
         {:else}
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-            ></path>
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
-          <span class="text-sm font-medium">Aydınlık Mod</span>
+          <span>Aydınlık mod</span>
         {/if}
       </button>
     </div>

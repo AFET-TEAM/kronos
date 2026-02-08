@@ -164,145 +164,133 @@
   }
 </script>
 
-<div class="dashboard-container min-h-screen  dark:bg-gray-900">
-  <section class="mb-8">
-    <h2
-      class="header-text mb-6 flex items-center justify-start gap-2"
-    >
-      <Icon name={"static"} alt="icon" width="40" height="40" />
-      <span>İstatistikler</span>
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <StatCard
-        title="Gönderilen Rapor Sayısı"
-        value={stats?.reportsSent ?? "-"}
-        icon="📨"
-        {loading}
-      />
-      <StatCard
-        title="Tamamlanan Task Sayısı"
-        value={stats?.tasksCompleted ?? "-"}
-        icon="✅"
-        {loading}
-      />
-      <StatCard
-        title="Ortalama Tamamlanma Oranı"
-        value={stats?.avgCompletionRate ? `${stats.avgCompletionRate}%` : "-"}
-        icon="📈"
-        {loading}
-      />
-    </div>
-  </section>
-
-  <section class="mb-8">
-    <h2
-      class="header-text mb-6 flex items-center gap-2"
-    >
-      <Icon name={"calendar"} alt="icon" width="40" height="40" />
-      <span>Haftalık Rapor Takvimi</span>
-    </h2>
-
-    {#if loading}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {#each Array(5) as _}
-          <div
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 animate-pulse"
-          >
-            <div
-              class="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"
-            ></div>
-            <div
-              class="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"
-            ></div>
-          </div>
-        {/each}
-      </div>
-    {:else if stats}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        {#each stats.weeklySummary as day}
-          <WeeklyDayCard
-            day={day.day}
-            date={day.date}
-            hasReport={day.hasReport}
-            taskCount={day.taskCount}
-            onAddReport={() => openDailyReportModal(day.date)}
-          />
-        {/each}
-      </div>
-      <div class="flex justify-center">
-        <Button
-          text="📝 Haftalık Rapor Oluştur"
-          variant="primary"
-          size="large"
-          onClick={openWeeklyReportModal}
-          className="px-8 py-3 bg-blue-100 hover:bg-blue-200 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+<div class="dashboard-container min-h-screen bg-slate-100 dark:bg-slate-950">
+  <div class="dashboard-inner max-w-6xl mx-auto">
+    <!-- İstatistikler -->
+    <section class="dashboard-section">
+      <h2 class="section-title">
+        <span class="section-title-icon">
+          <Icon name="static" alt="" width="24" height="24" />
+        </span>
+        İstatistikler
+      </h2>
+      <div class="stats-grid">
+        <StatCard
+          title="Toplam Rapor Sayısı"
+          value={stats?.reportsSent ?? "—"}
+          icon="📨"
+          {loading}
+        />
+        <StatCard
+          title="Tamamlanan Görev"
+          value={stats?.tasksCompleted ?? "—"}
+          icon="✅"
+          {loading}
+        />
+        <StatCard
+          title="Tamamlanma Oranı"
+          value={stats?.avgCompletionRate != null ? `${stats.avgCompletionRate}%` : "—"}
+          icon="📈"
+          {loading}
         />
       </div>
-    {/if}
-  </section>
+    </section>
 
-  <!-- Recent Reports -->
-  <section class="mb-8">
-    <h2
-      class="header-text mb-6 flex items-center gap-2"
-    >
-      <Icon name={"document"} alt="icon" width="28" height="28" />
-      <span>Son Gönderilen Raporlar</span>
-    </h2>
+    <!-- Haftalık Rapor Takvimi -->
+    <section class="dashboard-section">
+      <h2 class="section-title">
+        <span class="section-title-icon">
+          <Icon name="calendar" alt="" width="24" height="24" />
+        </span>
+        Bu Hafta
+      </h2>
+      <p class="section-desc">
+        Hafta içi günlerine (Pazartesi–Cuma) rapor ekleyebilirsiniz. Cumartesi ve Pazar için rapor girilmez.
+      </p>
 
-    {#if loading}
-      <div class="space-y-3">
-        {#each Array(3) as _}
-          <div
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 animate-pulse"
-          >
-            <div
-              class="h-5 bg-gray-300 dark:bg-gray-600 rounded w-2/3 mb-2"
-            ></div>
-            <div class="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
-          </div>
-        {/each}
-      </div>
-    {:else if stats}
-      <div class="space-y-3">
-        {#each stats.recentReports as report}
-          <button
-            on:click={() => openPreviewModal(report)}
-            class="w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-5 hover:shadow-lg transition-all duration-200 text-left group"
-          >
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <h3
-                  class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-400 dark:group-hover:text-blue-400 transition-colors"
-                >
-                  {report.title}: {report.startDate} - {report.endDate}
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Oluşturulma Tarihi: {report.date}
-                </p>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {report.tasks.length} görev tamamlandı
-                </p>
-              </div>
-              <svg
-                class="w-6 h-6 text-gray-400 group-hover:text-blue-400 dark:group-hover:text-blue-400 transition-colors"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+      {#if loading}
+        <div class="week-grid">
+          {#each Array(5) as _}
+            <div class="skeleton-card animate-pulse rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4">
+              <div class="h-4 bg-slate-200 dark:bg-slate-600 rounded w-3/4 mb-2"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-600 rounded w-1/2"></div>
             </div>
-          </button>
-        {/each}
-      </div>
-    {/if}
-  </section>
+          {/each}
+        </div>
+      {:else if stats}
+        <div class="week-grid">
+          {#each stats.weeklySummary as day}
+            <WeeklyDayCard
+              day={day.day}
+              date={day.date}
+              hasReport={day.hasReport}
+              taskCount={day.taskCount}
+              canAddReport={true}
+              onAddReport={() => openDailyReportModal(day.date)}
+            />
+          {/each}
+        </div>
+        <div class="flex justify-center mt-6">
+          <Button
+            text="Haftalık Rapor Oluştur"
+            variant="primary"
+            size="large"
+            onClick={openWeeklyReportModal}
+            className="btn-weekly"
+          />
+        </div>
+      {/if}
+    </section>
+
+    <!-- Son Raporlar -->
+    <section class="dashboard-section">
+      <h2 class="section-title">
+        <span class="section-title-icon">
+          <Icon name="document" alt="" width="22" height="22" />
+        </span>
+        Son Gönderilen Raporlar
+      </h2>
+
+      {#if loading}
+        <div class="reports-list space-y-3">
+          {#each Array(3) as _}
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5 animate-pulse">
+              <div class="h-5 bg-slate-200 dark:bg-slate-600 rounded w-2/3 mb-2"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-600 rounded w-1/4"></div>
+            </div>
+          {/each}
+        </div>
+      {:else if stats?.recentReports?.length}
+        <ul class="reports-list">
+          {#each stats.recentReports as report}
+            <li>
+              <button
+                type="button"
+                on:click={() => openPreviewModal(report)}
+                class="report-item"
+              >
+                <div class="report-item-content">
+                  <h3 class="report-item-title">
+                    {report.startDate} – {report.endDate}
+                  </h3>
+                  <p class="report-item-meta">
+                    {report.tasks.length} görev · {report.date}
+                  </p>
+                </div>
+                <svg class="report-item-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <div class="empty-reports rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-8 text-center">
+          <p class="text-slate-500 dark:text-slate-400 text-sm">Henüz rapor yok.</p>
+        </div>
+      {/if}
+    </section>
+  </div>
 </div>
 
 <DailyReportModal
@@ -327,30 +315,198 @@
 
 <style>
   .dashboard-container {
-    padding: 2rem;
-    background: linear-gradient(
-      to top right,
-      var(--color-brand-blue-ribbon),
-      var(--color-success)
-    );
+    padding: 1.5rem 1rem 2rem;
   }
 
-  .header-text {
-    color: var(--color-text-inverse);
-    text-shadow: 1px 1px 2px var(--color-background-overlay);
+  .dashboard-inner {
+    margin: 0 auto;
   }
 
-  :global(.dark) .dashboard-container {
-    background: linear-gradient(
-      to top right,
-      var(--color-gradient-body-gray1),
-      var(--color-gradient-body-gray2)
-    );
+  .dashboard-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+  }
+
+  :global(.dark) .section-title {
+    color: #f1f5f9;
+  }
+
+  .section-title-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  :global(.dark) .section-title-icon {
+    background: #334155;
+    color: #94a3b8;
+  }
+
+  .section-desc {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+    max-width: 42rem;
+  }
+
+  :global(.dark) .section-desc {
+    color: #94a3b8;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .week-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .week-grid {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
+  .btn-weekly {
+    padding: 0.625rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border-radius: 0.75rem;
+    background: #0f172a;
+    color: #fff;
+    transition: background 0.2s;
+  }
+
+  .btn-weekly:hover {
+    background: #1e293b;
+  }
+
+  :global(.dark) .btn-weekly {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+
+  :global(.dark) .btn-weekly:hover {
+    background: #e2e8f0;
+  }
+
+  .reports-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .report-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .report-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  :global(.dark) .report-item {
+    border-color: #334155;
+    background: rgba(30, 41, 59, 0.5);
+  }
+
+  :global(.dark) .report-item:hover {
+    border-color: #475569;
+  }
+
+  .report-item-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .report-item-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  :global(.dark) .report-item-title {
+    color: #f1f5f9;
+  }
+
+  .report-item-meta {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin: 0.25rem 0 0;
+  }
+
+  :global(.dark) .report-item-meta {
+    color: #94a3b8;
+  }
+
+  .report-item-chevron {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #94a3b8;
+    flex-shrink: 0;
+    margin-left: 0.75rem;
+  }
+
+  .report-item:hover .report-item-chevron {
+    color: #64748b;
+  }
+
+  :global(.dark) .report-item:hover .report-item-chevron {
+    color: #cbd5e1;
+  }
+
+  .reports-list li + li {
+    margin-top: 0.5rem;
+  }
+
+  .empty-reports {
+    border-style: dashed;
   }
 
   @media (max-width: 768px) {
     .dashboard-container {
-      padding: 1rem;
+      padding: 1rem 0.75rem 1.5rem;
     }
   }
 </style>

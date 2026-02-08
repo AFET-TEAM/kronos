@@ -99,16 +99,16 @@
                     {report.user.firstName?.charAt(0) || "?"}
                   </div>
                 {/if}
-                <div>
-                  <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-                    {report.user.firstName} {report.user.lastName}
-                  </h3>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">{report.user.email}</p>
-                  {#if report.user.squad}
-                    <span class="inline-block mt-1 px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">
-                      {report.user.squad}
-                    </span>
-                  {/if}
+                <div class="space-y-1">
+                  <p class="text-xl font-bold text-gray-900 dark:text-white">
+                    {report.user.firstName} - {report.user.lastName}
+                  </p>
+                  <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">EKİP</p>
+                  <p class="text-sm text-gray-700 dark:text-gray-300">{report.user.squad || "—"}</p>
+                  <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-1">DİREKTÖRLÜK</p>
+                  <p class="text-sm text-gray-700 dark:text-gray-300">{report.user.department || "—"}</p>
+                  <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-1">MAİL</p>
+                  <p class="text-sm text-gray-700 dark:text-gray-300">{report.user.email}</p>
                 </div>
               </div>
             </div>
@@ -116,10 +116,6 @@
 
           <!-- Report Summary -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Rapor Başlığı</p>
-              <p class="text-lg font-semibold text-gray-900 dark:text-white">{report.title}</p>
-            </div>
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Tarih Aralığı</p>
               <p class="text-lg font-semibold text-gray-900 dark:text-white">

@@ -32,8 +32,9 @@ export type UserInfo = {
   lastName: string;
   email: string;
   avatarUrl: string;
-  title: string;
+  title?: string;
   squad: string;
+  department?: string;
 };
 
 export type DayTask = {
@@ -41,7 +42,7 @@ export type DayTask = {
   taskNumber: string;
   estimatedHours: number;
   description: string;
-  status?: "Analiz" | "Devam Ediyor" | "Tamamlandı" | "IN_PROGRESS" | "DONE" | "TODO";
+  status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
 };
 
 export type Meeting = {
@@ -60,8 +61,10 @@ export type DailyReport = {
   day: string;
   date: string;
   tasks: DayTask[];
-  blockers: string | string[];
-  meetings: string | string[] | Meeting[];
+  /** @deprecated Kaldırıldı - geriye uyumluluk için opsiyonel */
+  blockers?: string | string[];
+  /** @deprecated Kaldırıldı - geriye uyumluluk için opsiyonel */
+  meetings?: string | string[] | Meeting[];
   untrackedWork: string;
   isOnLeave?: boolean;
 };
@@ -125,34 +128,41 @@ export async function getReportDetails(reportId: string): Promise<ReportDetails 
   if (response.status === 404) return null;
   
   const data = await handleApiResponse<any>(response);
-  
+
+  const normalizeTasks = (tasks: any[]) =>
+    (tasks || []).map((t) => ({
+      ...t,
+      status: mapStatusFromBackend(t?.status),
+    }));
+
   // If it's a daily report, transform it to match ReportDetails format
   if (isDailyReport) {
-    // Keep original daily report ID for reference
     const originalDailyReportId = data.id;
-    // Use weeklyReportId if available, otherwise use daily report ID
     const reportId = data.weeklyReportId || data.id;
     return {
-      id: reportId, // Use weekly report ID for editing if available
-      originalId: originalDailyReportId, // Keep original ID for reference
+      id: reportId,
+      originalId: originalDailyReportId,
       title: `${data.user?.firstName || ''} ${data.user?.lastName || ''} - Günlük Rapor (${data.date})`.trim(),
       startDate: data.date,
       endDate: data.date,
       createdAt: data.createdAt || data.date,
-      user: data.user || {
-        id: data.userId || '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        avatarUrl: '',
-        title: '',
-        squad: '',
-      },
+      user: data.user
+        ? { ...data.user, department: data.user.department }
+        : {
+            id: data.userId || '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            avatarUrl: '',
+            title: '',
+            squad: '',
+            department: '',
+          },
       dailyReports: [{
-        id: originalDailyReportId, // Keep daily report ID in dailyReports
+        id: originalDailyReportId,
         day: data.day,
         date: data.date,
-        tasks: data.tasks || [],
+        tasks: normalizeTasks(data.tasks || []),
         meetings: data.meetings || [],
         blockers: data.blockers || [],
         untrackedWork: data.untrackedWork || '',
@@ -160,8 +170,16 @@ export async function getReportDetails(reportId: string): Promise<ReportDetails 
       }],
     };
   }
-  
-  return data as ReportDetails;
+
+  // Haftalık rapor: task status'ları Türkçe'ye çevir
+  const normalized: ReportDetails = {
+    ...data,
+    dailyReports: (data.dailyReports || []).map((dr: any) => ({
+      ...dr,
+      tasks: normalizeTasks(dr.tasks || []),
+    })),
+  };
+  return normalized;
 }
 
 export async function downloadReportPdf(reportId: string): Promise<void> {
@@ -191,18 +209,7 @@ export async function createWeeklyReport(
   endDate: string,
   dailyReports: DailyReport[]
 ): Promise<RecentReport> {
-  // Daily reports'ları backend formatına çevir
   const formattedDailyReports = dailyReports.map(dayReport => {
-    // Meetings'i backend formatına çevir
-    const backendMeetings: BackendMeeting[] = Array.isArray(dayReport.meetings)
-      ? dayReport.meetings.map((m: any) => ({
-          meetName: m.name || m.meetName || "",
-          estimatedHours: m.duration || m.estimatedHours || 0,
-          description: m.description || ""
-        }))
-      : [];
-
-    // Tasks'ları backend formatına çevir (status mapping)
     const backendTasks = dayReport.tasks.map(task => ({
       taskName: task.taskName,
       taskNumber: task.taskNumber,
@@ -214,8 +221,8 @@ export async function createWeeklyReport(
     return {
       ...dayReport,
       tasks: backendTasks,
-      meetings: backendMeetings,
-      blockers: Array.isArray(dayReport.blockers) ? dayReport.blockers : (dayReport.blockers ? [dayReport.blockers] : [])
+      meetings: [],
+      blockers: [],
     };
   });
 
@@ -250,18 +257,7 @@ export async function updateWeeklyReport(
   endDate: string,
   dailyReports: DailyReport[]
 ): Promise<RecentReport> {
-  // Daily reports'ları backend formatına çevir
   const formattedDailyReports = dailyReports.map(dayReport => {
-    // Meetings'i backend formatına çevir
-    const backendMeetings: BackendMeeting[] = Array.isArray(dayReport.meetings)
-      ? dayReport.meetings.map((m: any) => ({
-          meetName: m.name || m.meetName || "",
-          estimatedHours: m.duration || m.estimatedHours || 0,
-          description: m.description || ""
-        }))
-      : [];
-
-    // Tasks'ları backend formatına çevir (status mapping)
     const backendTasks = dayReport.tasks.map(task => ({
       taskName: task.taskName,
       taskNumber: task.taskNumber,
@@ -273,8 +269,8 @@ export async function updateWeeklyReport(
     return {
       ...dayReport,
       tasks: backendTasks,
-      meetings: backendMeetings,
-      blockers: Array.isArray(dayReport.blockers) ? dayReport.blockers : (dayReport.blockers ? [dayReport.blockers] : [])
+      meetings: [],
+      blockers: [],
     };
   });
 
@@ -304,6 +300,24 @@ export async function updateWeeklyReport(
 }
 
 /**
+ * Backend enum değerlerini Türkçe gösterime çevir (rapor detayı, arşiv vb.)
+ */
+export function mapStatusFromBackend(status: string | undefined): "Analiz" | "Devam Ediyor" | "Tamamlandı" {
+  if (!status) return "Devam Ediyor";
+  const statusMap: Record<string, "Analiz" | "Devam Ediyor" | "Tamamlandı"> = {
+    TODO: "Analiz",
+    IN_PROGRESS: "Devam Ediyor",
+    DONE: "Tamamlandı",
+    WAITING: "Devam Ediyor",
+    XL_BLOCK: "Devam Ediyor",
+    Analiz: "Analiz",
+    "Devam Ediyor": "Devam Ediyor",
+    Tamamlandı: "Tamamlandı",
+  };
+  return statusMap[status] || "Devam Ediyor";
+}
+
+/**
  * Frontend status değerlerini backend enum değerlerine çevir
  */
 function mapStatusToBackend(status: string): string {
@@ -324,16 +338,6 @@ export async function createDailyReport(
   date: string,
   dailyReport: DailyReport
 ): Promise<{ id: string; message: string }> {
-  // Meetings'i backend formatına çevir
-  const backendMeetings: BackendMeeting[] = Array.isArray(dailyReport.meetings)
-    ? dailyReport.meetings.map((m: any) => ({
-        meetName: m.name || m.meetName || "",
-        estimatedHours: m.duration || m.estimatedHours || 0,
-        description: m.description || ""
-      }))
-    : [];
-
-  // Tasks'ları backend formatına çevir (status mapping)
   const backendTasks = dailyReport.tasks.map(task => ({
     ...task,
     status: mapStatusToBackend(task.status || "Devam Ediyor")
@@ -349,8 +353,8 @@ export async function createDailyReport(
       date,
       day: dailyReport.day,
       tasks: backendTasks,
-      blockers: dailyReport.blockers,
-      meetings: backendMeetings,
+      blockers: [],
+      meetings: [],
       untrackedWork: dailyReport.untrackedWork,
       isOnLeave: dailyReport.isOnLeave
     }),
@@ -367,16 +371,6 @@ export async function updateDailyReport(
   date: string,
   dailyReport: DailyReport
 ): Promise<{ message: string }> {
-  // Meetings'i backend formatına çevir
-  const backendMeetings: BackendMeeting[] = Array.isArray(dailyReport.meetings)
-    ? dailyReport.meetings.map((m: any) => ({
-        meetName: m.name || m.meetName || "",
-        estimatedHours: m.duration || m.estimatedHours || 0,
-        description: m.description || ""
-      }))
-    : [];
-
-  // Tasks'ları backend formatına çevir (status mapping)
   const backendTasks = dailyReport.tasks.map(task => ({
     ...task,
     status: mapStatusToBackend(task.status || "Devam Ediyor")
@@ -392,8 +386,8 @@ export async function updateDailyReport(
       date,
       day: dailyReport.day,
       tasks: backendTasks,
-      blockers: dailyReport.blockers,
-      meetings: backendMeetings,
+      blockers: [],
+      meetings: [],
       untrackedWork: dailyReport.untrackedWork,
       isOnLeave: dailyReport.isOnLeave
     }),

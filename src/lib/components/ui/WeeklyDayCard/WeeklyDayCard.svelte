@@ -5,133 +5,131 @@
   export let date: string;
   export let hasReport: boolean = false;
   export let taskCount: number = 0;
+  /** Pazartesi, Salı, Çarşamba, Cuma, Cumartesi, Pazar için true; Perşembe için false */
+  export let canAddReport: boolean = true;
   export let onAddReport: (() => void) | undefined = undefined;
 
   let actualHasReport = false;
   let actualTaskCount = 0;
 
-  // DD.MM.YYYY formatını Date objesine çevir
   function parseDate(dateStr: string): Date {
-    const [day, month, year] = dateStr.split('.');
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const [d, month, year] = dateStr.split('.');
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(d));
   }
 
-  // Date objesini Türkçe formatta göster
   function formatDateDisplay(dateStr: string): string {
     try {
-      const date = parseDate(dateStr);
-      return date.toLocaleDateString("tr-TR", {
+      return parseDate(dateStr).toLocaleDateString("tr-TR", {
         day: "numeric",
         month: "short",
       });
-    } catch (e) {
-      return dateStr; // Parse edilemezse olduğu gibi döndür
+    } catch {
+      return dateStr;
     }
   }
 
   $: {
-    // Store'dan kontrol et
     const report = $dailyReportsStore.get(date);
     if (report) {
       actualHasReport =
         report.isOnLeave ||
         report.tasks.some((t) => t.taskName) ||
-        !!report.blockers ||
-        !!report.meetings ||
         !!report.untrackedWork;
       actualTaskCount = report.tasks.filter((t) => t.taskName).length;
     } else {
-      // Store'da yoksa prop'tan al
       actualHasReport = hasReport;
       actualTaskCount = taskCount;
     }
   }
 
+  $: isInteractive = canAddReport && onAddReport;
+
   function handleClick() {
-    if (onAddReport) {
-      onAddReport();
-    }
+    if (isInteractive && onAddReport) onAddReport();
   }
 </script>
 
 <div
-  class="weekly-day-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 hover:shadow-lg transition-all duration-300 cursor-pointer border-2 {actualHasReport
-    ? 'border-green-500 dark:border-green-600'
-    : 'border-gray-200 dark:border-gray-700'}"
+  class="weekly-day-card rounded-xl border bg-slate-50 dark:bg-slate-800/80 p-4 transition-all duration-200 {isInteractive
+    ? 'cursor-pointer hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600'
+    : 'cursor-default opacity-90'} {actualHasReport
+    ? 'border-emerald-200 dark:border-emerald-800/60'
+    : canAddReport
+      ? 'border-slate-200 dark:border-slate-600'
+      : 'border-slate-100 dark:border-slate-700'}"
   on:click={handleClick}
   on:keydown={(e) => {
-    if (e.key === "Enter" || e.key === " ") {
+    if (isInteractive && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       handleClick();
     }
   }}
-  role="button"
-  tabindex="0"
+  role={isInteractive ? 'button' : 'article'}
+  tabindex={isInteractive ? 0 : -1}
 >
   <div class="flex items-start justify-between mb-3">
     <div>
-      <h3 class="font-semibold text-gray-900 dark:text-white text-sm">
+      <h3
+        class="font-semibold text-slate-800 dark:text-slate-100 text-sm tracking-tight"
+      >
         {day}
       </h3>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
         {formatDateDisplay(date)}
       </p>
     </div>
     {#if actualHasReport}
-      <span class="text-green-500 dark:text-green-400">
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 13l4 4L19 7"
-          />
+      <span
+        class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400"
+        aria-hidden="true"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
+      </span>
+    {:else if !canAddReport}
+      <span
+        class="text-xs text-slate-400 dark:text-slate-500 font-medium"
+        aria-hidden="true"
+      >
+        —
       </span>
     {/if}
   </div>
 
-  <div class="mt-4">
+  <div class="mt-3">
     {#if actualHasReport}
       {#if $dailyReportsStore.get(date)?.isOnLeave}
         <p class="text-sm font-medium text-sky-600 dark:text-sky-400">
-          🏖️ İzinli
+          İzinli
         </p>
       {:else}
-        <div class="space-y-2">
-          <p class="text-sm font-medium text-green-600 dark:text-green-400">
-            ✅ Rapor girildi
-          </p>
-          <p class="text-xs text-gray-600 dark:text-gray-400">
-            {actualTaskCount} Task tamamlandı
-          </p>
-        </div>
+        <p class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+          Rapor girildi
+        </p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          {actualTaskCount} görev
+        </p>
       {/if}
-    {:else}
-      <button
-        class="w-full py-2 px-3 bg-blue-100 hover:bg-blue-200 text-white text-sm font-medium rounded-md transition-colors duration-200"
-        on:click|stopPropagation={handleClick}
+    {:else if canAddReport}
+      <span
+        class="inline-flex items-center justify-center w-full py-2 px-3 rounded-lg text-sm font-medium bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
       >
-        + Rapor Ekle
-      </button>
+        Rapor Ekle
+      </span>
+    {:else}
+      <p class="text-xs text-slate-400 dark:text-slate-500">
+        Rapor girilmez
+      </p>
     {/if}
   </div>
 </div>
 
 <style>
   .weekly-day-card {
-    min-height: 140px;
+    min-height: 132px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-  }
-
-  .weekly-day-card:hover {
-    transform: translateY(-2px);
   }
 </style>

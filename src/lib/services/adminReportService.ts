@@ -18,6 +18,7 @@ export interface AdminReport {
     email: string;
     avatarUrl?: string;
     squad: string;
+    department?: string;
   };
 }
 

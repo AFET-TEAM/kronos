@@ -47,8 +47,6 @@
     (day) =>
       day.isOnLeave ||
       day.tasks.some((t) => t.taskName) ||
-      day.blockers ||
-      day.meetings ||
       day.untrackedWork
   ).length;
 </script>
@@ -150,8 +148,6 @@
             {@const hasContent =
               dayReport.isOnLeave ||
               dayReport.tasks.some((t) => t.taskName) ||
-              dayReport.blockers ||
-              dayReport.meetings ||
               dayReport.untrackedWork}
             {#if hasContent}
               <div
@@ -257,64 +253,6 @@
                             {/if}
                           </div>
                         {/each}
-                      </div>
-                    </div>
-                  {/if}
-
-                  {#if dayReport.blockers && (Array.isArray(dayReport.blockers) ? dayReport.blockers.length > 0 : true)}
-                    <div class="mb-3">
-                      <h4
-                        class="text-xs font-semibold text-red-600 dark:text-red-400 mb-1"
-                      >
-                        ⚠️ BLOKAJLAR / SORUNLAR
-                      </h4>
-                      <div
-                        class="text-sm text-gray-700 dark:text-gray-300 bg-red-50 dark:bg-red-950 rounded p-2"
-                      >
-                        {#if Array.isArray(dayReport.blockers)}
-                          <ul class="list-disc list-inside space-y-0.5">
-                            {#each dayReport.blockers as blocker}
-                              <li>{blocker}</li>
-                            {/each}
-                          </ul>
-                        {:else}
-                          <p>{dayReport.blockers}</p>
-                        {/if}
-                      </div>
-                    </div>
-                  {/if}
-
-                  {#if dayReport.meetings && (Array.isArray(dayReport.meetings) ? dayReport.meetings.length > 0 : true)}
-                    <div class="mb-3">
-                      <h4
-                        class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1"
-                      >
-                        👥 TOPLANTI VE EĞİTİMLER
-                      </h4>
-                      <div
-                        class="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-950 rounded p-2"
-                      >
-                        {#if Array.isArray(dayReport.meetings)}
-                          <ul class="list-disc list-inside space-y-0.5">
-                            {#each dayReport.meetings as meeting}
-                              <li>
-                                {#if typeof meeting === "object" && meeting.name}
-                                  {meeting.name}
-                                  {#if meeting.duration > 0}
-                                    <span
-                                      class="text-xs text-blue-600 dark:text-blue-400"
-                                      >({meeting.duration}sa)</span
-                                    >
-                                  {/if}
-                                {:else}
-                                  {meeting}
-                                {/if}
-                              </li>
-                            {/each}
-                          </ul>
-                        {:else}
-                          <p>{dayReport.meetings}</p>
-                        {/if}
                       </div>
                     </div>
                   {/if}

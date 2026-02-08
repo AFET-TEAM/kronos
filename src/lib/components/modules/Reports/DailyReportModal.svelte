@@ -6,7 +6,6 @@
   import GeneralSelectbox from "$lib/components/ui/GeneralSelectbox/GeneralSelectbox.svelte";
   import { saveDailyReport, getDailyReport } from "$lib/store/reportStore.js";
   import { toastStore } from "$lib/store/toastStore.js";
-  import type { Meeting } from "$lib/services/reportService.js";
   import { createDailyReport, updateDailyReport } from "$lib/services/reportService.js";
   import { getErrorMessage, getValidationErrors } from "$lib/services/errorHandler.js";
 
@@ -21,13 +20,7 @@
     taskNumber: string;
     estimatedHours: number;
     description: string;
-    status?:
-      | "Analiz"
-      | "Devam Ediyor"
-      | "Tamamlandı"
-      | "IN_PROGRESS"
-      | "DONE"
-      | "TODO";
+    status?: "Analiz" | "Devam Ediyor" | "Tamamlandı";
   };
 
   const statusOptions = [
@@ -45,13 +38,8 @@
       status: "Devam Ediyor",
     },
   ];
-  let blockers: string[] = [];
-  let meetings: Meeting[] = [];
   let untrackedWork = "";
   let isOnLeave = false;
-  let newBlocker = "";
-  let newMeetingName = "";
-  let newMeetingDuration: number | string = "";
   let isSaving = false;
 
   let reportId: string | null = null;
@@ -62,13 +50,8 @@
     tasks = [
       { taskName: "", taskNumber: "", estimatedHours: 0, description: "" },
     ];
-    blockers = [];
-    meetings = [];
     untrackedWork = "";
     isOnLeave = false;
-    newBlocker = "";
-    newMeetingName = "";
-    newMeetingDuration = "";
     isSaving = false;
     reportId = null;
     isEditMode = false;
@@ -92,44 +75,15 @@
     tasks = tasks.filter((_, i) => i !== index);
   }
 
-  function addBlocker() {
-    if (newBlocker.trim()) {
-      blockers = [...blockers, newBlocker.trim()];
-      newBlocker = "";
-    }
-  }
-
-  function removeBlocker(index: number) {
-    blockers = blockers.filter((_, i) => i !== index);
-  }
-
-  function addMeeting() {
-    const duration =
-      typeof newMeetingDuration === "number"
-        ? newMeetingDuration
-        : parseFloat(newMeetingDuration as string) || 0;
-    if (newMeetingName.trim()) {
-      meetings = [...meetings, { name: newMeetingName.trim(), duration }];
-      newMeetingName = "";
-      newMeetingDuration = "";
-    }
-  }
-
-  function removeMeeting(index: number) {
-    meetings = meetings.filter((_, i) => i !== index);
-  }
-
   async function handleSubmit() {
     const hasAnyContent =
       isOnLeave ||
       tasks.some((t) => t.taskName) ||
-      blockers.length > 0 ||
-      meetings.length > 0 ||
       untrackedWork.trim();
 
     if (!selectedDate || !hasAnyContent) {
       toastStore.warning(
-        "Lütfen en az bir alan doldurun (Task, Blokaj, Toplantı veya Task Harici)",
+        "LÃ¼tfen en az bir alan doldurun (Task veya Task Harici)",
       );
       return;
     }
@@ -141,8 +95,6 @@
       day: dayName,
       date: formattedDate,
       tasks: isOnLeave ? [] : tasks.filter((t) => t.taskName),
-      blockers: blockers,
-      meetings: meetings,
       untrackedWork: untrackedWork.trim(),
       isOnLeave: isOnLeave,
     };
@@ -163,7 +115,7 @@
         toastStore.success("Günlük rapor başarıyla kaydedildi!");
       }
       
-      // Dashboard'ı yenile
+      // Dashboard'Ä± yenile
       if (onReportSaved) {
         onReportSaved();
       }
@@ -189,7 +141,7 @@
   function formatDate(dateString: string): string {
     if (!dateString) return "";
     
-    // YYYY-MM-DD formatında gelen tarihi parse et
+    // YYYY-MM-DD formatÄ±nda gelen tarihi parse et
     const parts = dateString.split('-');
     if (parts.length === 3) {
       const [year, month, day] = parts;
@@ -231,27 +183,25 @@
   $: hasAnyContent =
     isOnLeave ||
     tasks.some((task) => task.taskName) ||
-    blockers.length > 0 ||
-    meetings.length > 0 ||
     untrackedWork.trim();
   $: formattedDate = formatDate(selectedDate);
   $: dayName = getDayName(selectedDate);
 
   $: if (isOpen && selectedDate) {
     if (existingReport && existingReport.id) {
-      // Backend'den gelen raporu yükle
+      // Backend'den gelen raporu yÃ¼kle
       reportId = existingReport.id;
       isEditMode = true;
       loadReportFromBackend(existingReport);
     } else {
-      // LocalStorage'dan yükle (yeni rapor için)
+      // LocalStorage'dan yÃ¼kle (yeni rapor iÃ§in)
       reportId = null;
       isEditMode = false;
       loadExistingReport();
     }
   }
 
-  // existingReport değiştiğinde de yükle
+  // existingReport deÄŸiÅŸtiÄŸinde de yÃ¼kle
   $: if (isOpen && existingReport && existingReport.id) {
     reportId = existingReport.id;
     isEditMode = true;
@@ -269,13 +219,11 @@
         status: "Devam Ediyor",
       },
     ];
-    blockers = [];
-    meetings = [];
     untrackedWork = "";
   }
 
   function loadReportFromBackend(report: import("$lib/services/reportService.js").DailyReport) {
-    // Backend'den gelen raporu yükle
+    // Backend'den gelen raporu yÃ¼kle
     tasks =
       report.tasks && report.tasks.length > 0
         ? report.tasks.map((t: any) => ({
@@ -294,47 +242,6 @@
               status: "Devam Ediyor",
             },
           ];
-
-    // Blockers
-    if (typeof report.blockers === "string") {
-      blockers = report.blockers.trim()
-        ? report.blockers
-            .split("\n")
-            .map((b) => b.trim())
-            .filter((b) => b)
-        : [];
-    } else {
-      blockers = Array.isArray(report.blockers) ? report.blockers : [];
-    }
-
-    // Meetings - backend formatından frontend formatına çevir
-    if (Array.isArray(report.meetings)) {
-      meetings = report.meetings.map((m: any) => {
-        // Backend formatı: { meetName, estimatedHours, description }
-        // Frontend formatı: { name, duration }
-        if (m.meetName) {
-          return { name: m.meetName, duration: m.estimatedHours || 0 };
-        }
-        // Frontend formatı zaten doğruysa
-        if (m.name) {
-          return { name: m.name, duration: m.duration || 0 };
-        }
-        // String ise
-        if (typeof m === "string") {
-          return { name: m, duration: 0 };
-        }
-        return { name: "", duration: 0 };
-      }).filter((m) => m.name);
-    } else if (typeof report.meetings === "string") {
-      meetings = report.meetings.trim()
-        ? report.meetings
-            .split("\n")
-            .map((m) => ({ name: m.trim(), duration: 0 }))
-            .filter((m) => m.name)
-        : [];
-    } else {
-      meetings = [];
-    }
 
     untrackedWork = report.untrackedWork || "";
     isOnLeave = report.isOnLeave || false;
@@ -356,39 +263,6 @@
               },
             ];
 
-      // Eski string formatını array'e çevir
-      if (typeof existingReport.blockers === "string") {
-        blockers = existingReport.blockers.trim()
-          ? existingReport.blockers
-              .split("\n")
-              .map((b) => b.trim())
-              .filter((b) => b)
-          : [];
-      } else {
-        blockers = existingReport.blockers || [];
-      }
-
-      // Meetings için geriye uyumluluk
-      if (typeof existingReport.meetings === "string") {
-        // Eski string formatı - basit array'e çevir
-        meetings = existingReport.meetings.trim()
-          ? existingReport.meetings
-              .split("\n")
-              .map((m) => ({ name: m.trim(), duration: 0 }))
-              .filter((m) => m.name)
-          : [];
-      } else if (Array.isArray(existingReport.meetings)) {
-        // Array ise, Meeting[] veya string[] olabilir
-        meetings = existingReport.meetings.map((m) => {
-          if (typeof m === "string") {
-            return { name: m, duration: 0 };
-          }
-          return m;
-        });
-      } else {
-        meetings = [];
-      }
-
       untrackedWork = existingReport.untrackedWork || "";
       isOnLeave = existingReport.isOnLeave || false;
     } else {
@@ -401,8 +275,6 @@
           status: "Devam Ediyor",
         },
       ];
-      blockers = [];
-      meetings = [];
       untrackedWork = "";
       isOnLeave = false;
     }
@@ -432,32 +304,31 @@
   >
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden"
+      class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden"
       on:click|stopPropagation={() => {}}
       on:keydown|stopPropagation={() => {}}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <!-- Header -->
       <div
-        class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4"
+        class="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4 rounded-t-2xl"
       >
         <div class="flex items-center justify-between">
           <div>
             <h2
-              class="text-2xl font-bold text-gray-900 dark:text-white"
+              class="text-xl font-semibold text-slate-900 dark:text-slate-100"
               id="modal-title"
             >
-              {isEditMode ? "📝 Günlük Rapor Düzenle" : "Günlük Rapor Ekle"}
+              {isEditMode ? "Günlük Rapor Düzenle" : "Günlük Rapor Ekle"}
             </h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {dayName} - {formattedDate}
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {dayName} – {formattedDate}
             </p>
           </div>
           <button
             on:click={closeModal}
-            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg p-1"
             aria-label="Kapat"
           >
             <svg
@@ -501,7 +372,7 @@
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-2">
                 <svg
-                  class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
+                  class="w-5 h-5 text-slate-600 dark:text-slate-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -513,8 +384,8 @@
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                   />
                 </svg>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                  Tasklar
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  Görevler
                 </h3>
               </div>
               <Button
@@ -529,11 +400,11 @@
             <div class="space-y-4">
               {#each tasks as task, index}
                 <div
-                  class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-3"
+                  class="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 p-4 space-y-3"
                 >
                   <div class="flex items-start justify-between">
                     <span
-                      class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      class="text-sm font-medium text-slate-700 dark:text-slate-300"
                     >
                       Task #{index + 1}
                     </span>
@@ -646,189 +517,6 @@
                   </div>
                 </div>
               {/each}
-            </div>
-          </div>
-
-          <!-- Blockers Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <div class="flex items-center gap-2 mb-3">
-              <svg
-                class="w-5 h-5 text-red-600 dark:text-red-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                Blokajlar / Sorunlar
-              </h3>
-            </div>
-
-            <!-- Blocker list -->
-            {#if blockers.length > 0}
-              <ul class="space-y-2 mb-3">
-                {#each blockers as blocker, index}
-                  <li
-                    class="flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                  >
-                    <span class="flex-1 text-gray-900 dark:text-gray-100"
-                      >• {blocker}</span
-                    >
-                    <button
-                      type="button"
-                      on:click={() => removeBlocker(index)}
-                      class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                      disabled={isOnLeave}
-                    >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </li>
-                {/each}
-              </ul>
-            {/if}
-
-            <!-- Add new blocker -->
-            <div class="flex gap-2">
-              <Input
-                type="text"
-                placeholder="Yeni blokaj veya sorun ekleyin..."
-                bind:value={newBlocker}
-                disabled={isOnLeave}
-                className="flex-1"
-                on:keydown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addBlocker();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                on:click={addBlocker}
-                disabled={isOnLeave || !newBlocker.trim()}
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Ekle
-              </button>
-            </div>
-          </div>
-
-          <!-- Meetings Section -->
-          <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <div class="flex items-center gap-2 mb-3">
-              <svg
-                class="w-5 h-5 text-blue-600 dark:text-blue-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                Katılım Sağlanan Toplantılar ve Eğitimler
-              </h3>
-            </div>
-
-            <!-- Meetings list -->
-            {#if meetings.length > 0}
-              <ul class="space-y-2 mb-3">
-                {#each meetings as meeting, index}
-                  <li
-                    class="flex items-start gap-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                  >
-                    <div class="flex-1">
-                      <span class="text-gray-900 dark:text-gray-100"
-                        >• {meeting.name}</span
-                      >
-                      {#if meeting.duration > 0}
-                        <span
-                          class="ml-2 text-sm text-blue-600 dark:text-blue-400"
-                          >({meeting.duration} saat)</span
-                        >
-                      {/if}
-                    </div>
-                    <button
-                      type="button"
-                      on:click={() => removeMeeting(index)}
-                      class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                      disabled={isOnLeave}
-                    >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </li>
-                {/each}
-              </ul>
-            {/if}
-
-            <!-- Add new meeting -->
-            <div class="space-y-2">
-              <div class="flex gap-2">
-                <div class="flex-1 min-w-0">
-                  <Input
-                    type="text"
-                    placeholder="Toplantı/eğitim adı..."
-                    bind:value={newMeetingName}
-                    disabled={isOnLeave}
-                  />
-                </div>
-                <div class="w-32">
-                  <input
-                    type="number"
-                    placeholder="Süre (saat)"
-                    bind:value={newMeetingDuration}
-                    min="0"
-                    step="0.5"
-                    disabled={isOnLeave}
-                    class="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-                <button
-                  type="button"
-                  on:click={addMeeting}
-                  disabled={isOnLeave || !newMeetingName.trim()}
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap shrink-0"
-                >
-                  Ekle
-                </button>
-              </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                Toplantı/eğitim adını girin. Süre opsiyoneldir (örn: 1.5)
-              </p>
             </div>
           </div>
 

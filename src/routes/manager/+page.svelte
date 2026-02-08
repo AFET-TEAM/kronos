@@ -5,11 +5,9 @@
   import Header from "$lib/components/layout/Header/Header.svelte";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
   import AdminDashboard from "$lib/components/modules/Admin/AdminDashboard.svelte";
-  import SearchBar from "$lib/components/ui/SearchBar/SearchBar.svelte";
   import { themeStore } from "$lib/store/themeStore.js";
 
   let isSidebarOpen = true;
-  let searchValue = "";
 
   onMount(() => {
     const currentUser = $userStore;
@@ -25,22 +23,14 @@
 </script>
 
 <svelte:head>
-  <title>Manager Dashboard - Kronos</title>
+  <title>Yönetici Paneli - Kronos</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <Header
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
-    bind:searchValue
-  >
-    <SearchBar
-      placeholder="Kullanıcı veya rapor ara..."
-      bind:value={searchValue}
-      icon="search"
-      size="medium"
-    />
-  </Header>
+  />
 
   <Sidebar bind:isOpen={isSidebarOpen} />
 
