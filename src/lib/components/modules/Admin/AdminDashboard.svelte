@@ -134,7 +134,7 @@
           bind:value={selectedDepartment}
           class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
         >
-          <option value="all">Tüm Departmanlar</option>
+          <option value="all">Tüm Direktörlükler</option>
           {#each departments as dept}
             <option value={dept}>{dept}</option>
           {/each}
@@ -156,7 +156,7 @@
                 Kullanıcı
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Departman
+                Direktörlük
               </th>
               <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Raporlar

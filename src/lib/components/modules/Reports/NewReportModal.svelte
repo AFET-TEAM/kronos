@@ -23,14 +23,17 @@
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
-  // Bu haftanın pazartesi gününü bul ve otomatik olarak ata
+  // Bu haftanın pazartesi ve cuma gününü bul
   const currentDay = today.getDay(); // 0 = Pazar, 1 = Pazartesi, ...
   const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // Pazar ise 6, diğerleri için gün - 1
   const thisWeekMonday = new Date(today);
   thisWeekMonday.setDate(today.getDate() - daysFromMonday);
   const mondayStr = thisWeekMonday.toISOString().split("T")[0];
+  const thisWeekFriday = new Date(thisWeekMonday);
+  thisWeekFriday.setDate(thisWeekFriday.getDate() + 4);
+  const fridayStr = thisWeekFriday.toISOString().split("T")[0];
 
-  // Başlangıç tarihi otomatik olarak bu haftanın pazartesi
+  // Başlangıç = Pazartesi; Bitiş modal açıldığında Cuma yapılacak (ilk yüklemede API tetiklenmesin)
   let startDate = mondayStr;
   let endDate = "";
 
@@ -45,10 +48,10 @@
       loadReportForEditing(reportToEdit);
       hasLoadedReport = true;
     } else if (!reportToEdit) {
-      // Yeni rapor oluşturma modu
+      // Yeni rapor oluşturma modu: Pazartesi–Cuma varsayılan
       isEditMode = false;
       startDate = mondayStr;
-      endDate = "";
+      endDate = fridayStr;
       dailyReports = [];
       showPreview = false;
       maxEndDate = "";
@@ -83,8 +86,6 @@
         description: t.description || "",
         status: t.status || "Devam Ediyor"
       })),
-      blockers: dr.blockers || "",
-      meetings: dr.meetings || "",
       untrackedWork: dr.untrackedWork || "",
       isOnLeave: dr.isOnLeave || false
     }));
@@ -139,24 +140,22 @@
       const reports: DailyReport[] = [];
 
       for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+        const dow = date.getDay();
+        if (dow === 0 || dow === 6) continue;
         const dateKey = formatDate(date);
         const existingReport = reportsByDate.get(dateKey);
 
         if (existingReport) {
-          // Backend'den gelen raporu kullan
           reports.push({
             day: existingReport.day,
             date: existingReport.date,
             tasks: existingReport.tasks.map(t => ({ ...t })),
-            blockers: existingReport.blockers || "",
-            meetings: existingReport.meetings || "",
             untrackedWork: existingReport.untrackedWork || "",
             isOnLeave: existingReport.isOnLeave || false
           });
         } else {
-          // Boş rapor oluştur
           reports.push({
-            day: dayNames[date.getDay()],
+            day: dayNames[dow],
             date: dateKey,
             tasks: [
               {
@@ -167,8 +166,6 @@
                 status: "Devam Ediyor",
               },
             ],
-            blockers: [],
-            meetings: [],
             untrackedWork: "",
             isOnLeave: false,
           });
@@ -200,8 +197,10 @@
     const reports: DailyReport[] = [];
 
     for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+      const dow = date.getDay();
+      if (dow === 0 || dow === 6) continue;
       reports.push({
-        day: dayNames[date.getDay()],
+        day: dayNames[dow],
         date: formatDate(date),
         tasks: [
           {
@@ -212,8 +211,6 @@
             status: "Devam Ediyor",
           },
         ],
-        blockers: [],
-        meetings: [],
         untrackedWork: "",
         isOnLeave: false,
       });
@@ -231,8 +228,15 @@
     const dayDifference = Math.floor(
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
     );
-    if (dayDifference > 6) {
-      toastStore.warning("Rapor dönemi en fazla 7 gün olabilir!");
+    if (dayDifference > 4) {
+      toastStore.warning("Rapor dönemi en fazla 5 iş günü (Pazartesi–Cuma) olabilir!");
+      endDate = "";
+      return;
+    }
+    const startDow = start.getDay();
+    const endDow = end.getDay();
+    if (startDow === 0 || startDow === 6 || endDow === 0 || endDow === 6) {
+      toastStore.warning("Sadece Pazartesi–Cuma arası seçebilirsiniz.");
       endDate = "";
       return;
     }
@@ -247,7 +251,7 @@
   }
 
   function closeModal() {
-    onClose();
+    if (typeof onClose === "function") onClose();
   }
 
   function handlePreview() {
@@ -260,14 +264,10 @@
         return;
       }
 
-      // Ama eğer blockers, meetings veya untrackedWork varsa, task zorunlu değil
-      const hasOtherContent = 
-        (Array.isArray(dayReport.blockers) ? dayReport.blockers.length > 0 : (typeof dayReport.blockers === 'string' && dayReport.blockers.trim())) ||
-        (Array.isArray(dayReport.meetings) ? dayReport.meetings.length > 0 : (typeof dayReport.meetings === 'string' && dayReport.meetings.trim())) ||
-        (dayReport.untrackedWork && dayReport.untrackedWork.trim());
+      // Ama eğer untrackedWork varsa, task zorunlu değil
+      const hasOtherContent = (dayReport.untrackedWork && dayReport.untrackedWork.trim());
 
       // Çalışma günlerinde en az bir task olmalı
-      // Eğer tasks array'i boşsa veya hiç task yoksa hata ver
       if (!dayReport.tasks || dayReport.tasks.length === 0) {
         if (!hasOtherContent) {
           validationErrors.push(`${dayReport.date} tarihinde en az bir görev eklemelisiniz`);
@@ -275,12 +275,10 @@
         return;
       }
 
-      // TaskName'i dolu olan task'ları filtrele (boş task'ları göz ardı et)
       const tasksWithName = dayReport.tasks.filter(
         (t) => t.taskName && t.taskName.trim()
       );
 
-      // Eğer hiçbir task'ın taskName'i yoksa ve başka içerik de yoksa, bu da hata
       if (tasksWithName.length === 0 && !hasOtherContent) {
         validationErrors.push(`${dayReport.date} tarihinde en az bir görev adı girmelisiniz`);
         return;
@@ -315,17 +313,10 @@
       return;
     }
 
-    // En az bir gün için içerik olmalı (untrackedWork zorunlu değil)
     const hasAnyContent = dailyReports.some(
       (day) =>
         day.isOnLeave ||
         day.tasks.some((t) => t.taskName && t.taskName.trim()) ||
-        (Array.isArray(day.blockers)
-          ? day.blockers.length > 0
-          : (typeof day.blockers === 'string' && day.blockers.trim())) ||
-        (Array.isArray(day.meetings)
-          ? day.meetings.length > 0
-          : (typeof day.meetings === 'string' && day.meetings.trim())) ||
         (day.untrackedWork && day.untrackedWork.trim())
     );
 
@@ -347,14 +338,10 @@
         return;
       }
 
-      // Ama eğer blockers, meetings veya untrackedWork varsa, task zorunlu değil
-      const hasOtherContent = 
-        (Array.isArray(dayReport.blockers) ? dayReport.blockers.length > 0 : (typeof dayReport.blockers === 'string' && dayReport.blockers.trim())) ||
-        (Array.isArray(dayReport.meetings) ? dayReport.meetings.length > 0 : (typeof dayReport.meetings === 'string' && dayReport.meetings.trim())) ||
-        (dayReport.untrackedWork && dayReport.untrackedWork.trim());
+      // Ama eğer untrackedWork varsa, task zorunlu değil
+      const hasOtherContent = (dayReport.untrackedWork && dayReport.untrackedWork.trim());
 
       // Çalışma günlerinde en az bir task olmalı
-      // Eğer tasks array'i boşsa veya hiç task yoksa hata ver
       if (!dayReport.tasks || dayReport.tasks.length === 0) {
         if (!hasOtherContent) {
           validationErrors.push(`${dayReport.date} tarihinde en az bir görev eklemelisiniz`);
@@ -362,12 +349,10 @@
         return;
       }
 
-      // TaskName'i dolu olan task'ları filtrele (boş task'ları göz ardı et)
       const tasksWithName = dayReport.tasks.filter(
         (t) => t.taskName && t.taskName.trim()
       );
 
-      // Eğer hiçbir task'ın taskName'i yoksa ve başka içerik de yoksa, bu da hata
       if (tasksWithName.length === 0 && !hasOtherContent) {
         validationErrors.push(`${dayReport.date} tarihinde en az bir görev adı girmelisiniz`);
         return;
@@ -403,16 +388,9 @@
     }
 
     dailyReports.forEach((dayReport) => {
-      // İçerik kontrolü - untrackedWork zorunlu değil
       const hasContent =
         dayReport.isOnLeave ||
         dayReport.tasks.some((t) => t.taskName && t.taskName.trim()) ||
-        (Array.isArray(dayReport.blockers)
-          ? dayReport.blockers.length > 0
-          : (typeof dayReport.blockers === 'string' && dayReport.blockers.trim())) ||
-        (Array.isArray(dayReport.meetings)
-          ? dayReport.meetings.length > 0
-          : (typeof dayReport.meetings === 'string' && dayReport.meetings.trim())) ||
         (dayReport.untrackedWork && dayReport.untrackedWork.trim());
 
       if (hasContent) {
@@ -441,22 +419,13 @@
         (day) =>
           day.isOnLeave ||
           day.tasks.some((t) => t.taskName && t.taskName.trim()) ||
-          (Array.isArray(day.blockers)
-            ? day.blockers.length > 0
-            : (typeof day.blockers === 'string' && day.blockers.trim())) ||
-          (Array.isArray(day.meetings)
-            ? day.meetings.length > 0
-            : (typeof day.meetings === 'string' && day.meetings.trim())) ||
           (day.untrackedWork && day.untrackedWork.trim())
       )
       .map((day) => {
-        // İzinli günlerde task'ları temizle
         if (day.isOnLeave) {
           return {
             ...day,
             tasks: [],
-            blockers: [],
-            meetings: [],
             untrackedWork: "",
           };
         }
@@ -505,6 +474,10 @@
       if (isDailyReportId || isSingleDayReport) {
         // Daily report update - use the daily report ID from dailyReports array
         const dailyReport = filledReports[0];
+        if (!dailyReport) {
+          toastStore.error("Rapor verisi bulunamadı.");
+          return;
+        }
         const dailyReportId = reportToEdit.dailyReports[0]?.id || originalReportId;
         
         // If dailyReportId doesn't start with "daily-", it might be a weekly report ID format
@@ -562,32 +535,38 @@
       });
   }
 
-  $: if (startDate && endDate && !isEditMode) {
+  $: if (isOpen && startDate && endDate && !isEditMode) {
     generateWeeklyReports();
   }
 
+  // Sadece hafta içi (Pazartesi–Cuma): bitiş = seçilen haftanın Cuma günü
   $: if (startDate) {
     const start = new Date(startDate);
-    const maxEnd = new Date(start);
-    maxEnd.setDate(maxEnd.getDate() + 6);
-    maxEndDate = maxEnd.toISOString().split("T")[0];
-
-    if (endDate) {
-      const end = new Date(endDate);
-      if (end > maxEnd) {
-        endDate = "";
-      }
+    const startDow = start.getDay();
+    if (startDow === 0 || startDow === 6) {
+      maxEndDate = "";
+    } else {
+      const daysToFriday = 5 - startDow;
+      const maxEnd = new Date(start);
+      maxEnd.setDate(maxEnd.getDate() + daysToFriday);
+      maxEndDate = maxEnd.toISOString().split("T")[0];
     }
   }
 
-  // Bir günün dolu sayılması için: isOnLeave=true VEYA en az bir task var VEYA blocker var VEYA meeting var VEYA untrackedWork var
-  // untrackedWork boş string olsa bile, diğer alanlar doluysa gün dolu sayılır
+  // Bitiş tarihi hafta sonu veya max'tan büyükse temizle (ayrı reactive ile döngü riski yok)
+  $: if (startDate && endDate && maxEndDate) {
+    const end = new Date(endDate);
+    const endDay = end.getDay();
+    const maxEnd = new Date(maxEndDate);
+    if (endDay === 0 || endDay === 6 || end > maxEnd) {
+      endDate = "";
+    }
+  }
+
   $: filledDaysCount = dailyReports.filter(
     (day) =>
       day.isOnLeave ||
       day.tasks.some((t) => t.taskName && t.taskName.trim()) ||
-      (Array.isArray(day.blockers) ? day.blockers.length > 0 : (typeof day.blockers === 'string' && day.blockers.trim())) ||
-      (Array.isArray(day.meetings) ? day.meetings.length > 0 : (typeof day.meetings === 'string' && day.meetings.trim())) ||
       (day.untrackedWork && day.untrackedWork.trim())
   ).length;
 </script>
@@ -603,7 +582,7 @@
   >
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
       on:click|stopPropagation={() => {}}
       on:keydown|stopPropagation={() => {}}
       role="dialog"
@@ -611,24 +590,25 @@
       aria-labelledby="modal-title"
     >
       <div
-        class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between"
+        class="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between rounded-t-2xl"
       >
         <div>
           <h2
-            class="text-2xl font-bold text-gray-900 dark:text-white"
+            class="text-xl font-semibold text-slate-900 dark:text-slate-100"
             id="modal-title"
           >
-            {isEditMode ? "📝 Haftalık Rapor Düzenle" : "Yeni Haftalık Rapor Oluştur"}
+            {isEditMode ? "Haftalık Rapor Düzenle" : "Yeni Haftalık Rapor Oluştur"}
           </h2>
           {#if dailyReports.length > 0}
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
               {filledDaysCount} / {dailyReports.length} gün dolduruldu
             </p>
           {/if}
         </div>
         <button
           on:click={closeModal}
-          class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg p-1"
+          aria-label="Kapat"
         >
           <svg
             class="w-6 h-6"
@@ -650,30 +630,29 @@
         <div class="p-6 space-y-6">
           <!-- Date Range Selection -->
           <div
-            class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950 dark:to-blue-950 rounded-lg p-4 border border-indigo-200 dark:border-indigo-800"
+            class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700"
           >
             <h3
-              class="text-sm font-semibold text-gray-900 dark:text-white mb-3"
+              class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3"
             >
-              📅 Rapor Dönemi {isEditMode ? "(Değiştirilemez)" : "Seçin"}
+              Rapor Dönemi {isEditMode ? "(Değiştirilemez)" : "Seçin"}
             </h3>
             {#if !isEditMode}
-              <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                <span class="font-medium">ℹ️ Bilgi:</span> Rapor dönemi en fazla 7
-                gün olabilir.
+              <p class="text-xs text-slate-700 dark:text-slate-300 mb-3">
+                <span class="font-medium">ℹ️ Bilgi:</span> Sadece iş günleri (Pazartesi–Cuma), en fazla 5 gün.
               </p>
             {/if}
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label
                   for="start-date-input"
-                  class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+                  class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
                 >
                   Başlangıç Tarihi <span class="text-red-500">*</span>
                 </label>
                 <Input 
                   type="date" 
-                  value={startDate} 
+                  bind:value={startDate} 
                   min={isEditMode ? undefined : mondayStr}
                   disabled={isEditMode} 
                 />
@@ -681,7 +660,7 @@
               <div>
                 <label
                   for="end-date-input"
-                  class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+                  class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
                 >
                   Bitiş Tarihi <span class="text-red-500">*</span>
                 </label>
@@ -697,7 +676,7 @@
 
             {#if dailyReports.length > 0}
               <div
-                class="mt-3 text-sm text-indigo-700 dark:text-indigo-300 flex items-center gap-2"
+                class="mt-3 text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2"
               >
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -740,8 +719,6 @@
                   day={dayReport.day}
                   date={dayReport.date}
                   bind:tasks={dayReport.tasks}
-                  bind:blockers={dayReport.blockers}
-                  bind:meetings={dayReport.meetings}
                   bind:untrackedWork={dayReport.untrackedWork}
                   bind:isOnLeave={dayReport.isOnLeave}
                   isExpanded={index === 0}

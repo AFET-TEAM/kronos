@@ -3,7 +3,6 @@
   import { goto } from "$app/navigation";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
   import Header from "$lib/components/layout/Header/Header.svelte";
-  import SearchBar from "$lib/components/ui/SearchBar/SearchBar.svelte";
   import { themeStore } from "$lib/store/themeStore.js";
   import {
     getGroupedArchiveReports,
@@ -17,7 +16,7 @@
   import { getErrorMessage } from "$lib/services/errorHandler.js";
 
   let isSidebarOpen = true;
-  let searchValue = "";
+  const searchValue = "";
 
   // Data state
   let archiveData: GroupedArchiveData | null = null;
@@ -190,16 +189,6 @@
     );
   }
 
-  // Search debounce
-  let searchTimeout: number;
-  $: {
-    if (searchTimeout) clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      if (searchValue !== undefined) {
-        loadArchiveData();
-      }
-    }, 500) as unknown as number;
-  }
 </script>
 
 <svelte:head>
@@ -210,57 +199,44 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen bg-slate-100 dark:bg-slate-950">
   <Header
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
-    bind:searchValue
-  >
-    <SearchBar
-      placeholder="Rapor ara (tarih, başlık...)..."
-      bind:value={searchValue}
-      icon="search"
-      size="medium"
-    />
-  </Header>
+  />
 
   <Sidebar bind:isOpen={isSidebarOpen} />
 
   <main
-    class="transition-all duration-300 pt-16 {isSidebarOpen
+    class="transition-all duration-300 pt-14 {isSidebarOpen
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >
-    <div class="container mx-auto px-4 py-6 max-w-7xl">
-      <!-- Page Header -->
+    <div class="max-w-5xl mx-auto px-4 py-6">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          📦 Rapor Arşivi
+        <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">
+          Rapor Arşivi
         </h1>
-        <p class="text-gray-600 dark:text-gray-400">
-          Geçmişte oluşturulmuş tüm haftalık raporlarınızı buradan
-          görüntüleyebilirsiniz.
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          Geçmiş haftalık raporlarınızı görüntüleyin ve indirin.
         </p>
       </div>
 
-      <!-- Stats Overview -->
       {#if !loading && archiveData && archiveData.stats}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-5">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">
                   Toplam Rapor
                 </p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white">
+                <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">
                   {archiveData.stats.totalReports}
                 </p>
               </div>
-              <div
-                class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center"
-              >
+              <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
                 <svg
-                  class="w-6 h-6 text-indigo-600 dark:text-indigo-400"
+                  class="w-6 h-6 text-slate-600 dark:text-slate-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -276,21 +252,19 @@
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-5">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Toplam Task
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                  Toplam Görev
                 </p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white">
+                <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">
                   {archiveData.stats.totalTasks}
                 </p>
               </div>
-              <div
-                class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center"
-              >
+              <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
                 <svg
-                  class="w-6 h-6 text-green-600 dark:text-green-400"
+                  class="w-6 h-6 text-slate-600 dark:text-slate-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -306,21 +280,19 @@
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-5">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">
                   Toplam Saat
                 </p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white">
+                <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">
                   {archiveData.stats.totalHours}h
                 </p>
               </div>
-              <div
-                class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center"
-              >
+              <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
                 <svg
-                  class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                  class="w-6 h-6 text-slate-600 dark:text-slate-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -342,32 +314,22 @@
       {#if loading}
         <div class="space-y-4">
           {#each Array(3) as _}
-            <div
-              class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 animate-pulse"
-            >
-              <div
-                class="h-8 bg-gray-300 dark:bg-gray-700 rounded w-1/4 mb-4"
-              ></div>
+            <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-6 animate-pulse">
+              <div class="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/4 mb-4"></div>
               <div class="space-y-3">
-                <div
-                  class="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/3"
-                ></div>
-                <div
-                  class="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/2"
-                ></div>
+                <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
               </div>
             </div>
           {/each}
         </div>
       {:else if !archiveData || archiveData.years.length === 0}
-        <div
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center"
-        >
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-12 text-center">
           <div class="text-6xl mb-4">📭</div>
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
             Rapor Bulunamadı
           </h3>
-          <p class="text-gray-600 dark:text-gray-400">
+          <p class="text-slate-600 dark:text-slate-400">
             {searchValue
               ? "Arama kriterlerinize uygun rapor bulunamadı."
               : "Henüz arşivlenmiş rapor bulunmuyor."}
@@ -377,16 +339,14 @@
         <div class="space-y-4">
           {#each archiveData.years as yearGroup}
             <!-- Yıl Accordion -->
-            <div
-              class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
-            >
+            <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 overflow-hidden">
               <button
                 on:click={() => toggleYear(yearGroup.year)}
-                class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
               >
                 <div class="flex items-center gap-3">
                   <svg
-                    class="w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform {expandedYears.has(
+                    class="w-5 h-5 text-slate-500 dark:text-slate-400 transition-transform {expandedYears.has(
                       yearGroup.year,
                     )
                       ? 'rotate-90'
@@ -402,12 +362,12 @@
                       d="M9 5l7 7-7 7"
                     />
                   </svg>
-                  <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                    📅 {yearGroup.year}
+                  <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {yearGroup.year}
                   </h2>
                 </div>
                 <span
-                  class="text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full"
+                  class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full"
                 >
                   {countReportsInYear(yearGroup)} Rapor
                 </span>
@@ -415,7 +375,7 @@
 
               {#if expandedYears.has(yearGroup.year)}
                 <div
-                  class="border-t border-gray-200 dark:border-gray-700 px-4 py-2"
+                  class="border-t border-slate-200 dark:border-slate-700 px-4 py-2"
                 >
                   {#each yearGroup.months as monthGroup}
                     <!-- Ay Accordion -->
@@ -423,7 +383,7 @@
                       <button
                         on:click={() =>
                           toggleMonth(yearGroup.year, monthGroup.monthNumber)}
-                        class="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+                        class="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-colors"
                       >
                         <div class="flex items-center gap-3">
                           <svg
@@ -444,13 +404,13 @@
                             />
                           </svg>
                           <h3
-                            class="text-lg font-semibold text-gray-800 dark:text-gray-200"
+                            class="text-lg font-semibold text-slate-800 dark:text-slate-200"
                           >
                             {monthGroup.monthLabel}
                           </h3>
                         </div>
                         <span
-                          class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2.5 py-1 rounded-full"
+                          class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-full"
                         >
                           {countReportsInMonth(monthGroup)} Rapor
                         </span>
@@ -461,7 +421,7 @@
                           {#each monthGroup.weeks as weekGroup}
                             <!-- Hafta Accordion -->
                             <div
-                              class="border border-gray-200 dark:border-gray-700 rounded-lg"
+                              class="border border-slate-200 dark:border-slate-700 rounded-lg"
                             >
                               <button
                                 on:click={() =>
@@ -470,7 +430,7 @@
                                     monthGroup.monthNumber,
                                     weekGroup.weekNumber,
                                   )}
-                                class="w-full px-4 py-2.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg transition-colors"
+                                class="w-full px-4 py-2.5 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-colors"
                               >
                                 <div class="flex items-center gap-2">
                                   <svg
@@ -491,13 +451,13 @@
                                     />
                                   </svg>
                                   <span
-                                    class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    class="text-sm font-medium text-slate-700 dark:text-slate-300"
                                   >
                                     {weekGroup.weekLabel}
                                   </span>
                                 </div>
                                 <span
-                                  class="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded"
+                                  class="text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded"
                                 >
                                   {weekGroup.days?.length || 0} Gün
                                 </span>
@@ -585,7 +545,7 @@
                                           <button
                                             on:click={() =>
                                               openDayReportDetail(dayGroup.date, dayGroup.report)}
-                                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                                            class="px-4 py-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap"
                                           >
                                             <svg
                                               class="w-4 h-4"

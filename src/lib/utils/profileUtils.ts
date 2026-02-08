@@ -8,11 +8,13 @@ import type { UserProfile } from "$lib/services/user.service.js";
 export function isProfileIncomplete(user: {
   firstName?: string;
   lastName?: string;
+  squad?: string;
   department?: string;
 }): boolean {
   return (
     !user.firstName?.trim() ||
     !user.lastName?.trim() ||
+    !user.squad?.trim() ||
     !user.department?.trim()
   );
 }

@@ -11,26 +11,26 @@
 
   let firstName = "";
   let lastName = "";
+  let squad = "";
   let department = "";
   let saving = false;
   let previousIsOpen = false;
 
-  // Modal açıldığında mevcut değerleri yükle
   afterUpdate(() => {
     if (isOpen && !previousIsOpen) {
-      // Modal yeni açıldı, değerleri yükle
       const user = $userStore;
       firstName = user.firstName || "";
       lastName = user.lastName || "";
+      squad = user.squad || "";
       department = user.department || "";
     }
     previousIsOpen = isOpen;
   });
 
   async function handleSave() {
-    // Validasyon - değerleri kontrol et
     const firstNameTrimmed = (firstName || "").trim();
     const lastNameTrimmed = (lastName || "").trim();
+    const squadTrimmed = (squad || "").trim();
     const departmentTrimmed = (department || "").trim();
 
     if (!firstNameTrimmed) {
@@ -41,27 +41,31 @@
       toastStore.error("Lütfen soyadınızı girin");
       return;
     }
+    if (!squadTrimmed) {
+      toastStore.error("Lütfen ekibinizi girin");
+      return;
+    }
     if (!departmentTrimmed) {
-      toastStore.error("Lütfen departmanınızı girin");
+      toastStore.error("Lütfen direktörlüğünüzü girin");
       return;
     }
 
     saving = true;
 
     try {
-      // Backend'e kaydet
       const updatedUser = await updateMyProfile({
         firstName: firstNameTrimmed,
         lastName: lastNameTrimmed,
+        squad: squadTrimmed,
         department: departmentTrimmed,
       });
 
-      // Store'u güncelle
       const currentUser = $userStore;
       userStore.set({
         ...currentUser,
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
+        squad: updatedUser.squad,
         department: updatedUser.department,
       });
 
@@ -133,8 +137,17 @@
         </div>
 
         <Input
-          label="Departman"
-          placeholder="Departmanınız"
+          label="Ekip"
+          placeholder="Ekip adınız"
+          type="text"
+          bind:value={squad}
+          disabled={saving}
+          theme="dark"
+          className="w-full"
+        />
+        <Input
+          label="Direktörlük"
+          placeholder="Direktörlüğünüz"
           type="text"
           bind:value={department}
           disabled={saving}

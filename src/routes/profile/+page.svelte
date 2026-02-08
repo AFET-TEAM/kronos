@@ -3,11 +3,9 @@
   import ProfilePage from "$lib/components/modules/Profile/ProfilePage.svelte";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
   import Header from "$lib/components/layout/Header/Header.svelte";
-  import SearchBar from "$lib/components/ui/SearchBar/SearchBar.svelte";
   import { themeStore } from "$lib/store/themeStore.js";
 
   let isSidebarOpen = true;
-  let searchValue = "";
 
   onMount(() => {
     if (window.innerWidth < 768) {
@@ -30,15 +28,7 @@
   <Header
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
-    bind:searchValue
-  >
-    <SearchBar
-      placeholder="Profil ara..."
-      bind:value={searchValue}
-      icon="search"
-      size="medium"
-    />
-  </Header>
+  />
 
   <Sidebar bind:isOpen={isSidebarOpen} />
 

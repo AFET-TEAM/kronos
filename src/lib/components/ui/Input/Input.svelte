@@ -86,7 +86,7 @@
     ${
       theme === "dark"
         ? "bg-blue-charcoal border-mid-gray focus-within:border-primary"
-        : "bg-white border-light-gray focus-within:border-primary"
+        : "bg-white dark:bg-slate-800 border-light-gray dark:border-slate-600 focus-within:border-primary"
     }
     ${disabled ? "opacity-60 cursor-not-allowed" : ""}
     ${className}`}
@@ -111,7 +111,7 @@
           {placeholder}
           {disabled}
           maxlength={maxLength ?? undefined}
-          class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+          class="flex-1 py-2 px-3 bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none"
           on:input={handleInput}
           on:keydown
         />
@@ -123,7 +123,7 @@
           {placeholder}
           {disabled}
           maxlength={maxLength ?? undefined}
-          class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+          class="flex-1 py-2 px-3 bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none"
           on:input={handleInput}
           on:keydown
         />
@@ -136,7 +136,7 @@
         {placeholder}
         {disabled}
         maxlength={maxLength ?? undefined}
-        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+        class="flex-1 py-2 px-3 bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none"
         on:input={handleInput}
         on:keydown
       />
@@ -149,7 +149,7 @@
         {disabled}
         min={min ?? undefined}
         max={max ?? undefined}
-        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+        class="flex-1 py-2 px-3 bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none"
         on:input={handleInput}
         on:keydown
       />
@@ -161,7 +161,7 @@
         {placeholder}
         {disabled}
         maxlength={maxLength ?? undefined}
-        class="flex-1 py-2 px-3 bg-transparent focus:outline-none"
+        class="flex-1 py-2 px-3 bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none"
         on:input={handleInput}
         on:keydown
       />

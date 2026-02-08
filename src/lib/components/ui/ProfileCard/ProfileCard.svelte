@@ -2,18 +2,16 @@
   import Button from "$lib/components/ui/Button/Button.svelte";
   import { API_URL } from "$lib/services/api.config.js";
 
-  export let name = "John Doe";
-  export let title = "Role";
-  export let squad = "Squad Name";
+  export let name = "";
+  export let squad = "";
+  export let department = "";
   export let avatarUrl = "";
   export let onClick: () => void = () => {};
 
   const colors = [
-    "from-cyan-400 to-blue-500",
-    "from-purple-400 to-pink-500",
-    "from-blue-400 to-cyan-500",
-    "from-teal-400 to-blue-500",
-    "from-indigo-400 to-blue-500",
+    "from-slate-500 to-slate-700",
+    "from-slate-600 to-slate-800",
+    "from-slate-500 to-slate-800",
   ];
 
   const getInitials = (fullName: string) => {
@@ -69,20 +67,24 @@
       alt={name}
       loading="lazy"
       decoding="async"
-      class="w-14 h-14 rounded-full object-cover ring-2 ring-indigo-400"
+      class="w-14 h-14 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-600"
       on:error={handleAvatarError}
     />
   {/if}
   {#if !hasAvatar}
     <div
-      class="w-14 h-14 rounded-full bg-gradient-to-br {gradientColor} flex items-center justify-center ring-2 ring-indigo-400"
+      class="w-14 h-14 rounded-full bg-gradient-to-br {gradientColor} flex items-center justify-center ring-2 ring-slate-200 dark:ring-slate-600"
     >
       <span class="text-lg font-bold text-white">{initials}</span>
     </div>
   {/if}
-  <p class="text-base font-semibold text-blue-200 dark:text-white">{name}</p>
-  <p class="text-sm text-blue-300 dark:text-gray-400">{title}</p>
-  <p class="text-sm text-blue-300 dark:text-gray-400">{squad}</p>
+  <p class="text-base font-semibold text-slate-900 dark:text-slate-100">{name || "Profil"}</p>
+  {#if squad}
+    <p class="text-xs text-slate-500 dark:text-slate-400">Ekip: {squad}</p>
+  {/if}
+  {#if department}
+    <p class="text-xs text-slate-500 dark:text-slate-400">Direktörlük: {department}</p>
+  {/if}
 </div>
 
 <Button

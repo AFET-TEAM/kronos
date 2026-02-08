@@ -3,7 +3,6 @@
   import { goto } from "$app/navigation";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
   import Header from "$lib/components/layout/Header/Header.svelte";
-  import SearchBar from "$lib/components/ui/SearchBar/SearchBar.svelte";
   import { themeStore } from "$lib/store/themeStore.js";
   import { userStore } from "$lib/store/store.js";
   import {
@@ -20,7 +19,6 @@
   let activeFilter: "all" | "reviewed" | "pending" = "all";
   let sortOrder = "newest";
   let activePage = 1;
-  let searchValue = "";
   const reportsPerPage = 8;
 
   // Data
@@ -73,7 +71,7 @@
           limit: reportsPerPage,
           sort: sortOrder === "newest" ? "desc" : "asc",
           reviewed: reviewedParam,
-          search: searchValue,
+          search: "",
         }),
         getAdminStats(),
       ]);
@@ -144,17 +142,6 @@
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }
 
-  // Search değiştiğinde debounce ile arama yap
-  let searchTimeout: number;
-  $: {
-    if (searchTimeout) clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      if (searchValue !== undefined) {
-        activePage = 1;
-        fetchReportsData();
-      }
-    }, 500) as unknown as number;
-  }
 </script>
 
 <svelte:head>
@@ -169,14 +156,7 @@
   <Header
     {isSidebarOpen}
     onToggleSidebar={() => (isSidebarOpen = !isSidebarOpen)}
-  >
-    <SearchBar
-      placeholder="Kullanıcı, ekip veya rapor ara..."
-      bind:value={searchValue}
-      icon="search"
-      size="medium"
-    />
-  </Header>
+  />
 
   <Sidebar bind:isOpen={isSidebarOpen} />
 

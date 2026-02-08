@@ -148,10 +148,10 @@
             <div class="h-4 bg-gray-300 dark:bg-gray-600 rounded w-5/6"></div>
           </div>
         {:else if reportDetails}
-          <div>
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              {reportDetails.title}: {reportDetails.startDate} - {reportDetails.endDate}
-            </h3>
+          <div class="mb-4">
+            <p class="text-lg text-gray-600 dark:text-gray-400">
+              {reportDetails.startDate} - {reportDetails.endDate}
+            </p>
           </div>
 
           <div
@@ -164,17 +164,16 @@
               height="64"
               class="w-16 h-16 rounded-full border-2 border-blue-100"
             />
-            <div class="flex-1">
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white">
-                {reportDetails.user.firstName}
-                {reportDetails.user.lastName}
-              </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                {reportDetails.user.title}
+            <div class="flex-1 space-y-1">
+              <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                {reportDetails.user.firstName} - {reportDetails.user.lastName}
               </p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                {reportDetails.user.squad}
-              </p>
+              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">EKİP</p>
+              <p class="text-sm text-gray-700 dark:text-gray-300">{reportDetails.user.squad || "—"}</p>
+              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-1">DİREKTÖRLÜK</p>
+              <p class="text-sm text-gray-700 dark:text-gray-300">{reportDetails.user.department || "—"}</p>
+              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-1">MAİL</p>
+              <p class="text-sm text-gray-700 dark:text-gray-300">{reportDetails.user.email}</p>
             </div>
           </div>
 

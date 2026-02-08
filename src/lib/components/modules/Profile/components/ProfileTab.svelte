@@ -170,8 +170,8 @@
       />
 
       <Input
-        label="Departman"
-        placeholder="Departman"
+        label="Direktörlük"
+        placeholder="Direktörlük"
         type="text"
         disabled={!isEditing}
         bind:value={tempFormData.department}
