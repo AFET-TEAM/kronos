@@ -56,18 +56,23 @@
   }));
 
   $: {
-    if (selectedDepartment === "all") {
-      filteredUsers = users;
-    } else {
-      filteredUsers = users.filter(u => (u.department || "Atanmamış") === selectedDepartment);
+    let result = users;
+    
+    // Departman filtresi
+    if (selectedDepartment !== "all") {
+      result = result.filter(u => (u.department || "Atanmamış") === selectedDepartment);
     }
     
+    // Arama filtresi
     if (searchQuery.trim()) {
-      filteredUsers = filteredUsers.filter(u => 
-        `${u.firstName} ${u.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchQuery.toLowerCase())
+      const query = searchQuery.toLowerCase();
+      result = result.filter(u => 
+        `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().includes(query) ||
+        (u.email || '').toLowerCase().includes(query)
       );
     }
+    
+    filteredUsers = result;
   }
 
   onMount(async () => {
@@ -206,6 +211,17 @@
     const manager = users.find(u => u.id === managerId);
     return manager ? `${manager.firstName} ${manager.lastName}` : "-";
   }
+
+  function getInitials(firstName: string, lastName: string) {
+    const a = (firstName || "").trim().charAt(0).toUpperCase();
+    const b = (lastName || "").trim().charAt(0).toUpperCase();
+    return (a + b) || "?";
+  }
+
+  function titleAndSquad(title: string | undefined, squad: string | undefined) {
+    const parts = [title, squad].filter(Boolean);
+    return parts.length ? parts.join(" • ") : "-";
+  }
 </script>
 
 <div class="space-y-6">
@@ -281,12 +297,18 @@
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3">
-                  <img
-                    src={user.avatarUrl}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    class="w-10 h-10 rounded-full ring-2 ring-indigo-400"
-                    loading="lazy"
-                  />
+                  {#if user.avatarUrl}
+                    <img
+                      src={user.avatarUrl}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      class="w-10 h-10 rounded-full ring-2 ring-indigo-400 object-cover"
+                      loading="lazy"
+                    />
+                  {:else}
+                    <div class="w-10 h-10 rounded-full ring-2 ring-indigo-400 bg-indigo-600 flex items-center justify-center text-white font-semibold text-sm shrink-0">
+                      {getInitials(user.firstName, user.lastName)}
+                    </div>
+                  {/if}
                   <div>
                     <div class="font-semibold text-gray-900 dark:text-white">
                       {user.firstName} {user.lastName}
@@ -295,7 +317,7 @@
                       {user.email}
                     </div>
                     <div class="text-xs text-gray-400 dark:text-gray-500">
-                      {user.title} • {user.squad}
+                      {titleAndSquad(user.title, user.squad)}
                     </div>
                   </div>
                 </div>
@@ -314,8 +336,8 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold {getStatusBadgeClass(user.status)}">
-                  {user.status}
+                <span class="px-3 py-1 rounded-full text-xs font-semibold {getStatusBadgeClass(user.status || 'active')}">
+                  {user.status || 'active'}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
@@ -365,12 +387,18 @@
       </h2>
 
       <div class="space-y-4">
-        <div class="flex items-center gap-4 mb-6">
+      <div class="flex items-center gap-4 mb-6">
+        {#if selectedUser.avatarUrl}
           <img
             src={selectedUser.avatarUrl}
             alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
-            class="w-16 h-16 rounded-full ring-2 ring-indigo-400"
+            class="w-16 h-16 rounded-full ring-2 ring-indigo-400 object-cover"
           />
+        {:else}
+          <div class="w-16 h-16 rounded-full ring-2 ring-indigo-400 bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+            {getInitials(selectedUser.firstName, selectedUser.lastName)}
+          </div>
+        {/if}
           <div>
             <div class="font-semibold text-gray-900 dark:text-white">
               {selectedUser.firstName} {selectedUser.lastName}

@@ -52,8 +52,10 @@
           certifications: [],
         });
 
+        const role = result.user?.role || "user";
+        const href = role === "admin" || role === "manager" ? "/manager" : "/";
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = href;
         }, 2000);
       }
     } catch (error) {

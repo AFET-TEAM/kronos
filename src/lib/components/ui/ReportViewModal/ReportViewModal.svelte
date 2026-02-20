@@ -1,6 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import type { ReportDetail } from "$lib/services/adminReportService.js";
+  import { downloadReportPdf } from "$lib/services/reportService.js";
+  import { toastStore } from "$lib/store/toastStore.js";
+  import { getErrorMessage } from "$lib/services/errorHandler.js";
+  import { formatTRDate, formatTRHours } from "$lib/utils/dateUtils.js";
 
   export let report: ReportDetail | null = null;
   export let isOpen = false;
@@ -10,6 +14,19 @@
 
   function close() {
     dispatch("close");
+  }
+
+  async function handleDownloadPdf() {
+    if (report) {
+      try {
+        toastStore.info("PDF indiriliyor...");
+        await downloadReportPdf(report.id);
+        toastStore.success("PDF başarıyla indirildi!");
+      } catch (error) {
+        const errorMsg = getErrorMessage(error);
+        toastStore.error(errorMsg);
+      }
+    }
   }
 
   function handleBackdropClick(e: MouseEvent) {
@@ -40,14 +57,6 @@
     return colorMap[status] || "bg-gray-100 text-gray-800";
   }
 
-  function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("tr-TR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
 </script>
 
 {#if isOpen}
@@ -128,14 +137,14 @@
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Toplam Saat</p>
-              <p class="text-lg font-semibold text-gray-900 dark:text-white">{report.totalHours || 0}h</p>
+              <p class="text-lg font-semibold text-gray-900 dark:text-white">{formatTRHours(report.totalHours)}</p>
             </div>
           </div>
 
           <!-- Tasks -->
           {#if report.tasks && report.tasks.length > 0}
             <div class="mb-6">
-              <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <h4 class="text-lg mt-5 font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <span>📋</span> Görevler
               </h4>
               <div class="space-y-3">
@@ -173,7 +182,7 @@
                         <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400">{task.hours}h</span>
+                        <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400">{formatTRHours(task.hours)}</span>
                       </div>
                     </div>
                   </div>
@@ -199,10 +208,10 @@
           <!-- Additional Info -->
           <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-              <span>Oluşturulma Tarihi: {formatDate(report.createdAt)}</span>
-              {#if report.totalOvertime && report.totalOvertime > 0}
+              <span>Oluşturulma Tarihi: {formatTRDate(report.createdAt)}</span>
+              {#if report.totalOvertime != null && Number(report.totalOvertime) > 0}
                 <span class="px-3 py-1 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 rounded-full font-semibold">
-                  Fazla Mesai: {report.totalOvertime}h
+                  Fazla Mesai: {formatTRHours(report.totalOvertime)}
                 </span>
               {/if}
             </div>
@@ -227,7 +236,7 @@
         </button>
         {#if report}
           <button
-            on:click={() => window.open(`/api/reports/${report.id}/pdf`, '_blank')}
+            on:click={handleDownloadPdf}
             class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

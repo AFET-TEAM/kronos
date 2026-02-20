@@ -40,16 +40,10 @@
   const positionHierarchy = ["CEO", "CTO", "Team Lead", "Senior Developer", "Developer", "Junior Developer", "Intern"];
 
   onMount(async () => {
-    const currentUser = $userStore;
-
-    if (currentUser.role !== "admin" && currentUser.role !== "manager") {
-      goto("/dashboard");
-    }
-
     if (window.innerWidth < 768) {
       isSidebarOpen = false;
     }
-
+    // Önce veriyi dene; 403 alırsak yönlendir. userStore role gecikmeli yüklenebilir.
     await fetchOrganizationData();
   });
 
@@ -57,14 +51,19 @@
     try {
       loading = true;
       error = "";
-      organizationData = await getOrganizationChart();
-      filteredDepartments = organizationData;
+      const raw = await getOrganizationChart();
+      const list = Array.isArray(raw) ? raw : (raw?.departments ?? raw?.data ?? []);
+      organizationData = list;
+      filteredDepartments = list;
       retryCount = 0;
     } catch (err: any) {
+      const status = err?.statusCode ?? err?.status;
+      if (status === 403 || status === 401) {
+        goto("/dashboard");
+        return;
+      }
       error = err.message || "Organizasyon verileri yüklenirken bir hata oluştu";
       toastStore.error(error);
-      
-      // Retry mekanizması
       if (retryCount < MAX_RETRIES) {
         retryCount++;
         setTimeout(() => fetchOrganizationData(), 1000 * retryCount);
@@ -100,37 +99,42 @@
     return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
   }
 
-  function getRoleBadgeColor(role: string): string {
-    switch (role.toLowerCase()) {
+  function getRoleBadgeColor(role: string | undefined | null): string {
+    const r = String(role ?? "user").toLowerCase();
+    switch (r) {
       case "admin": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
       case "manager": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
       default: return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
     }
   }
 
-  function getRoleLabel(role: string): string {
-    switch (role.toLowerCase()) {
+  function getRoleLabel(role: string | undefined | null): string {
+    const r = String(role ?? "user").toLowerCase();
+    switch (r) {
       case "admin": return "Admin";
       case "manager": return "Yönetici";
       default: return "Kullanıcı";
     }
   }
 
-  function getUserInitials(name: string): string {
-    return name
-      .split(" ")
+  function getUserInitials(name: string | undefined | null): string {
+    const s = String(name ?? "").trim();
+    if (!s) return "?";
+    return s
+      .split(/\s+/)
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2);
+      .slice(0, 2) || "?";
   }
 
-  function getManagerName(managerId: string | null): string {
+  function getManagerName(managerId: string | null | undefined): string {
     if (!managerId) return "Yönetici Yok";
-    
-    for (const dept of organizationData) {
-      const manager = dept.members.find(m => m.id === managerId);
-      if (manager) return manager.name;
+    const data = Array.isArray(organizationData) ? organizationData : [];
+    for (const dept of data) {
+      const members = dept.members ?? [];
+      const manager = members.find((m: OrgMember) => m.id === managerId);
+      if (manager) return manager.name ?? manager.email ?? "Bilinmiyor";
     }
     return "Bilinmiyor";
   }
@@ -145,38 +149,43 @@
     selectedUser = null;
   }
 
+  function escapeCsvCell(val: string): string {
+    const s = String(val ?? "").replace(/"/g, '""');
+    return `"${s}"`;
+  }
+
   function exportToCSV() {
     const headers = ["Ad Soyad", "E-posta", "Direktörlük", "Pozisyon", "Rol", "Yönetici"];
     const rows: string[][] = [];
-    
-    organizationData.forEach(dept => {
-      dept.members.forEach(member => {
+
+    filteredDepartments.forEach(dept => {
+      (dept.members ?? []).forEach((member: OrgMember) => {
         rows.push([
-          member.name,
-          member.email,
-          dept.department,
-          member.title,
+          member.name ?? "",
+          member.email ?? "",
+          dept.department ?? "",
+          member.title ?? "",
           getRoleLabel(member.role),
           getManagerName(member.managerId)
         ]);
       });
     });
 
+    const csvLine = (row: string[]) => row.map(escapeCsvCell).join(",");
     const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
-    ].join("\n");
+      csvLine(headers),
+      ...rows.map(csvLine)
+    ].join("\r\n");
 
     const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `organizasyon_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
+    link.href = URL.createObjectURL(blob);
+    link.download = `organizasyon_${new Date().toISOString().split("T")[0]}.csv`;
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
+    URL.revokeObjectURL(link.href);
     document.body.removeChild(link);
-    
     toastStore.success("CSV dosyası başarıyla indirildi");
   }
 
@@ -184,38 +193,72 @@
     window.print();
   }
 
+  // Şema için hiyerarşi: departman -> yöneticiler -> ekip
+  $: orgTree = (() => {
+    const tree: { dept: string; managers: { manager: OrgMember; subordinates: OrgMember[] }[] }[] = [];
+    const depts = Array.isArray(filteredDepartments) ? filteredDepartments : [];
+    for (const dept of depts) {
+      const members = dept.members ?? [];
+      const managers = members.filter((m: OrgMember) => m.role === "manager" || m.role === "admin");
+      const subordinates = members.filter((m: OrgMember) => m.role !== "manager" && m.role !== "admin");
+      const byManager = new Map<string, OrgMember[]>();
+      for (const sub of subordinates) {
+        const mid = sub.managerId || "_none_";
+        if (!byManager.has(mid)) byManager.set(mid, []);
+        byManager.get(mid)!.push(sub);
+      }
+      const managerNodes = managers.map(manager => ({
+        manager,
+        subordinates: byManager.get(manager.id) || []
+      }));
+      if (subordinates.some(s => !s.managerId)) {
+        const unassigned = subordinates.filter(s => !s.managerId);
+        if (unassigned.length && !managerNodes.some(m => m.manager.id === "_none_")) {
+          managerNodes.push({ manager: { id: "_none_", name: "Yönetici atanmamış", email: "", title: "", avatarUrl: null, role: "user", managerId: null }, subordinates: unassigned });
+        }
+      }
+      if (managerNodes.length === 0 && members.length > 0) {
+        managerNodes.push({ manager: members[0], subordinates: members.slice(1) });
+      }
+      tree.push({ dept: dept.department, managers: managerNodes });
+    }
+    return tree;
+  })();
+
   // Reactive filtering
   $: if (searchValue) {
-    filteredDepartments = organizationData
+    const source = Array.isArray(organizationData) ? organizationData : [];
+    filteredDepartments = source
       .map((dept) => ({
         ...dept,
         members: dept.members.filter(
-          (member) =>
-            member.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            member.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-            member.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-            dept.department.toLowerCase().includes(searchValue.toLowerCase())
+          (member: OrgMember) =>
+            (member.name || "").toLowerCase().includes(searchValue.toLowerCase()) ||
+            (member.email || "").toLowerCase().includes(searchValue.toLowerCase()) ||
+            (member.title || "").toLowerCase().includes(searchValue.toLowerCase()) ||
+            (dept.department || "").toLowerCase().includes(searchValue.toLowerCase())
         ),
       }))
-      .filter((dept) => dept.members.length > 0);
+      .filter((dept) => (dept.members?.length ?? 0) > 0);
   } else {
-    filteredDepartments = organizationData;
+    filteredDepartments = Array.isArray(organizationData) ? organizationData : [];
   }
 
-  // Calculate statistics
-  $: totalUsers = organizationData.reduce((sum, dept) => sum + dept.count, 0);
-  $: totalAdmins = organizationData.reduce((sum, dept) => sum + dept.members.filter(m => m.role === 'admin').length, 0);
-  $: totalManagers = organizationData.reduce((sum, dept) => sum + dept.members.filter(m => m.role === 'manager').length, 0);
-  $: totalDepartments = organizationData.length;
+  // Calculate statistics (API bazen dizi dışı dönebilir, güvenli kullan)
+  $: safeOrgData = Array.isArray(organizationData) ? organizationData : [];
+  $: totalUsers = safeOrgData.reduce((sum, dept) => sum + (dept.count ?? dept.members?.length ?? 0), 0);
+  $: totalAdmins = safeOrgData.reduce((sum, dept) => sum + (dept.members?.filter((m: OrgMember) => m.role === 'admin').length ?? 0), 0);
+  $: totalManagers = safeOrgData.reduce((sum, dept) => sum + (dept.members?.filter((m: OrgMember) => m.role === 'manager').length ?? 0), 0);
+  $: totalDepartments = safeOrgData.length;
 
   function getDepartmentStats(dept: DepartmentData) {
-    const total = dept.members.length;
-    const roles = dept.members.reduce((acc, member) => {
+    const members = dept.members ?? [];
+    const total = members.length;
+    const roles = members.reduce((acc, member) => {
       const role = getRoleLabel(member.role);
       acc[role] = (acc[role] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    
     return { total, roles };
   }
 </script>
@@ -239,7 +282,7 @@
   >
     <div class="container mx-auto px-4 py-6 max-w-7xl">
       <!-- Page Header -->
-      <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print-content">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Organizasyon Şeması
@@ -248,7 +291,7 @@
             Direktörlüklere göre şirket organizasyonu ve kullanıcı hiyerarşisi
           </p>
         </div>
-        
+
         <!-- Action Buttons -->
         {#if !loading && !error && totalUsers > 0}
           <div class="flex gap-2 flex-wrap">
@@ -335,7 +378,7 @@
         </div>
       {:else}
         <!-- Organization Overview Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 no-print-content">
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
             <div class="flex items-center">
               <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
@@ -393,8 +436,72 @@
           </div>
         </div>
 
-        <!-- Departments -->
-        <div class="space-y-6">
+        <!-- Organizasyon diyagramı / şema (görsel) -->
+        <div class="org-chart-diagram print-only-content mb-10">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <span>📊</span> Organizasyon Diyagramı
+          </h2>
+          <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
+            <div class="org-chart-tree min-w-max">
+              {#each orgTree as { dept, managers }}
+                <div class="dept-block mb-8">
+                  <div class="dept-header text-center mb-4 pb-3 border-b-2 border-blue-500 dark:border-blue-400">
+                    <span class="text-lg font-bold text-gray-900 dark:text-white">{dept}</span>
+                  </div>
+                  <div class="flex flex-wrap justify-center gap-8 items-start">
+                    {#each managers as { manager, subordinates }}
+                      <div class="org-node flex flex-col items-center">
+                        <div
+                          class="node-card rounded-lg border-2 border-gray-200 dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-700/50 min-w-[200px] text-center {manager.role === 'admin' ? 'border-purple-500' : manager.role === 'manager' ? 'border-blue-500' : ''}"
+                        >
+                          <div class="flex justify-center mb-2">
+                            {#if manager.avatarUrl}
+                              <img src={manager.avatarUrl} alt={manager.name} class="w-12 h-12 rounded-full object-cover" />
+                            {:else}
+                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
+                                {getUserInitials(manager.name)}
+                              </div>
+                            {/if}
+                          </div>
+                          <p class="font-semibold text-gray-900 dark:text-white truncate" title={manager.name ?? manager.email ?? ''}>{manager.name || manager.email || '—'}</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{manager.title || '—'}</p>
+                          <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium {getRoleBadgeColor(manager.role)}">
+                            {getRoleLabel(manager.role)}
+                          </span>
+                        </div>
+                        {#if subordinates.length > 0}
+                          <div class="connector-line w-0.5 bg-gray-300 dark:bg-gray-600 my-2" style="min-height: 20px;"></div>
+                          <div class="sub-nodes flex flex-wrap justify-center gap-4">
+                            {#each subordinates as sub}
+                              <div class="node-card rounded-lg border border-gray-200 dark:border-gray-600 p-3 bg-white dark:bg-gray-700 min-w-[160px] text-center">
+                                <div class="flex justify-center mb-1">
+                                  {#if sub.avatarUrl}
+                                    <img src={sub.avatarUrl} alt={sub.name} class="w-8 h-8 rounded-full object-cover" />
+                                  {:else}
+                                    <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-xs font-medium">
+                                      {getUserInitials(sub.name)}
+                                    </div>
+                                  {/if}
+                                </div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate" title={sub.name ?? sub.email ?? ''}>{sub.name || sub.email || '—'}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{sub.title || '—'}</p>
+                                <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded text-xs {getRoleBadgeColor(sub.role)}">{getRoleLabel(sub.role)}</span>
+                              </div>
+                            {/each}
+                          </div>
+                        {/if}
+                      </div>
+                    {/each}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        </div>
+
+        <!-- Departments (liste) -->
+        <div class="space-y-6 no-print-content">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Direktörlük listesi</h2>
           {#each filteredDepartments as department}
             {@const stats = getDepartmentStats(department)}
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -422,7 +529,7 @@
               <!-- Department Members -->
               <div class="p-4 sm:p-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {#each department.members as member}
+                  {#each (department.members ?? []) as member}
                     <button
                       on:click={() => openUserModal(member)}
                       class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 hover:shadow-md transition-all border border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 text-left w-full"
@@ -432,13 +539,13 @@
                           {#if member.avatarUrl}
                             <img
                               src={member.avatarUrl}
-                              alt={member.name}
+                              alt={member.name ?? member.email ?? ''}
                               class="w-12 h-12 rounded-full object-cover"
                             />
                           {:else}
                             <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
                               <span class="text-white font-semibold text-sm">
-                                {getUserInitials(member.name)}
+                                {getUserInitials(member.name ?? member.email)}
                               </span>
                             </div>
                           {/if}
@@ -446,17 +553,17 @@
                         <div class="flex-1 min-w-0">
                           <div class="flex items-center gap-2 mb-1">
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                              {member.name}
+                              {member.name || member.email || '—'}
                             </h3>
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {getRoleBadgeColor(member.role)}">
                               {getRoleLabel(member.role)}
                             </span>
                           </div>
                           <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                            {member.title}
+                            {member.title || '—'}
                           </p>
                           <p class="text-xs text-gray-500 dark:text-gray-500 truncate mb-1">
-                            {member.email}
+                            {member.email || '—'}
                           </p>
                           {#if member.managerId}
                             <p class="text-xs text-gray-500 dark:text-gray-500 flex items-center gap-1">
@@ -576,18 +683,44 @@
 {/if}
 
 <style>
+  .org-chart-tree .dept-block:last-child {
+    margin-bottom: 0;
+  }
+  .connector-line {
+    flex-shrink: 0;
+  }
+
   @media print {
     :global(header),
     :global(aside),
-    :global(button) {
+    :global(nav),
+    :global(.print\\:hidden),
+    .no-print-content,
+    button {
       display: none !important;
     }
 
+    /* Yazdırmada sadece organizasyon diyagramı görünsün */
+    main * {
+      visibility: hidden;
+    }
+    .print-only-content,
+    .print-only-content * {
+      visibility: visible;
+    }
+    .print-only-content {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      background: white;
+    }
     main {
       margin-left: 0 !important;
       padding-top: 0 !important;
     }
-
     :global(.no-print) {
       display: none !important;
     }

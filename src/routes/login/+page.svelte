@@ -116,7 +116,8 @@
         }
 
         toastStore.success("Giriş başarılı!");
-        goto("/");
+        const role = result.user?.role || "user";
+        goto(role === "admin" || role === "manager" ? "/manager" : "/");
       } else {
         toastStore.error(result.message || "Giriş başarısız");
       }

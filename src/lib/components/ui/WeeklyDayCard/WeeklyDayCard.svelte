@@ -11,9 +11,12 @@
 
   let actualHasReport = false;
   let actualTaskCount = 0;
+  let storeReport:
+    | import("$lib/services/reportService.js").DailyReport
+    | undefined;
 
   function parseDate(dateStr: string): Date {
-    const [d, month, year] = dateStr.split('.');
+    const [d, month, year] = dateStr.split(".");
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(d));
   }
 
@@ -28,14 +31,28 @@
     }
   }
 
+  function toIsoKey(dateStr: string): string {
+    // Backend tarih formatı: DD.MM.YYYY
+    const parts = dateStr.split(".");
+    if (parts.length === 3) {
+      const [d, m, y] = parts;
+      return `${y}-${m}-${d}`;
+    }
+    return dateStr;
+  }
+
   $: {
-    const report = $dailyReportsStore.get(date);
-    if (report) {
+    const isoKey = toIsoKey(date);
+    const reportFromStore =
+      $dailyReportsStore.get(isoKey) || $dailyReportsStore.get(date);
+    storeReport = reportFromStore;
+
+    if (reportFromStore) {
       actualHasReport =
-        report.isOnLeave ||
-        report.tasks.some((t) => t.taskName) ||
-        !!report.untrackedWork;
-      actualTaskCount = report.tasks.filter((t) => t.taskName).length;
+        reportFromStore.isOnLeave ||
+        reportFromStore.tasks.some((t) => t.taskName) ||
+        !!reportFromStore.untrackedWork;
+      actualTaskCount = reportFromStore.tasks.filter((t) => t.taskName).length;
     } else {
       actualHasReport = hasReport;
       actualTaskCount = taskCount;
@@ -99,7 +116,7 @@
 
   <div class="mt-3">
     {#if actualHasReport}
-      {#if $dailyReportsStore.get(date)?.isOnLeave}
+      {#if storeReport?.isOnLeave}
         <p class="text-sm font-medium text-sky-600 dark:text-sky-400">
           İzinli
         </p>

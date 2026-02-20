@@ -182,8 +182,13 @@ export async function getReportDetails(reportId: string): Promise<ReportDetails 
   return normalized;
 }
 
+/** Site temasına göre PDF indirir: light modda light PDF, dark modda dark PDF. */
 export async function downloadReportPdf(reportId: string): Promise<void> {
-  const response = await fetch(`${API_URL}/api/reports/pdf/${reportId}`, {
+  const theme =
+    typeof document !== 'undefined' && document.documentElement?.classList?.contains('dark')
+      ? 'dark'
+      : 'light';
+  const response = await fetch(`${API_URL}/api/reports/pdf/${reportId}?theme=${theme}`, {
     headers: {
       Authorization: `Bearer ${getAuthToken()}`,
     },

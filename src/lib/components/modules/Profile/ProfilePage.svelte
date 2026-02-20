@@ -134,20 +134,17 @@
 
   const handleAvatarChange = async (url: string) => {
     if (!url) return;
-    
     try {
-      // Avatar'ı backend'e yükle
       const avatarUrl = await uploadAvatar(url);
-      
-      // Temp form data'yı güncelle
       tempFormData.avatarUrl = avatarUrl;
-      
-      // Otomatik kaydet
+      formData.avatarUrl = avatarUrl;
+      // Store'u hemen güncelle ki header/sidebar vb. her yerde yeni foto görünsün
+      const current = $userStore;
+      userStore.set({ ...current, avatarUrl });
       await handleSaveChanges();
-      
-      toastStore.success("Avatar başarıyla yüklendi");
+      toastStore.success("Profil fotoğrafı kaydedildi");
     } catch (error: any) {
-      toastStore.error(error.message || "Avatar yüklenirken bir hata oluştu");
+      toastStore.error(error.message || "Profil fotoğrafı yüklenirken bir hata oluştu");
     }
   };
 </script>
@@ -198,10 +195,12 @@
   }
 
   .profile-page-container {
+    /* Light mode: yumuşak açık gradient */
     background: linear-gradient(
-      to top right,
-      var(--color-brand-blue-ribbon),
-      var(--color-success)
+      135deg,
+      #e0e7ff 0%,
+      #f0f9ff 40%,
+      #f8fafc 100%
     );
   }
 

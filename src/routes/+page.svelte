@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
   import "../app.scss";
   import Sidebar from "$lib/components/layout/Sidebar/Sidebar.svelte";
   import Header from "$lib/components/layout/Header/Header.svelte";
@@ -10,10 +11,14 @@
 
   let isSidebarOpen = true;
 
-  // Sayfa yüklenene kadar skeleton göster
   $: isLoading = !$userStore.email;
+  $: isAdminOrManager = $userStore.role === "admin" || $userStore.role === "manager";
 
   onMount(() => {
+    if (isAdminOrManager) {
+      goto("/manager");
+      return;
+    }
     if (window.innerWidth < 768) {
       isSidebarOpen = false;
     }
