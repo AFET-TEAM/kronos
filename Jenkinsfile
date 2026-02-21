@@ -14,14 +14,14 @@ pipeline {
                     if (env.BRANCH_NAME == 'main') {
                         env.CONTAINER_NAME = "${BASE_APP_NAME}-prod"
                         env.APP_DOMAIN = "kronos.afet.team"
-                        env.VITE_API_URL = "https://api-kronos.afet.team"
+                        env.PUBLIC_API_URL = "https://api-kronos.afet.team"
                         env.SHOULD_DEPLOY = "true"
                         echo ">>> CANLI ORTAM (PROD) - Domain: ${env.APP_DOMAIN}"
                     } 
                     else if (env.BRANCH_NAME == 'integration') {
                         env.CONTAINER_NAME = "${BASE_APP_NAME}-dev"
                         env.APP_DOMAIN = "kronos-dev.afet.space"
-                        env.VITE_API_URL = "https://api-kronos-dev.afet.team" 
+                        env.PUBLIC_API_URL = "https://api-kronos-dev.afet.team"
                         env.SHOULD_DEPLOY = "true"
                         echo ">>> GELİŞTİRME/INT ORTAMI - Domain: ${env.APP_DOMAIN}"
                     }
@@ -58,7 +58,7 @@ pipeline {
                     // Vite projelerinde env'leri build anında içeri gömmek gerekir
                     sh """
                         docker build --no-cache \
-                        --build-arg VITE_API_URL=${env.VITE_API_URL} \
+                        --build-arg PUBLIC_API_URL=${env.PUBLIC_API_URL} \
                         -t ${BASE_APP_NAME}:${env.BRANCH_NAME} .
                     """
                 }
@@ -80,7 +80,7 @@ pipeline {
                         --network ${NETWORK_NAME} \\
                         --restart always \\
                         -e ORIGIN=https://${env.APP_DOMAIN} \\
-                        -e VITE_API_URL=${env.VITE_API_URL} \\
+                        -e PUBLIC_API_URL=${env.PUBLIC_API_URL} \\
                         \\
                         --label "traefik.enable=true" \\
                         --label "traefik.docker.network=${NETWORK_NAME}" \\
