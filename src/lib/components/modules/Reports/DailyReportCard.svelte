@@ -144,7 +144,7 @@
         <span
           class="px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-800 text-sky-700 dark:text-sky-100 font-medium"
         >
-          ğŸ–ï¸ İZİNLİ
+          İZİNLİ
         </span>
       {:else if hasContent}
         <div class="flex items-center gap-3 text-sm">
@@ -156,7 +156,7 @@
           <span
             class="px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
           >
-            {totalHours}h
+            {totalHours != null ? `${Number(totalHours)} saat` : '0 saat'}
           </span>
         </div>
       {/if}

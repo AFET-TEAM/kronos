@@ -281,7 +281,7 @@
               <span class="text-xl text-slate-600 dark:text-slate-400">saat</span>
             </div>
             <div class="mt-3 text-sm text-slate-600 dark:text-slate-400">
-              Ortalama: {kpiData.averages.hoursPerDay}h/gün
+              Ortalama: {kpiData.averages.hoursPerDay} saat/gün
             </div>
           </div>
 
@@ -374,7 +374,7 @@
                       Saat/Gün
                     </p>
                     <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                      {kpiData.averages.hoursPerDay}h
+                      {kpiData.averages.hoursPerDay} saat
                     </p>
                   </div>
                 </div>

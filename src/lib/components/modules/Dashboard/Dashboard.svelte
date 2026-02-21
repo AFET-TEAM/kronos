@@ -176,7 +176,7 @@
       </h2>
       <div class="stats-grid">
         <StatCard
-          title="Toplam Rapor Sayısı"
+          title="Toplam Rapor Girilen Gün Sayısı"
           value={stats?.reportsSent ?? "—"}
           icon="📨"
           {loading}
@@ -274,7 +274,7 @@
                     {report.startDate} – {report.endDate}
                   </h3>
                   <p class="report-item-meta">
-                    {report.tasks.length} görev · {report.date}
+                    {report.tasks?.length ?? 0} görev · {report.date}
                   </p>
                 </div>
                 <svg class="report-item-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,8 +285,9 @@
           {/each}
         </ul>
       {:else}
-        <div class="empty-reports rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-8 text-center">
-          <p class="text-slate-500 dark:text-slate-400 text-sm">Henüz rapor yok.</p>
+        <div class="empty-reports">
+          <p class="empty-reports-text">Henüz haftalık rapor yok.</p>
+          <p class="empty-reports-hint">Haftalık rapor oluşturmak için aşağıdaki «Haftalık Rapor Oluştur» butonunu kullanın.</p>
         </div>
       {/if}
     </section>
@@ -501,7 +502,36 @@
   }
 
   .empty-reports {
-    border-style: dashed;
+    border: 1px dashed #cbd5e1;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    padding: 1.5rem 2rem;
+    text-align: center;
+  }
+
+  :global(.dark) .empty-reports {
+    border-color: #475569;
+    background: rgba(30, 41, 59, 0.5);
+  }
+
+  .empty-reports-text {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  :global(.dark) .empty-reports-text {
+    color: #94a3b8;
+  }
+
+  .empty-reports-hint {
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    margin: 0.5rem 0 0;
+  }
+
+  :global(.dark) .empty-reports-hint {
+    color: #64748b;
   }
 
   @media (max-width: 768px) {

@@ -8,6 +8,7 @@
     type AdminReport,
   } from "$lib/services/adminReportService.js";
   import { getErrorMessage } from "$lib/services/errorHandler.js";
+  import { formatTRDate } from "$lib/utils/dateUtils.js";
 
   export let user: AdminUser;
   export let onClose: () => void;
@@ -36,15 +37,6 @@
     }
   });
 
-  function formatDate(dateString: string) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("tr-TR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
-
   function viewReportDetail(reportId: string) {
     goto(`/archive/${reportId}`);
     onClose();
@@ -72,11 +64,27 @@
       class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 flex items-center justify-between"
     >
       <div class="flex items-center gap-4">
-        <img
-          src={user.avatarUrl}
-          alt={`${user.firstName} ${user.lastName}`}
-          class="w-12 h-12 rounded-full ring-2 ring-white"
-        />
+        {#if user.avatarUrl}
+          <img
+            src={user.avatarUrl}
+            alt={`${user.firstName} ${user.lastName}`}
+            class="w-12 h-12 rounded-full ring-2 ring-white object-cover"
+            on:error={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling.style.display = 'flex';
+            }}
+          />
+        {/if}
+        <div 
+          class="w-12 h-12 rounded-full ring-2 ring-white bg-white/20 flex items-center justify-center text-white font-bold text-lg"
+          style="display: {user.avatarUrl ? 'none' : 'flex'};"
+        >
+          {(() => {
+            const f = (user.firstName || '').charAt(0).toUpperCase();
+            const l = (user.lastName || '').charAt(0).toUpperCase();
+            return (f + l) || '?';
+          })()}
+        </div>
         <div>
           <h2 class="text-xl font-bold text-white">
             {user.firstName}
@@ -133,7 +141,7 @@
             <div>
               <p class="text-sm text-gray-600 dark:text-gray-400">Başlangıç</p>
               <p class="font-semibold text-gray-900 dark:text-white">
-                {formatDate(user.startDate)}
+                {formatTRDate(user.startDate)}
               </p>
             </div>
             <div>
@@ -235,7 +243,7 @@
                           {report.taskCount} Task
                         </span>
                         <span class="text-xs">
-                          {formatDate(report.createdAt)}
+                          {formatTRDate(report.createdAt)}
                         </span>
                       </div>
                     </div>

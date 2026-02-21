@@ -78,13 +78,10 @@ export async function uploadAvatar(base64Image: string): Promise<string> {
   });
 
   const result = await handleApiResponse<{ avatarUrl: string }>(response);
-  // Firebase Storage URL'leri direkt döner, relative path ise API_URL ile birleştir
   const avatarUrl = result.avatarUrl;
-  if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
-    return avatarUrl; // Firebase Storage URL'i direkt döndür
-  }
-  if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
-    return `${API_URL}${avatarUrl}`; // Eski lokal path için
-  }
-  return avatarUrl;
+  // data: URL (Firestore picture) veya https URL (eski Storage) aynen döner
+  if (avatarUrl?.startsWith('data:')) return avatarUrl;
+  if (avatarUrl?.startsWith('http://') || avatarUrl?.startsWith('https://')) return avatarUrl;
+  if (avatarUrl?.startsWith('/uploads/')) return `${API_URL}${avatarUrl}`;
+  return avatarUrl ?? '';
 }

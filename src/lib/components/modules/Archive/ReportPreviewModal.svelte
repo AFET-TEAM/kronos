@@ -43,8 +43,34 @@
   }
 
   function viewFullReport() {
-    if (report) {
-      goto(`/archive/${report.id}`);
+    if (report && reportDetails) {
+      // Haftalık raporun haftasını belirle (startDate'in haftası)
+      const [day, month, year] = reportDetails.startDate.split('.');
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      
+      // Haftanın başlangıcını bul (Pazartesi)
+      const dayOfWeek = startDate.getDay();
+      const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      const weekStart = new Date(startDate);
+      weekStart.setDate(startDate.getDate() + daysToMonday);
+      
+      // Haftanın bitişini bul (Cuma)
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 4);
+      
+      // Tarihleri DD.MM.YYYY formatına çevir
+      const formatDate = (date: Date) => {
+        const d = date.getDate().toString().padStart(2, '0');
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}.${m}.${y}`;
+      };
+      
+      const weekStartStr = formatDate(weekStart);
+      const weekEndStr = formatDate(weekEnd);
+      
+      // Rapor detay sayfasına git ve hafta filtresi ekle
+      goto(`/archive/${report.id}?weekStart=${weekStartStr}&weekEnd=${weekEndStr}`);
       closeModal();
     }
   }

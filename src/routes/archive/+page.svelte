@@ -287,7 +287,7 @@
                   Toplam Saat
                 </p>
                 <p class="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {archiveData.stats.totalHours}h
+                  {archiveData.stats.totalHours != null ? `${Number(archiveData.stats.totalHours)} saat` : '0 saat'}
                 </p>
               </div>
               <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
@@ -517,7 +517,7 @@
                                               </span>
                                             </div>
                                             <div
-                                              class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-100 dark:bg-blue-900/40"
+                                              class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-teal-700/20 dark:bg-blue-900/40"
                                             >
                                               <svg
                                                 class="w-4 h-4 text-blue-600 dark:text-blue-400"
@@ -535,7 +535,7 @@
                                               <span
                                                 class="text-xs font-semibold text-blue-700 dark:text-blue-300"
                                               >
-                                                {dayGroup.report.totalHours}h
+                                                {dayGroup.report.totalHours != null ? `${Number(dayGroup.report.totalHours)} saat` : '0 saat'}
                                               </span>
                                             </div>
                                           </div>

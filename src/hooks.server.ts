@@ -15,7 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     return Response.redirect(new URL('/login', url.origin), 302);
   }
 
-  // Login/register'a token varken erişirse dashboard'a yönlendir
+  // Login/register'a token varken erişirse anasayfaya yönlendir (rol client'ta kontrol edilir: admin→/manager, user→/)
   if (isPublicRoute && token && url.pathname !== '/forgot-password' && url.pathname !== '/reset-password') {
     return Response.redirect(new URL('/', url.origin), 302);
   }

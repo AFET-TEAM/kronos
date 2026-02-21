@@ -519,7 +519,7 @@
                     <p
                       class="text-xl font-bold text-blue-700 dark:text-blue-300"
                     >
-                      {report.totalHours}h
+                      {report.totalHours != null ? `${Number(report.totalHours)} saat` : '0 saat'}
                     </p>
                   </div>
                 </div>

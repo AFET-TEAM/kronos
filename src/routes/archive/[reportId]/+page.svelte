@@ -20,12 +20,56 @@
   let expandedDays: Set<number> = new Set();
   let errorMessage = "";
   let filterDate: string | null = null; // Sadece bu günü göster
+  let weekStart: string | null = null; // Hafta başlangıcı
+  let weekEnd: string | null = null; // Hafta bitişi
+  let filteredDailyReports: typeof reportDetails.dailyReports = [];
 
   $: reportId = $page.params.reportId;
   $: {
-    // Query parameter'dan date'i al
+    // Query parameter'lardan date ve hafta bilgilerini al
     const urlParams = new URLSearchParams(window.location.search);
     filterDate = urlParams.get('date');
+    weekStart = urlParams.get('weekStart');
+    weekEnd = urlParams.get('weekEnd');
+  }
+  
+  // Hafta filtresine göre günlük raporları filtrele
+  $: if (reportDetails) {
+    if (weekStart && weekEnd) {
+      // Hafta filtresi varsa, sadece o haftanın raporlarını göster
+      filteredDailyReports = reportDetails.dailyReports.filter((daily) => {
+        const [day, month, year] = daily.date.split('.');
+        const reportDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        
+        const [startDay, startMonth, startYear] = weekStart.split('.');
+        const start = new Date(parseInt(startYear), parseInt(startMonth) - 1, parseInt(startDay));
+        start.setHours(0, 0, 0, 0);
+        
+        const [endDay, endMonth, endYear] = weekEnd.split('.');
+        const end = new Date(parseInt(endYear), parseInt(endMonth) - 1, parseInt(endDay));
+        end.setHours(23, 59, 59, 999);
+        
+        reportDate.setHours(0, 0, 0, 0);
+        
+        return reportDate >= start && reportDate <= end;
+      });
+    } else {
+      filteredDailyReports = reportDetails.dailyReports;
+    }
+    
+    // Expanded days'i güncelle
+    if (filterDate) {
+      const dayIndex = filteredDailyReports.findIndex(
+        (daily) => daily.date === filterDate
+      );
+      if (dayIndex !== -1) {
+        expandedDays = new Set([dayIndex]);
+      }
+    } else {
+      expandedDays = new Set(
+        filteredDailyReports.map((_, index) => index)
+      );
+    }
   }
 
   onMount(() => {
@@ -49,21 +93,8 @@
         setTimeout(() => {
           goto("/archive");
         }, 2000);
-      } else {
-        // Eğer filterDate varsa, sadece o günü aç
-        if (filterDate) {
-          const dayIndex = reportDetails.dailyReports.findIndex(
-            (daily) => daily.date === filterDate
-          );
-          if (dayIndex !== -1) {
-            expandedDays = new Set([dayIndex]);
-          }
-        } else {
-          expandedDays = new Set(
-            reportDetails.dailyReports.map((_, index) => index)
-          );
-        }
       }
+      // Expanded days reactive statement tarafından ayarlanacak
     } catch (error) {
       errorMessage = getErrorMessage(error);
       console.error("[Archive Detail] Error loading report details:", error);
@@ -146,7 +177,7 @@
           <button
             type="button"
             on:click={goBack}
-            class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            class="inline-flex pt-10 items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -222,13 +253,17 @@
             <span class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-sm">
               📅
             </span>
-            {filterDate ? `${filterDate} — Günlük detay` : "Günlük detaylar"}
+            {weekStart && weekEnd 
+              ? `${weekStart} - ${weekEnd} — Haftalık raporlar`
+              : filterDate 
+                ? `${filterDate} — Günlük detay` 
+                : "Günlük detaylar"}
           </h2>
 
           {#each (filterDate
-            ? reportDetails.dailyReports.filter((daily) => daily.date === filterDate)
-            : reportDetails.dailyReports) as dayReport, index}
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+            ? filteredDailyReports.filter((daily) => daily.date === filterDate)
+            : filteredDailyReports) as dayReport, index}
+            <div class="bg-white pt-5 dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden">
               <button
                 type="button"
                 on:click={() => toggleDay(index)}
@@ -248,7 +283,7 @@
               </button>
 
               {#if expandedDays.has(index)}
-                <div class="p-5 pt-0 space-y-6 border-t border-gray-100 dark:border-gray-700/50">
+                <div class="p-5 pt-5 space-y-6 border-t border-gray-100 dark:border-gray-700/50">
                   {#if dayReport.isOnLeave}
                     <div class="rounded-xl bg-sky-50 dark:bg-sky-900/20 border border-sky-200/60 dark:border-sky-800/60 p-6 text-center">
                       <span class="text-4xl mb-3 block">🏖️</span>

@@ -83,9 +83,31 @@
 
     if (!selectedDate || !hasAnyContent) {
       toastStore.warning(
-        "LÃ¼tfen en az bir alan doldurun (Task veya Task Harici)",
+        "Lütfen en az bir alan doldurun (Task veya Task Harici)",
       );
       return;
+    }
+
+    // Validate tasks - if not on leave, check that all tasks have required fields
+    if (!isOnLeave) {
+      const invalidTasks = tasks.filter((t) => {
+        // If task has a name, all fields must be filled
+        if (t.taskName.trim()) {
+          return !t.taskName.trim() || 
+                 !t.taskNumber.trim() || 
+                 !t.estimatedHours || 
+                 t.estimatedHours <= 0 ||
+                 !t.description.trim();
+        }
+        return false;
+      });
+
+      if (invalidTasks.length > 0) {
+        toastStore.error(
+          "Lütfen tüm task alanlarını doldurun (Task Adı, Task Numarası, Süre ve Açıklama zorunludur)"
+        );
+        return;
+      }
     }
 
     const dayName = getDayName(selectedDate);
@@ -94,7 +116,7 @@
     const dailyReportData = {
       day: dayName,
       date: formattedDate,
-      tasks: isOnLeave ? [] : tasks.filter((t) => t.taskName),
+      tasks: isOnLeave ? [] : tasks.filter((t) => t.taskName.trim()),
       untrackedWork: untrackedWork.trim(),
       isOnLeave: isOnLeave,
     };

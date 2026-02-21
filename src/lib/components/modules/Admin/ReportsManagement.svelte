@@ -11,6 +11,7 @@
   } from "$lib/services/adminReportService.js";
   import { goto } from "$app/navigation";
   import { getErrorMessage } from "$lib/services/errorHandler.js";
+  import { formatTRDate } from "$lib/utils/dateUtils.js";
 
   let reports: AdminReport[] = [];
   let filteredReports: AdminReport[] = [];
@@ -31,7 +32,12 @@
     loading = true;
     errorMessage = "";
     try {
-      const response = await getAdminReports();
+      // Tüm raporları getir (limit=10000 ile tek seferde)
+      const response = await getAdminReports({ 
+        page: 1, 
+        limit: 10000, 
+        sort: "desc" 
+      });
       reports = response.reports;
       filteredReports = reports;
     } catch (error) {
@@ -75,14 +81,6 @@
     );
   }
 
-  function formatDate(dateString: string) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("tr-TR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
 </script>
 
 <div class="space-y-6">
@@ -177,14 +175,24 @@
                         <img
                           src={report.user.avatarUrl}
                           alt={`${report.user.firstName} ${report.user.lastName}`}
-                          class="w-10 h-10 rounded-full ring-2 ring-indigo-400"
+                          class="w-10 h-10 rounded-full ring-2 ring-indigo-400 object-cover"
                           loading="lazy"
+                          on:error={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling.style.display = 'flex';
+                          }}
                         />
-                      {:else}
-                        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
-                          {report.user.firstName?.charAt(0) || '?'}
-                        </div>
                       {/if}
+                      <div 
+                        class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm"
+                        style="display: {report.user.avatarUrl ? 'none' : 'flex'};"
+                      >
+                        {(() => {
+                          const f = (report.user.firstName || '').charAt(0).toUpperCase();
+                          const l = (report.user.lastName || '').charAt(0).toUpperCase();
+                          return (f + l) || '?';
+                        })()}
+                      </div>
                       <div>
                         <div class="font-semibold text-gray-900 dark:text-white">
                           {report.user.firstName || 'İsimsiz'}
@@ -214,7 +222,7 @@
                   <td
                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
                   >
-                    {report.createdAt ? formatDate(report.createdAt) : '-'}
+                    {report.createdAt ? formatTRDate(report.createdAt) : '—'}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <Button
