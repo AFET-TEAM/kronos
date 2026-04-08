@@ -435,11 +435,17 @@
 
       <div class="space-y-4">
         <div class="flex items-center gap-4 mb-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-          <img
-            src={selectedUserForAssign.avatarUrl}
-            alt={`${selectedUserForAssign.firstName} ${selectedUserForAssign.lastName}`}
-            class="w-12 h-12 rounded-full ring-2 ring-indigo-400"
-          />
+          {#if selectedUserForAssign.avatarUrl}
+            <img
+              src={selectedUserForAssign.avatarUrl}
+              alt={`${selectedUserForAssign.firstName} ${selectedUserForAssign.lastName}`}
+              class="w-12 h-12 rounded-full ring-2 ring-indigo-400 object-cover"
+            />
+          {:else}
+            <div class="w-12 h-12 rounded-full ring-2 ring-indigo-400 bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+              {getInitials(selectedUserForAssign.firstName, selectedUserForAssign.lastName)}
+            </div>
+          {/if}
           <div>
             <div class="font-semibold text-gray-900 dark:text-white">
               {selectedUserForAssign.firstName} {selectedUserForAssign.lastName}
