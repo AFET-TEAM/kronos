@@ -280,49 +280,35 @@
       ? 'ml-0 md:ml-64'
       : 'ml-0'}"
   >
-    <div class="container mx-auto px-4 py-6 max-w-7xl">
+    <div class="container mx-auto px-4 py-6 max-w-4xl">
       <!-- Page Header -->
-      <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print-content">
+      <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 no-print-content">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">
             Organizasyon Şeması
           </h1>
-          <p class="text-gray-600 dark:text-gray-400">
-            Direktörlüklere göre şirket organizasyonu ve kullanıcı hiyerarşisi
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Direktörlükler ve ekip yapısı — kim hangi birimde, kime bağlı
           </p>
         </div>
 
         <!-- Action Buttons -->
         {#if !loading && !error && totalUsers > 0}
-          <div class="flex gap-2 flex-wrap">
+          <div class="flex flex-wrap items-center gap-2">
             <button
               on:click={exportToCSV}
-              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
+              class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              CSV İndir
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              CSV
             </button>
-            
-            <button
-              on:click={printOrganization}
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm font-medium print:hidden"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-              </svg>
-              Yazdır
-            </button>
-            
+
             <button
               on:click={fetchOrganizationData}
-              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
+              class="p-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
               title="Yenile"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
             </button>
           </div>
         {/if}
@@ -377,116 +363,119 @@
           {/if}
         </div>
       {:else}
-        <!-- Organization Overview Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 no-print-content">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center">
-              <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
+        <!-- Arama -->
+        <div class="mb-4 no-print-content">
+          <label for="org-search" class="sr-only">Direktörlük veya kişi ara</label>
+          <input
+            id="org-search"
+            type="search"
+            bind:value={searchValue}
+            placeholder="Direktörlük veya kişi ara..."
+            class="w-full max-w-sm px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+
+        <!-- Özet: 4 kutu yan yana -->
+        <div class="mb-6 no-print-content">
+          <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Özet</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm px-4 py-3 border border-gray-200 dark:border-gray-700 flex items-center gap-3">
+              <div class="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg shrink-0">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
               </div>
-              <div class="ml-4">
-                <p class="text-sm text-gray-600 dark:text-gray-400">Toplam Kullanıcı</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{totalUsers}</p>
+              <div class="min-w-0">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Kişi</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">{totalUsers}</p>
               </div>
             </div>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center">
-              <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-                <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm px-4 py-3 border border-gray-200 dark:border-gray-700 flex items-center gap-3">
+              <div class="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg shrink-0">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
               </div>
-              <div class="ml-4">
-                <p class="text-sm text-gray-600 dark:text-gray-400">Direktörlük</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{totalDepartments}</p>
+              <div class="min-w-0">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Direktörlük</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">{totalDepartments}</p>
               </div>
             </div>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center">
-              <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm px-4 py-3 border border-gray-200 dark:border-gray-700 flex items-center gap-3">
+              <div class="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg shrink-0">
+                <svg class="w-5 h-5 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
               </div>
-              <div class="ml-4">
-                <p class="text-sm text-gray-600 dark:text-gray-400">Admin</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{totalAdmins}</p>
+              <div class="min-w-0">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">{totalAdmins}</p>
               </div>
             </div>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center">
-              <div class="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
-                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm px-4 py-3 border border-gray-200 dark:border-gray-700 flex items-center gap-3">
+              <div class="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg shrink-0">
+                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
               </div>
-              <div class="ml-4">
-                <p class="text-sm text-gray-600 dark:text-gray-400">Yönetici</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{totalManagers}</p>
+              <div class="min-w-0">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Yönetici</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">{totalManagers}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Organizasyon diyagramı / şema (görsel) -->
-        <div class="org-chart-diagram print-only-content mb-10">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <span>📊</span> Organizasyon Diyagramı
-          </h2>
-          <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 overflow-x-auto">
-            <div class="org-chart-tree min-w-max">
+        <!-- Hiyerarşi: Yönetici → Ekip (yazdırmada tek sayfa olarak çıkar) -->
+        <div class="org-chart-diagram print-only-content mb-8">
+          <!-- Yazdırma başlığı: sadece print'te görünür -->
+          <div class="print-header">
+            <h1 class="print-title">Organizasyon Şeması</h1>
+            <p class="print-date">{new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          </div>
+          <div class="flex items-center gap-2 mb-4 no-print-header">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">Yapı</h2>
+            <span class="text-xs text-gray-500 dark:text-gray-400">— Yöneticiler üstte, ekip altında</span>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 overflow-x-auto print-chart-box">
+            <div class="org-chart-tree inline-block min-w-0">
               {#each orgTree as { dept, managers }}
-                <div class="dept-block mb-8">
-                  <div class="dept-header text-center mb-4 pb-3 border-b-2 border-blue-500 dark:border-blue-400">
-                    <span class="text-lg font-bold text-gray-900 dark:text-white">{dept}</span>
+                <div class="dept-block mb-6 last:mb-0">
+                  <div class="dept-header mb-3 pb-2 border-b border-blue-400 dark:border-blue-500">
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">{dept}</span>
                   </div>
-                  <div class="flex flex-wrap justify-center gap-8 items-start">
+                  <div class="flex flex-wrap gap-4 items-start">
                     {#each managers as { manager, subordinates }}
-                      <div class="org-node flex flex-col items-center">
+                      <div class="org-node flex flex-col items-center shrink-0">
                         <div
-                          class="node-card rounded-lg border-2 border-gray-200 dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-700/50 min-w-[200px] text-center {manager.role === 'admin' ? 'border-purple-500' : manager.role === 'manager' ? 'border-blue-500' : ''}"
+                          class="node-card rounded-lg border p-3 bg-gray-50 dark:bg-gray-700/50 w-[140px] text-center {manager.role === 'admin' ? 'border-purple-500 dark:border-purple-400' : manager.role === 'manager' ? 'border-blue-500 dark:border-blue-400' : 'border-gray-200 dark:border-gray-600'}"
                         >
-                          <div class="flex justify-center mb-2">
+                          <div class="flex justify-center mb-1">
                             {#if manager.avatarUrl}
-                              <img src={manager.avatarUrl} alt={manager.name} class="w-12 h-12 rounded-full object-cover" />
+                              <img src={manager.avatarUrl} alt={manager.name} class="w-9 h-9 rounded-full object-cover" />
                             {:else}
-                              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
+                              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-semibold text-xs">
                                 {getUserInitials(manager.name)}
                               </div>
                             {/if}
                           </div>
-                          <p class="font-semibold text-gray-900 dark:text-white truncate" title={manager.name ?? manager.email ?? ''}>{manager.name || manager.email || '—'}</p>
+                          <p class="text-sm font-semibold text-gray-900 dark:text-white truncate" title={manager.name ?? manager.email ?? ''}>{manager.name || manager.email || '—'}</p>
                           <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{manager.title || '—'}</p>
-                          <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium {getRoleBadgeColor(manager.role)}">
-                            {getRoleLabel(manager.role)}
-                          </span>
+                          <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium {getRoleBadgeColor(manager.role)}">{getRoleLabel(manager.role)}</span>
                         </div>
                         {#if subordinates.length > 0}
-                          <div class="connector-line w-0.5 bg-gray-300 dark:bg-gray-600 my-2" style="min-height: 20px;"></div>
-                          <div class="sub-nodes flex flex-wrap justify-center gap-4">
+                          <div class="connector-line w-px bg-gray-300 dark:bg-gray-600 my-1 flex-1 min-h-[8px]"></div>
+                          <div class="sub-nodes flex flex-wrap justify-center gap-2">
                             {#each subordinates as sub}
-                              <div class="node-card rounded-lg border border-gray-200 dark:border-gray-600 p-3 bg-white dark:bg-gray-700 min-w-[160px] text-center">
-                                <div class="flex justify-center mb-1">
+                              <button
+                                type="button"
+                                on:click={() => openUserModal(sub)}
+                                class="node-card rounded-lg border border-gray-200 dark:border-gray-600 p-2 bg-white dark:bg-gray-700 w-[120px] text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
+                              >
+                                <div class="flex justify-center mb-0.5">
                                   {#if sub.avatarUrl}
-                                    <img src={sub.avatarUrl} alt={sub.name} class="w-8 h-8 rounded-full object-cover" />
+                                    <img src={sub.avatarUrl} alt={sub.name} class="w-6 h-6 rounded-full object-cover" />
                                   {:else}
-                                    <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-xs font-medium">
+                                    <div class="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-[10px] font-medium mx-auto">
                                       {getUserInitials(sub.name)}
                                     </div>
                                   {/if}
                                 </div>
-                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate" title={sub.name ?? sub.email ?? ''}>{sub.name || sub.email || '—'}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{sub.title || '—'}</p>
-                                <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded text-xs {getRoleBadgeColor(sub.role)}">{getRoleLabel(sub.role)}</span>
-                              </div>
+                                <p class="text-xs font-medium text-gray-900 dark:text-white truncate" title={sub.name ?? sub.email ?? ''}>{sub.name || sub.email || '—'}</p>
+                                <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">{sub.title || '—'}</p>
+                              </button>
                             {/each}
                           </div>
                         {/if}
@@ -499,81 +488,49 @@
           </div>
         </div>
 
-        <!-- Departments (liste) -->
-        <div class="space-y-6 no-print-content">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Direktörlük listesi</h2>
+        <!-- Direktörlükler: Tıklanabilir kişi kartları -->
+        <div class="space-y-4 no-print-content">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">Direktörlükler</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Karta tıklayarak kişi detayını aç</p>
+          </div>
           {#each filteredDepartments as department}
             {@const stats = getDepartmentStats(department)}
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <!-- Department Header -->
-              <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <h2 class="text-xl font-bold text-white">
-                      {department.department}
-                    </h2>
-                    <p class="text-blue-100 text-sm mt-1">
-                      {stats.total} {stats.total === 1 ? 'kişi' : 'kişi'}
-                    </p>
-                  </div>
-                  <div class="flex gap-2 flex-wrap">
-                    {#each Object.entries(stats.roles) as [role, count]}
-                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur">
-                        {role}: {count}
-                      </span>
-                    {/each}
-                  </div>
+              <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-base font-bold text-white">{department.department}</span>
+                  <span class="text-blue-100 text-xs">({stats.total} kişi)</span>
+                </div>
+                <div class="flex gap-1.5 flex-wrap">
+                  {#each Object.entries(stats.roles) as [role, count]}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-white/20 text-white">{role}: {count}</span>
+                  {/each}
                 </div>
               </div>
-
-              <!-- Department Members -->
-              <div class="p-4 sm:p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="p-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {#each (department.members ?? []) as member}
                     <button
                       on:click={() => openUserModal(member)}
-                      class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 hover:shadow-md transition-all border border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 text-left w-full"
+                      class="flex items-center gap-3 rounded-lg p-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 text-left w-full transition-colors"
                     >
-                      <div class="flex items-start space-x-3">
-                        <div class="flex-shrink-0">
-                          {#if member.avatarUrl}
-                            <img
-                              src={member.avatarUrl}
-                              alt={member.name ?? member.email ?? ''}
-                              class="w-12 h-12 rounded-full object-cover"
-                            />
-                          {:else}
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
-                              <span class="text-white font-semibold text-sm">
-                                {getUserInitials(member.name ?? member.email)}
-                              </span>
-                            </div>
-                          {/if}
+                      {#if member.avatarUrl}
+                        <img src={member.avatarUrl} alt="" class="w-10 h-10 rounded-full object-cover shrink-0" />
+                      {:else}
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center shrink-0">
+                          <span class="text-white font-semibold text-xs">{getUserInitials(member.name ?? member.email)}</span>
                         </div>
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-center gap-2 mb-1">
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                              {member.name || member.email || '—'}
-                            </h3>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {getRoleBadgeColor(member.role)}">
-                              {getRoleLabel(member.role)}
-                            </span>
-                          </div>
-                          <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                            {member.title || '—'}
-                          </p>
-                          <p class="text-xs text-gray-500 dark:text-gray-500 truncate mb-1">
-                            {member.email || '—'}
-                          </p>
-                          {#if member.managerId}
-                            <p class="text-xs text-gray-500 dark:text-gray-500 flex items-center gap-1">
-                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                              </svg>
-                              {getManagerName(member.managerId)}
-                            </p>
-                          {/if}
+                      {/if}
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          <span class="text-sm font-semibold text-gray-900 dark:text-white truncate">{member.name || member.email || '—'}</span>
+                          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0 {getRoleBadgeColor(member.role)}">{getRoleLabel(member.role)}</span>
                         </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{member.title || '—'}</p>
+                        {#if member.managerId}
+                          <p class="text-[10px] text-gray-400 dark:text-gray-500 truncate">↑ {getManagerName(member.managerId)}</p>
+                        {/if}
                       </div>
                     </button>
                   {/each}
@@ -592,12 +549,11 @@
   <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 print:hidden"
        on:click={closeUserModal}
        on:keydown={(e) => e.key === 'Escape' && closeUserModal()}>
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6"
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-sm w-full p-5"
          on:click|stopPropagation>
-      <!-- Modal Header -->
-      <div class="flex justify-between items-start mb-6">
-        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
-          Kullanıcı Detayları
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+          Kişi detayı
         </h3>
         <button
           on:click={closeUserModal}
@@ -609,70 +565,46 @@
         </button>
       </div>
 
-      <!-- User Info -->
-      <div class="space-y-4">
-        <div class="flex items-center space-x-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="space-y-3">
+        <div class="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-700">
           {#if selectedUser.avatarUrl}
-            <img
-              src={selectedUser.avatarUrl}
-              alt={selectedUser.name}
-              class="w-20 h-20 rounded-full object-cover"
-            />
+            <img src={selectedUser.avatarUrl} alt="" class="w-14 h-14 rounded-full object-cover shrink-0" />
           {:else}
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
-              <span class="text-white font-bold text-2xl">
-                {getUserInitials(selectedUser.name)}
-              </span>
+            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center shrink-0">
+              <span class="text-white font-bold text-lg">{getUserInitials(selectedUser.name)}</span>
             </div>
           {/if}
-          <div>
-            <h4 class="text-xl font-bold text-gray-900 dark:text-white">
-              {selectedUser.name}
-            </h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-              {selectedUser.email}
-            </p>
+          <div class="min-w-0">
+            <h4 class="text-base font-bold text-gray-900 dark:text-white truncate">{selectedUser.name}</h4>
+            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">{selectedUser.email}</p>
           </div>
         </div>
-
-        <div class="space-y-3">
-          <div class="flex items-center justify-between py-2">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Pozisyon:</span>
-            <span class="px-3 py-1 rounded-full text-xs font-medium {getPositionColor(selectedUser.title)}">
-              {selectedUser.title}
-            </span>
+        <dl class="space-y-2 text-sm">
+          <div class="flex justify-between gap-2">
+            <dt class="text-gray-500 dark:text-gray-400">Pozisyon</dt>
+            <dd><span class="px-2 py-0.5 rounded text-xs font-medium {getPositionColor(selectedUser.title)}">{selectedUser.title || '—'}</span></dd>
           </div>
-
-          <div class="flex items-center justify-between py-2">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Rol:</span>
-            <span class="px-3 py-1 rounded-full text-xs font-medium {getRoleBadgeColor(selectedUser.role)}">
-              {getRoleLabel(selectedUser.role)}
-            </span>
+          <div class="flex justify-between gap-2">
+            <dt class="text-gray-500 dark:text-gray-400">Rol</dt>
+            <dd><span class="px-2 py-0.5 rounded text-xs font-medium {getRoleBadgeColor(selectedUser.role)}">{getRoleLabel(selectedUser.role)}</span></dd>
           </div>
-
           {#if selectedUser.managerId}
-            <div class="flex items-center justify-between py-2">
-              <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Yönetici:</span>
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                {getManagerName(selectedUser.managerId)}
-              </span>
+            <div class="flex justify-between gap-2">
+              <dt class="text-gray-500 dark:text-gray-400">Yönetici</dt>
+              <dd class="font-medium text-gray-900 dark:text-white truncate">{getManagerName(selectedUser.managerId)}</dd>
             </div>
           {/if}
-        </div>
-
-        <!-- Actions -->
-        <div class="pt-4 flex gap-2">
+        </dl>
+        <div class="pt-3 flex gap-2">
           <button
-            on:click={() => {
-              if (selectedUser) goto(`/admin/users?id=${selectedUser.id}`);
-            }}
-            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+            on:click={() => { if (selectedUser) goto(`/admin/users?id=${selectedUser.id}`); }}
+            class="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors"
           >
-            Detaylı Profil
+            Detaylı profil
           </button>
           <button
             on:click={closeUserModal}
-            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors text-sm font-medium"
+            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg text-xs font-medium transition-colors"
           >
             Kapat
           </button>
@@ -690,39 +622,103 @@
     flex-shrink: 0;
   }
 
+  /* Yazdırma başlığı: ekranda gizli */
+  .print-header {
+    display: none;
+  }
+  .print-header .print-title,
+  .print-header .print-date {
+    margin: 0;
+  }
+
   @media print {
+    /* Uygulama çerçevesini gizle: Header ve Sidebar */
     :global(header),
     :global(aside),
+    :global(.header),
+    :global(.sidebar),
     :global(nav),
     :global(.print\\:hidden),
+    :global(.no-print),
     .no-print-content,
+    .no-print-header,
     button {
       display: none !important;
     }
 
-    /* Yazdırmada sadece organizasyon diyagramı görünsün */
+    /* Sayfa düzeni: sadece yazdırılacak alan görünsün */
+    :global(body),
+    :global(html) {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    :global(.min-h-screen) {
+      background: white !important;
+    }
+
+    main {
+      margin: 0 !important;
+      padding: 0 !important;
+      max-width: none !important;
+    }
+
     main * {
       visibility: hidden;
     }
+
     .print-only-content,
     .print-only-content * {
       visibility: visible;
     }
+
     .print-only-content {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      padding: 0;
-      margin: 0;
-      background: white;
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 1.5cm !important;
+      background: white !important;
+      box-shadow: none !important;
+      border: none !important;
     }
-    main {
-      margin-left: 0 !important;
-      padding-top: 0 !important;
+
+    /* Yazdırma başlığı: sadece print'te görünsün */
+    .print-header {
+      display: block !important;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #1e40af;
     }
-    :global(.no-print) {
-      display: none !important;
+    .print-header .print-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.3;
+    }
+    .print-header .print-date {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    .print-chart-box {
+      box-shadow: none !important;
+      border: 1px solid #e5e7eb !important;
+      border-radius: 0.5rem;
+    }
+    .print-only-content .node-card {
+      break-inside: avoid;
+    }
+    .print-only-content .dept-block {
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
   }
 </style>

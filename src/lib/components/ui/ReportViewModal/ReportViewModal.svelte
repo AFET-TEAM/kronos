@@ -42,8 +42,13 @@
       "completed": "Tamamlandı",
       "cancelled": "İptal Edildi",
       "on-hold": "Beklemede",
+      DONE: "Tamamlandı",
+      IN_PROGRESS: "Devam Ediyor",
+      WAITING: "Beklemede",
+      XL_BLOCK: "Bloklu",
+      TODO: "Yapılacak",
     };
-    return statusMap[status] || status;
+    return statusMap[status] ?? statusMap[status?.toUpperCase()] ?? status;
   }
 
   function getStatusColor(status: string): string {
@@ -53,8 +58,13 @@
       "completed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
       "cancelled": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
       "on-hold": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      DONE: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      IN_PROGRESS: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+      WAITING: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      XL_BLOCK: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+      TODO: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
     };
-    return colorMap[status] || "bg-gray-100 text-gray-800";
+    return colorMap[status] ?? colorMap[status?.toUpperCase()] ?? "bg-gray-100 text-gray-800";
   }
 
 </script>
@@ -133,11 +143,11 @@
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Toplam Görev</p>
-              <p class="text-lg font-semibold text-gray-900 dark:text-white">{report.taskCount}</p>
+              <p class="text-lg font-semibold text-gray-900 dark:text-white">{report.taskCount ?? (report.tasks?.length ?? 0)}</p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Toplam Saat</p>
-              <p class="text-lg font-semibold text-gray-900 dark:text-white">{formatTRHours(report.totalHours)}</p>
+              <p class="text-lg font-semibold text-gray-900 dark:text-white">{formatTRHours(report.totalHours ?? 0)}</p>
             </div>
           </div>
 

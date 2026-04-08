@@ -236,7 +236,7 @@ export async function unassignUserFromAdmin(userId: string): Promise<void> {
  * Kullanıcıyı yöneticiye ata
  */
 export async function assignUserToManager(userId: string, managerId: string): Promise<void> {
-  const response = await fetch(`${API_URL}/api/manager/users/${userId}/assign-manager`, {
+  const response = await fetch(`${API_URL}/api/manager/users/${userId}/assign`, {
     method: 'POST',
     headers: {
       ...API_HEADERS,
@@ -252,7 +252,7 @@ export async function assignUserToManager(userId: string, managerId: string): Pr
  * Kullanıcıyı yöneticiden çıkar
  */
 export async function unassignUserFromManager(userId: string): Promise<void> {
-  const response = await fetch(`${API_URL}/api/manager/users/${userId}/unassign-manager`, {
+  const response = await fetch(`${API_URL}/api/manager/users/${userId}/unassign`, {
     method: 'DELETE',
     headers: {
       ...API_HEADERS,

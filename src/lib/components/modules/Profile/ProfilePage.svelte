@@ -194,16 +194,6 @@
     padding: 0;
   }
 
-  .profile-page-container {
-    /* Light mode: yumuşak açık gradient */
-    background: linear-gradient(
-      135deg,
-      #e0e7ff 0%,
-      #f0f9ff 40%,
-      #f8fafc 100%
-    );
-  }
-
   :global(.dark) .profile-page-container {
     background: linear-gradient(
       to top right,

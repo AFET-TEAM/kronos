@@ -206,9 +206,6 @@
               <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Çalışma Saati
               </th>
-              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Fazla Mesai
-              </th>
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -263,14 +260,11 @@
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-white">
                   {user.totalWorkHours != null ? `${Number(user.totalWorkHours)} saat` : '0 saat'}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-white">
-                  {user.totalOvertime != null ? `${Number(user.totalOvertime)} saat` : '0 saat'}
-                </td>
               </tr>
               {/each}
             {:else}
               <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                   {dashboardData?.users ? 'Kullanıcı bulunamadı' : 'Veri yükleniyor...'}
                 </td>
               </tr>

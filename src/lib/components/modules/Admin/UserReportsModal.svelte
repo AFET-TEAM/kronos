@@ -41,6 +41,19 @@
     goto(`/archive/${reportId}`);
     onClose();
   }
+
+  function getUserDisplayName(u: AdminUser): string {
+    const name = [u.firstName, u.lastName].filter(Boolean).join(' ').trim();
+    return name || u.email || 'Kullanıcı';
+  }
+
+  function getReportDisplayTitle(report: AdminReport): string {
+    const raw = report.title || '';
+    if (raw.includes('undefined') || !raw.trim()) {
+      return `${getUserDisplayName(user)} - Haftalık Rapor`;
+    }
+    return raw;
+  }
 </script>
 
 <!-- Modal Overlay -->
@@ -67,7 +80,7 @@
         {#if user.avatarUrl}
           <img
             src={user.avatarUrl}
-            alt={`${user.firstName} ${user.lastName}`}
+            alt={getUserDisplayName(user)}
             class="w-12 h-12 rounded-full ring-2 ring-white object-cover"
             on:error={(e) => {
               e.currentTarget.style.display = 'none';
@@ -82,13 +95,12 @@
           {(() => {
             const f = (user.firstName || '').charAt(0).toUpperCase();
             const l = (user.lastName || '').charAt(0).toUpperCase();
-            return (f + l) || '?';
+            return (f + l) || (user.email || '?').charAt(0).toUpperCase();
           })()}
         </div>
         <div>
           <h2 class="text-xl font-bold text-white">
-            {user.firstName}
-            {user.lastName}
+            {getUserDisplayName(user)}
           </h2>
           <p class="text-sm text-indigo-100">{user.email}</p>
         </div>
@@ -197,7 +209,7 @@
                     <div class="flex-1">
                       <div class="flex items-center gap-3 mb-2">
                         <h4 class="font-semibold text-gray-900 dark:text-white">
-                          {report.title}
+                          {getReportDisplayTitle(report)}
                         </h4>
                         <span
                           class="px-2 py-1 rounded-full text-xs font-semibold {report.isReviewed
@@ -240,7 +252,7 @@
                               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                             />
                           </svg>
-                          {report.taskCount} Task
+                          {report.taskCount ?? 0} Görev
                         </span>
                         <span class="text-xs">
                           {formatTRDate(report.createdAt)}
